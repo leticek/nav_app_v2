@@ -13,6 +13,8 @@ class AuthService with ChangeNotifier{
   Status _status = Status.Uninitialized;
   String _error;
 
+  Status get status => _status;
+
   AuthService.instance(){
     _firebaseAuth = FirebaseAuth.instance;
     _googleSignIn = GoogleSignIn(scopes: ['email']);
