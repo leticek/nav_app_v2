@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/resources/providers/providers.dart';
 import 'package:navigation_app/resources/views/widget_view.dart';
 import 'package:navigation_app/screens/login_screen/widgets/auth_dialog.dart';
@@ -10,7 +11,6 @@ class Login extends StatefulWidget {
   _LoginController createState() => _LoginController();
 }
 
-enum SelectedTab { Login, Register }
 
 class _LoginController extends State<Login> {
   @override
@@ -19,7 +19,7 @@ class _LoginController extends State<Login> {
   bool _authVisible = false;
   SelectedTab _selectedTab = SelectedTab.Login;
 
-  void _loginWithGoogle(BuildContext context) async {
+  void _loginWithGoogle() async {
     await context.read(authServiceProvider).signInWithGoogle();
   }
 
@@ -65,6 +65,7 @@ class _LoginView extends WidgetView<Login, _LoginController> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Image.asset('assets/splash_logo.png'),
               const SizedBox(height: kToolbarHeight),
               const Text(
                 'Správce tras',
@@ -103,26 +104,26 @@ class _LoginView extends WidgetView<Login, _LoginController> {
               ),
               const SizedBox(height: 10.0),
               GoogleSignInButton(
-                text: 'Použít Google účet',
-                onPressed: () => state._loginWithGoogle(context),
+                text: 'Použít účet Google',
+                onPressed: state._loginWithGoogle,
               ),
             ],
           ),
-              AnimatedSwitcher(
-                duration: Duration(milliseconds: 500),
-                child: state._authVisible
-                    ? Container(
-                  color: Colors.black54,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: AuthDialog(
-                      selectedTab: state._selectedTab,
-                      onClose: state._onAuthClose,
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 500),
+            child: state._authVisible
+                ? Container(
+                    color: Colors.black54,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: AuthDialog(
+                        selectedTab: state._selectedTab,
+                        onClose: state._onAuthClose,
+                      ),
                     ),
-                  ),
-                )
-                    : null,
-              )
+                  )
+                : null,
+          )
         ],
       ),
     ));

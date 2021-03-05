@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/resources/providers/providers.dart';
-import 'package:navigation_app/services/auth.dart';
+import 'package:navigation_app/services/validator.dart';
+
 import '../../../resources/views/widget_view.dart';
 
 class RegisterForm extends StatefulWidget {
@@ -34,6 +36,8 @@ class _RegisterFormController extends State<RegisterForm> {
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _confirmPasswordField.dispose();
+    _confirmPassword.dispose();
     super.dispose();
   }
 
@@ -41,7 +45,7 @@ class _RegisterFormController extends State<RegisterForm> {
     if (_formKey.currentState.validate()) {
       await context
           .read(authServiceProvider)
-          .signup(_email.text, _password.text);
+          .signUp(_email.text, _password.text);
     }
   }
 }
@@ -54,7 +58,8 @@ class _RegisterFormView
   Widget build(BuildContext context) {
     return Consumer(builder: (context, watch, _) {
       final user = watch(authServiceProvider);
-      return Form(key: state._formKey,
+      return Form(
+        key: state._formKey,
         child: ListView(
           padding: EdgeInsets.all(16.0),
           children: [
@@ -63,7 +68,7 @@ class _RegisterFormView
               child: TextFormField(
                 key: Key("email-field"),
                 controller: state._email,
-                validator: (value) => (value.isEmpty) ? 'Chyba' : null,
+                validator: (value) => Validator.validateEmail(value),
                 decoration: InputDecoration(
                   labelText: 'Email',
                   focusedBorder: UnderlineInputBorder(
@@ -84,7 +89,8 @@ class _RegisterFormView
                 key: Key("password-field"),
                 controller: state._password,
                 obscureText: true,
-                validator: (value) => (value.isEmpty) ? 'Chyba' : null,
+                validator: (value) =>
+                    Validator.validatePasswordComplexity(value),
                 decoration: InputDecoration(
                   labelText: 'Heslo',
                   focusedBorder: UnderlineInputBorder(
@@ -104,7 +110,8 @@ class _RegisterFormView
                 key: Key("confirm_password-field"),
                 controller: state._confirmPassword,
                 obscureText: true,
-                validator: (value) => (value.isEmpty) ? 'Chyba' : null,
+                validator: (value) =>
+                    Validator.comparePasswords(state._password.text, value),
                 decoration: InputDecoration(
                   labelText: 'Potvrďte heslo',
                   focusedBorder: UnderlineInputBorder(

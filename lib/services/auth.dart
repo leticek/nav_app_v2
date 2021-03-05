@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
+import 'package:navigation_app/services/validator.dart';
 
-enum Status {Uninitialized, Authenticated, Authenticating, Unauthenticated}
 
 class AuthService with ChangeNotifier{
   FirebaseAuth _firebaseAuth;
@@ -11,14 +12,15 @@ class AuthService with ChangeNotifier{
   User _user;
   UserModel _userModel;
   Status _status = Status.Uninitialized;
-  String _error;
+  String _errorCode;
 
   Status get status => _status;
+  String get errorCode => _errorCode;
 
   AuthService.instance(){
     _firebaseAuth = FirebaseAuth.instance;
     _googleSignIn = GoogleSignIn(scopes: ['email']);
-    _error = '';
+    _errorCode = '';
     _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
   }
 
@@ -27,27 +29,26 @@ class AuthService with ChangeNotifier{
       _status = Status.Authenticating;
       notifyListeners();
       await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      _error = '';
+      _errorCode = '';
       return true;
     } catch (e) {
-      _error = e.message; //TODO: handle error messages
+      _errorCode = Validator.checkError(e.code);
       _status = Status.Unauthenticated;
       notifyListeners();
       return false;
     }
   }
 
-  Future<bool> signup(String email, String password) async {
+  Future<bool> signUp(String email, String password) async {
     try {
       _status = Status.Authenticating;
       notifyListeners();
       await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      _error = '';
+      _errorCode = '';
       return true;
     } catch (e) {
-      _error = e.message; //TODO: handle error messages
-      _status = Status.Unauthenticated;
+      _errorCode = Validator.checkError(e.code);
       notifyListeners();
       return false;
     }
@@ -65,10 +66,10 @@ class AuthService with ChangeNotifier{
         idToken: googleAuth.idToken,
       );
       await _firebaseAuth.signInWithCredential(credential);
-      _error = '';
+      _errorCode = '';
       return true;
     } catch (e) {
-      _error = e.message; //TODO: handle error messages
+      _errorCode = Validator.checkError(e.code);
       _status = Status.Unauthenticated;
       notifyListeners();
       return false;

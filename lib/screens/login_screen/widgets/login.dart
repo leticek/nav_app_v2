@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/resources/providers/providers.dart';
-import 'package:navigation_app/services/auth.dart';
+
 import '../../../resources/views/widget_view.dart';
 
 class LoginForm extends StatefulWidget {
@@ -28,9 +29,11 @@ class _LoginFormController extends State<LoginForm> {
 
   _login() async {
     if (_formKey.currentState.validate()) {
-      await context
+      if (!await context
           .read(authServiceProvider)
-          .signIn(_email.text, _password.text);
+          .signIn(_email.text, _password.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read(authServiceProvider).errorCode)));
+      }
     }
   }
 }
@@ -52,7 +55,7 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
               child: TextFormField(
                 key: Key("email-field"),
                 controller: state._email,
-                validator: (value) => (value.isEmpty) ? 'Chyba' : null,
+                validator: (value) => (value.isEmpty) ? 'Zadejte email' : null,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   focusedBorder: UnderlineInputBorder(
@@ -74,7 +77,7 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
                 key: Key("password-field"),
                 controller: state._password,
                 obscureText: true,
-                validator: (value) => (value.isEmpty) ? 'Chyba' : null,
+                validator: (value) => (value.isEmpty) ? 'Zadejte heslo.' : null,
                 decoration: InputDecoration(
                   labelText: 'Heslo',
                   focusedBorder: UnderlineInputBorder(

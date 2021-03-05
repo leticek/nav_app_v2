@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/resources/providers/providers.dart';
 import 'package:navigation_app/screens/login_screen/login_screen.dart';
 import 'package:navigation_app/screens/login_screen/splash_screen.dart';
-import 'package:navigation_app/services/auth.dart';
 
 class AuthHome extends StatelessWidget {
   @override

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:navigation_app/screens/login_screen/login_screen.dart';
+import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/screens/login_screen/widgets/login.dart';
 import 'package:navigation_app/screens/login_screen/widgets/register.dart';
+
 import '../../../resources/views/widget_view.dart';
 
 class AuthDialog extends StatefulWidget {
@@ -54,10 +55,10 @@ class _AuthDialogView extends WidgetView<AuthDialog, _AuthDialogController> {
                     onTap: (index) => state._onTap(index),
                     indicator: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Colors.black,
+                      color: Colors.white,
                     ),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.black,
+                    labelColor: Colors.black,
+                    unselectedLabelColor: Colors.white,
                     tabs: <Widget>[
                       Tab(
                         text: "Přihlásit se",
