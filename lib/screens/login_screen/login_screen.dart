@@ -103,7 +103,7 @@ class _LoginView extends WidgetView<Login, _LoginController> {
               ),
               const SizedBox(height: 10.0),
               GoogleSignInButton(
-                text: 'Google',
+                text: 'Použít Google účet',
                 onPressed: () => state._loginWithGoogle(context),
               ),
             ],
