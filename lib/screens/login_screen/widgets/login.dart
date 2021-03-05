@@ -32,7 +32,11 @@ class _LoginFormController extends State<LoginForm> {
       if (!await context
           .read(authServiceProvider)
           .signIn(_email.text, _password.text)) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.read(authServiceProvider).errorCode)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.read(authServiceProvider).errorCode),
+          ),
+        );
       }
     }
   }

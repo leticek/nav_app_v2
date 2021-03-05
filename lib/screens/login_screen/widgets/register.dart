@@ -43,9 +43,15 @@ class _RegisterFormController extends State<RegisterForm> {
 
   _signup() async {
     if (_formKey.currentState.validate()) {
-      await context
+      if (!await context
           .read(authServiceProvider)
-          .signUp(_email.text, _password.text);
+          .signUp(_email.text, _password.text)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(context.read(authServiceProvider).errorCode),
+          ),
+        );
+      }
     }
   }
 }

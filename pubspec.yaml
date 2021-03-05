@@ -30,6 +30,7 @@ dependencies:
   google_sign_in: ^5.0.0
   pedantic: ^1.11.0
   email_validator: '^1.0.5'
+  sizer: ^1.1.8
 
 
   # The following adds the Cupertino Icons font to your application.
