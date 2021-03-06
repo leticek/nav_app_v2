@@ -5,6 +5,7 @@ import 'package:navigation_app/resources/enums/enums.dart';
 import 'package:navigation_app/resources/providers/providers.dart';
 import 'package:navigation_app/resources/views/widget_view.dart';
 import 'package:navigation_app/screens/login_screen/widgets/auth_dialog.dart';
+import 'package:sizer/sizer.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -51,9 +52,9 @@ class _LoginView extends WidgetView<Login, _LoginController> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Stack(
+    return Scaffold(
+      body: SafeArea(
+        child: Stack(
           children: [
             Container(
               decoration: BoxDecoration(
@@ -64,17 +65,19 @@ class _LoginView extends WidgetView<Login, _LoginController> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset('assets/splash_logo.png'),
-                const SizedBox(height: kToolbarHeight),
-                const Text(
+                Container(
+                    height: 25.0.h,
+                    width: 50.0.w,
+                    child: Image.asset('assets/splash_logo.png')),
+                Text(
                   'Správce tras',
-                  style: TextStyle(fontSize: 54),
+                  style: TextStyle(fontSize: 45.0.sp),
                 ),
                 Text(
                   'Mějte své trasy u sebe',
-                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                  style: TextStyle(color: Colors.white, fontSize: 12.0.sp),
                 ),
-                const SizedBox(height: 40.0),
+                SizedBox(height: 5.0.h),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -83,11 +86,13 @@ class _LoginView extends WidgetView<Login, _LoginController> {
                         child: ElevatedButton(
                           style:
                               ElevatedButton.styleFrom(primary: Colors.black),
-                          child: Text('Mám účet'),
+                          child: Text(
+                            'Mám účet',
+                          ),
                           onPressed: state._login,
                         ),
                       ),
-                      const SizedBox(width: 10.0),
+                      SizedBox(width: 2.6.w),
                       Expanded(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(

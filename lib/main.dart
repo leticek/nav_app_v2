@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/route_builders/route_builder.dart';
 import 'package:sizer/sizer.dart';
 
 import 'screens/login_screen/home.dart';
@@ -23,8 +24,9 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Flutter Demo',
           theme: ThemeData(
-            primarySwatch: Colors.blue,
+            primaryColor: Colors.cyan
           ),
+          onGenerateRoute: AppRoutes.onGenerateRoute,
           home: AuthHome(),
         );
       });
