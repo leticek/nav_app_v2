@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
+import 'package:map_controller/map_controller.dart';
 import 'package:navigation_app/resources/models/place_suggestion.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
@@ -27,6 +28,8 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Debouncer _debouncer;
   FocusNode _startFocus;
   FocusNode _goalFocus;
+  MapController _mapController;
+  StatefulMapController _statefulMapController;
 
   @override
   void initState() {
@@ -44,6 +47,12 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       if (!_goalFocus.hasFocus)
         context.read(openRouteServiceProvider).clearList();
     });
+    _mapController = MapController();
+    _statefulMapController =
+        StatefulMapController(mapController: _mapController);
+    _statefulMapController.changeFeed.listen((event) {
+      setState(() {});
+    });
   }
 
   void _show() {
@@ -57,9 +66,22 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     if (_startFocus.hasFocus) {
       _startController.text = placeSuggestion.label;
       context.read(newRouteProvider).start = placeSuggestion.latLng;
+      _statefulMapController.addMarker(
+          marker: Marker(
+            point: placeSuggestion.latLng,
+            builder: (context) => Icon(Icons.eleven_mp),
+          ),
+          name: 'start');
+
     } else {
       _goalController.text = placeSuggestion.label;
       context.read(newRouteProvider).goal = placeSuggestion.latLng;
+      _statefulMapController.addMarker(
+          marker: Marker(
+            point: placeSuggestion.latLng,
+            builder: (context) => Icon(Icons.add_a_photo_sharp),
+          ),
+          name: 'goal');
     }
     print(context.read(newRouteProvider).toString());
   }
@@ -100,6 +122,7 @@ class _NewRouteScreenView
         children: [
           Container(
             child: FlutterMap(
+              mapController: state._mapController,
               options: MapOptions(
                 onTap: (latlng) => print(latlng),
                 zoom: 5,
@@ -110,7 +133,9 @@ class _NewRouteScreenView
                   urlTemplate:
                       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   subdomains: ['a', 'b', 'c'],
-                )
+                ),
+                MarkerLayerOptions(
+                    markers: state._statefulMapController.markers)
               ],
             ),
           ),
