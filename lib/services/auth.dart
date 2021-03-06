@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:navigation_app/resources/enums/enums.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
 import 'package:navigation_app/services/validator.dart';
 

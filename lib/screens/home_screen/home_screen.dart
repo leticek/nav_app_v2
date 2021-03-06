@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:navigation_app/resources/providers/providers.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
 import 'package:navigation_app/resources/route_builders/route_builder.dart';
-import 'package:navigation_app/resources/route_builders/scale_transition.dart';
-import 'package:navigation_app/resources/views/widget_view.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigation_app/screens/home_screen/widgets/button.dart';
-import 'package:navigation_app/screens/new_route_screen/new_route_screen.dart';
 import 'package:navigation_app/services/auth.dart';
 import 'package:sizer/sizer.dart';
 

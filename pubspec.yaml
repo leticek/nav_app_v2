@@ -33,7 +33,9 @@ dependencies:
   email_validator: '^1.0.5'
   sizer: ^1.1.8
   geojson: ^0.10.0
+  http: ^0.13.0
   map_controller: ^0.9.0
+  throttling: ^0.9.0
 
 
   # The following adds the Cupertino Icons font to your application.

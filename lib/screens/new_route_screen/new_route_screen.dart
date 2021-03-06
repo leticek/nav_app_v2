@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
+import 'package:navigation_app/resources/providers.dart';
+import 'package:navigation_app/resources/utils/debouncer.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/save_route_button.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/search_hints.dart';
+import 'package:sizer/sizer.dart';
 
-import '../../resources/views/widget_view.dart';
+import '../../resources/widget_view.dart';
 
 class NewRouteScreen extends StatefulWidget {
   @override
@@ -15,12 +21,21 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Widget build(BuildContext context) => _NewRouteScreenView(this);
 
   bool _inputVisible = false;
+  TextEditingController _test;
+  Debouncer _debouncer;
+
+  @override
+  void initState() {
+    super.initState();
+    _test = TextEditingController();
+    _test.text = 'test';
+    _debouncer = Debouncer();
+  }
 
   void _show() {
     setState(() {
-      print(_inputVisible);
-      print('eee');
       _inputVisible = !_inputVisible;
+      context.read(openRouteServiceProvider).clearList();
     });
   }
 }
@@ -32,15 +47,18 @@ class _NewRouteScreenView
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(actions: [
-        !state._inputVisible ? Container() : Container(
-          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.cyan),
-          child: IconButton(
-            icon: Icon(Icons.arrow_circle_up, size: 25.0.sp,),
-            onPressed: state._show,
-          ),
-        )
-      ],
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            FocusManager.instance.primaryFocus.unfocus();
+            Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          !state._inputVisible
+              ? Container()
+              : HideFormButton(onTap: state._show)
+        ],
         centerTitle: true,
         backgroundColor: Colors.cyan,
         title: Hero(
@@ -57,48 +75,88 @@ class _NewRouteScreenView
           Container(
             child: FlutterMap(
               options: MapOptions(
+                onTap: (latlng) => print(latlng),
                 zoom: 5,
                 center: LatLng(49.761752, 15.427551),
               ),
               layers: [
                 TileLayerOptions(
                   urlTemplate:
-                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   subdomains: ['a', 'b', 'c'],
                 )
               ],
             ),
           ),
-          GestureDetector(
-            onVerticalDragDown: (details) => state._show(),
-            child: Container(
-              width: double.infinity,
-              height: 20.0.h,
-              color: Colors.transparent,
-            ),
-          ),
           AnimatedSwitcher(
-            duration: Duration(milliseconds: 250),
+            duration: Duration(milliseconds: 0),
             child: state._inputVisible
                 ? Container(
-              color: Colors.yellow,
-              height: 100,
-              width: 100.0.w,
-              child: Form(child: TextFormField()),
-            )
-                : Row(mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(decoration: BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.cyan),
-                  margin: EdgeInsets.all(7),
-                  child: IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: state._show,
+                    color: Colors.white38,
+                    height: 20.0.h,
+                    width: 100.0.w,
+                    child: ListView(
+                      children: [
+                        Container(
+                          height: 9.0.h,
+                          padding: const EdgeInsets.all(5),
+                          child: TextField(
+                            key: Key("start-field"),
+                            controller: state._test,
+                            decoration: InputDecoration(
+                              labelText: 'Start',
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide:
+                                    const BorderSide(color: Colors.cyan),
+                              ),
+                            ),
+                            style: TextStyle(fontSize: 15.0.sp),
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) => state._debouncer(() => context
+                                .read(openRouteServiceProvider)
+                                .getSuggestion(value)),
+                          ),
+                        ),
+                        Container(
+                          height: 9.0.h,
+                          padding: const EdgeInsets.all(5),
+                          child: TextField(
+                            key: Key("start-field"),
+                            controller: state._test,
+                            decoration: InputDecoration(
+                              labelText: 'Cíl',
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide:
+                                    const BorderSide(color: Colors.cyan),
+                              ),
+                            ),
+                            style: TextStyle(fontSize: 15.0.sp),
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) => state._debouncer(() => context
+                                .read(openRouteServiceProvider)
+                                .getSuggestion(value)),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: Colors.cyan),
+                        margin: EdgeInsets.all(10),
+                        child: IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: state._show,
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          )
+          ),
+          if (!state._inputVisible) SaveRouteButton(),
+          SearchHints()
         ],
       ),
     );

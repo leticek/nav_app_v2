@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/resources/enums/enums.dart';
-import 'package:navigation_app/resources/providers/providers.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
 
-import '../../../resources/views/widget_view.dart';
+import '../../../resources/widget_view.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -59,7 +59,7 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
               child: TextFormField(
                 key: Key("email-field"),
                 controller: state._email,
-                validator: (value) => (value.isEmpty) ? 'Zadejte email' : null,
+                validator: (value) => (value.isEmpty) ? 'Zadejte email.' : null,
                 decoration: InputDecoration(
                   labelText: 'Email',
                   focusedBorder: UnderlineInputBorder(
@@ -68,9 +68,8 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
                 ),
                 style: TextStyle(fontSize: 20),
                 textInputAction: TextInputAction.next,
-                onEditingComplete: () {
-                  FocusScope.of(context).requestFocus(state._passwordField);
-                },
+                onEditingComplete: () =>
+                    FocusScope.of(context).requestFocus(state._passwordField),
               ),
             ),
             const SizedBox(height: 10.0),
@@ -109,3 +108,4 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
     });
   }
 }
+

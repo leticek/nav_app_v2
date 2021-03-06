@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:navigation_app/resources/enums/enums.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 import 'package:navigation_app/screens/login_screen/widgets/login.dart';
 import 'package:navigation_app/screens/login_screen/widgets/register.dart';
 
-import '../../../resources/views/widget_view.dart';
+import '../../../resources/widget_view.dart';
 
 class AuthDialog extends StatefulWidget {
   final SelectedTab _selectedTab;
@@ -72,7 +72,7 @@ class _AuthDialogView extends WidgetView<AuthDialog, _AuthDialogController> {
                 IconButton(
                   color: Colors.white,
                   icon: Icon(Icons.clear),
-                  onPressed: () => state.widget._onClose(),
+                  onPressed: state.widget._onClose,
                 ),
               ],
             ),

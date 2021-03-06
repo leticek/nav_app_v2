@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/resources/enums/enums.dart';
-import 'package:navigation_app/resources/providers/providers.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
 import 'package:navigation_app/screens/home_screen/home_screen.dart';
 import 'package:navigation_app/screens/login_screen/login_screen.dart';
 import 'package:navigation_app/screens/login_screen/splash_screen.dart';
