@@ -6,7 +6,7 @@ class PlaceSuggestion {
 
   String get label => _label;
 
-  LatLng get latlng => _latLng;
+  LatLng get latLng => _latLng;
 
   PlaceSuggestion(this._label, this._latLng);
 

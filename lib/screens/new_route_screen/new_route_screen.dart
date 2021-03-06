@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
+import 'package:navigation_app/resources/models/place_suggestion.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
@@ -21,15 +22,28 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Widget build(BuildContext context) => _NewRouteScreenView(this);
 
   bool _inputVisible = false;
-  TextEditingController _test;
+  TextEditingController _startController;
+  TextEditingController _goalController;
   Debouncer _debouncer;
+  FocusNode _startFocus;
+  FocusNode _goalFocus;
 
   @override
   void initState() {
     super.initState();
-    _test = TextEditingController();
-    _test.text = 'test';
+    _startController = TextEditingController();
+    _goalController = TextEditingController();
     _debouncer = Debouncer();
+    _startFocus = FocusNode();
+    _goalFocus = FocusNode();
+    _startFocus.addListener(() {
+      if (!_startFocus.hasFocus)
+        context.read(openRouteServiceProvider).clearList();
+    });
+    _goalFocus.addListener(() {
+      if (!_goalFocus.hasFocus)
+        context.read(openRouteServiceProvider).clearList();
+    });
   }
 
   void _show() {
@@ -37,6 +51,17 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       _inputVisible = !_inputVisible;
       context.read(openRouteServiceProvider).clearList();
     });
+  }
+
+  void _placePicked(PlaceSuggestion placeSuggestion) {
+    if (_startFocus.hasFocus) {
+      _startController.text = placeSuggestion.label;
+      context.read(newRouteProvider).start = placeSuggestion.latLng;
+    } else {
+      _goalController.text = placeSuggestion.label;
+      context.read(newRouteProvider).goal = placeSuggestion.latLng;
+    }
+    print(context.read(newRouteProvider).toString());
   }
 }
 
@@ -50,6 +75,7 @@ class _NewRouteScreenView
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
+            context.read(openRouteServiceProvider).clearList();
             FocusManager.instance.primaryFocus.unfocus();
             Navigator.of(context).pop();
           },
@@ -102,7 +128,9 @@ class _NewRouteScreenView
                           padding: const EdgeInsets.all(5),
                           child: TextField(
                             key: Key("start-field"),
-                            controller: state._test,
+                            autofocus: true,
+                            controller: state._startController,
+                            focusNode: state._startFocus,
                             decoration: InputDecoration(
                               labelText: 'Start',
                               focusedBorder: UnderlineInputBorder(
@@ -122,7 +150,8 @@ class _NewRouteScreenView
                           padding: const EdgeInsets.all(5),
                           child: TextField(
                             key: Key("start-field"),
-                            controller: state._test,
+                            controller: state._goalController,
+                            focusNode: state._goalFocus,
                             decoration: InputDecoration(
                               labelText: 'Cíl',
                               focusedBorder: UnderlineInputBorder(
@@ -145,10 +174,13 @@ class _NewRouteScreenView
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.cyan),
+                            shape: BoxShape.circle, color: Colors.black),
                         margin: EdgeInsets.all(10),
                         child: IconButton(
-                          icon: Icon(Icons.search),
+                          icon: Icon(
+                            Icons.search,
+                            color: Colors.white,
+                          ),
                           onPressed: state._show,
                         ),
                       )
@@ -156,7 +188,9 @@ class _NewRouteScreenView
                   ),
           ),
           if (!state._inputVisible) SaveRouteButton(),
-          SearchHints()
+          SearchHints(
+            onTap: state._placePicked,
+          )
         ],
       ),
     );
