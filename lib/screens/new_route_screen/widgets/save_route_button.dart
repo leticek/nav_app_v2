@@ -13,7 +13,8 @@ class SaveRouteButton extends StatelessWidget {
         decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black),
         child: IconButton(
           icon: Icon(
-            Icons.check_circle_outline_sharp,color: Colors.white,
+            Icons.check_circle_outline_sharp,
+            color: Colors.white,
             size: 25.0.sp,
           ),
           onPressed: () {},

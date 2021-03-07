@@ -12,7 +12,6 @@ class SearchHints extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(builder: (context, watch, _) {
       final _service = watch(openRouteServiceProvider);
-      print(_service.suggestions.length);
       return _service.suggestions.isNotEmpty
           ? Positioned(
               left: 5.0.w,

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geojson/geojson.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:navigation_app/resources/models/place_suggestion.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/input_field.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/save_route_button.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/search_hints.dart';
 import 'package:sizer/sizer.dart';
@@ -30,6 +32,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   FocusNode _goalFocus;
   MapController _mapController;
   StatefulMapController _statefulMapController;
+  GeoJson _geoJson;
 
   @override
   void initState() {
@@ -53,37 +56,107 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _statefulMapController.changeFeed.listen((event) {
       setState(() {});
     });
+    _geoJson = GeoJson();
   }
 
-  void _show() {
+  @override
+  void dispose() {
+    super.dispose();
+    _startController.dispose();
+    _goalController.dispose();
+    _startFocus.dispose();
+    _goalFocus.dispose();
+    _geoJson.dispose();
+  }
+
+  void _addPlaceFromTap(LatLng point) async {
+    final place = PlaceSuggestion().toNamedPoint(point: point);
+    if (context.read(newRouteProvider).start == null) {
+      _startController.text = place.name;
+      context.read(newRouteProvider).start = place;
+      _statefulMapController.addMarker(
+          marker: Marker(
+            point: point,
+            builder: (context) => Icon(Icons.person_pin),
+          ),
+          name: 'start');
+    } else if (context.read(newRouteProvider).goal == null) {
+      _goalController.text = place.name;
+      context.read(newRouteProvider).goal = place;
+      _statefulMapController.addMarker(
+          marker: Marker(
+            point: context.read(newRouteProvider).goal.point,
+            builder: (context) => Icon(Icons.flag_rounded),
+          ),
+          name: 'goal');
+    } else {
+      context.read(newRouteProvider).waypoints.add(point);
+      _statefulMapController.addMarker(
+          marker: Marker(
+            point: point,
+            builder: (context) => Icon(Icons.pin_drop),
+          ),
+          name: point.toString());
+    }
+    await searchRoute();
+  }
+
+  void _showHintList() {
     setState(() {
       _inputVisible = !_inputVisible;
       context.read(openRouteServiceProvider).clearList();
     });
   }
 
-  void _placePicked(PlaceSuggestion placeSuggestion) {
+  Future searchRoute() async {
+    if (context.read(newRouteProvider).start != null &&
+        context.read(newRouteProvider).goal != null) {
+      final result = await context
+          .read(openRouteServiceProvider)
+          .searchRoute(context.read(newRouteProvider).getRoute());
+      if (result != null) {
+        await context.read(newRouteProvider).parseGeoJson(result);
+        _statefulMapController.addLineFromGeoPoints(
+            name: 'zkouska',
+            geoPoints: context
+                .read(newRouteProvider)
+                .geoJson
+                .lines[0]
+                .geoSerie
+                .geoPoints);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Bod se nepodařilo najít.')));
+        context.read(newRouteProvider).waypoints.removeLast();
+        _statefulMapController.markers.removeLast();
+      }
+    }
+  }
+
+  void _textFieldChanged(String value) => _debouncer(
+      () => context.read(openRouteServiceProvider).getSuggestion(value));
+
+  void _suggestionPicked(PlaceSuggestion placeSuggestion) async {
     if (_startFocus.hasFocus) {
       _startController.text = placeSuggestion.label;
-      context.read(newRouteProvider).start = placeSuggestion.latLng;
+      context.read(newRouteProvider).start = placeSuggestion.toNamedPoint();
       _statefulMapController.addMarker(
           marker: Marker(
-            point: placeSuggestion.latLng,
-            builder: (context) => Icon(Icons.eleven_mp),
+            point: context.read(newRouteProvider).start.point,
+            builder: (context) => Icon(Icons.person_pin),
           ),
           name: 'start');
-
     } else {
       _goalController.text = placeSuggestion.label;
-      context.read(newRouteProvider).goal = placeSuggestion.latLng;
+      context.read(newRouteProvider).goal = placeSuggestion.toNamedPoint();
       _statefulMapController.addMarker(
           marker: Marker(
-            point: placeSuggestion.latLng,
-            builder: (context) => Icon(Icons.add_a_photo_sharp),
+            point: context.read(newRouteProvider).goal.point,
+            builder: (context) => Icon(Icons.flag_rounded),
           ),
           name: 'goal');
     }
-    print(context.read(newRouteProvider).toString());
+    await searchRoute();
   }
 }
 
@@ -98,6 +171,7 @@ class _NewRouteScreenView
         leading: BackButton(
           onPressed: () {
             context.read(openRouteServiceProvider).clearList();
+            context.read(newRouteProvider).clearRoute();
             FocusManager.instance.primaryFocus.unfocus();
             Navigator.of(context).pop();
           },
@@ -105,7 +179,7 @@ class _NewRouteScreenView
         actions: [
           !state._inputVisible
               ? Container()
-              : HideFormButton(onTap: state._show)
+              : HideFormButton(onTap: state._showHintList)
         ],
         centerTitle: true,
         backgroundColor: Colors.cyan,
@@ -121,22 +195,9 @@ class _NewRouteScreenView
       body: Stack(
         children: [
           Container(
-            child: FlutterMap(
-              mapController: state._mapController,
-              options: MapOptions(
-                onTap: (latlng) => print(latlng),
-                zoom: 5,
-                center: LatLng(49.761752, 15.427551),
-              ),
-              layers: [
-                TileLayerOptions(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
-                ),
-                MarkerLayerOptions(
-                    markers: state._statefulMapController.markers)
-              ],
+            child: MyMap(
+              controller: state._statefulMapController,
+              onTap: state._addPlaceFromTap,
             ),
           ),
           AnimatedSwitcher(
@@ -148,48 +209,19 @@ class _NewRouteScreenView
                     width: 100.0.w,
                     child: ListView(
                       children: [
-                        Container(
-                          height: 9.0.h,
-                          padding: const EdgeInsets.all(5),
-                          child: TextField(
-                            key: Key("start-field"),
-                            autofocus: true,
-                            controller: state._startController,
-                            focusNode: state._startFocus,
-                            decoration: InputDecoration(
-                              labelText: 'Start',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.cyan),
-                              ),
-                            ),
-                            style: TextStyle(fontSize: 15.0.sp),
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) => state._debouncer(() => context
-                                .read(openRouteServiceProvider)
-                                .getSuggestion(value)),
-                          ),
+                        InputField(
+                          key: Key('start-field'),
+                          focusNode: state._startFocus,
+                          textEditingController: state._startController,
+                          label: 'Start',
+                          onChanged: state._textFieldChanged,
                         ),
-                        Container(
-                          height: 9.0.h,
-                          padding: const EdgeInsets.all(5),
-                          child: TextField(
-                            key: Key("start-field"),
-                            controller: state._goalController,
-                            focusNode: state._goalFocus,
-                            decoration: InputDecoration(
-                              labelText: 'Cíl',
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.cyan),
-                              ),
-                            ),
-                            style: TextStyle(fontSize: 15.0.sp),
-                            textInputAction: TextInputAction.next,
-                            onChanged: (value) => state._debouncer(() => context
-                                .read(openRouteServiceProvider)
-                                .getSuggestion(value)),
-                          ),
+                        InputField(
+                          key: Key('goal-field'),
+                          focusNode: state._goalFocus,
+                          textEditingController: state._goalController,
+                          label: 'Cíl',
+                          onChanged: state._textFieldChanged,
                         )
                       ],
                     ),
@@ -206,7 +238,7 @@ class _NewRouteScreenView
                             Icons.search,
                             color: Colors.white,
                           ),
-                          onPressed: state._show,
+                          onPressed: state._showHintList,
                         ),
                       )
                     ],
@@ -214,10 +246,39 @@ class _NewRouteScreenView
           ),
           if (!state._inputVisible) SaveRouteButton(),
           SearchHints(
-            onTap: state._placePicked,
+            onTap: state._suggestionPicked,
           )
         ],
       ),
+    );
+  }
+}
+
+class MyMap extends StatelessWidget {
+  const MyMap({controller, onTap})
+      : _controller = controller,
+        _onTap = onTap;
+
+  final StatefulMapController _controller;
+  final Function _onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return FlutterMap(
+      mapController: _controller.mapController,
+      options: MapOptions(
+        onTap: (latlng) => _onTap(latlng),
+        zoom: 5,
+        center: LatLng(49.761752, 15.427551),
+      ),
+      layers: [
+        TileLayerOptions(
+          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          subdomains: ['a', 'b', 'c'],
+        ),
+        MarkerLayerOptions(markers: _controller.markers),
+        PolylineLayerOptions(polylines: _controller.lines)
+      ],
     );
   }
 }

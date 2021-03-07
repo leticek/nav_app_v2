@@ -7,4 +7,5 @@ final authServiceProvider =
     ChangeNotifierProvider<AuthService>((ref) => AuthService.instance());
 final openRouteServiceProvider = ChangeNotifierProvider<OpenRouteService>(
     (ref) => OpenRouteService.instance());
-final newRouteProvider = ChangeNotifierProvider<NewRoute>((ref) => NewRoute());
+final newRouteProvider =
+    ChangeNotifierProvider<NewRoute>((ref) => NewRoute());
