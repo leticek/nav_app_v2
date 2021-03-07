@@ -4,10 +4,14 @@ class NamedPoint {
   String name;
   LatLng point;
 
+  NamedPoint(this.name, this.point);
+
   @override
   String toString() {
-    return 'NamedPoint{name: $name, LatLng: ${point.toString()}}';
+    return point.toString();
   }
 
-  NamedPoint.fromPlaceSuggestion(this.name, this.point);
+  NamedPoint.fromPoint(LatLng point)
+      : this.name = '${point.latitude} ${point.longitude}',
+        this.point = point;
 }

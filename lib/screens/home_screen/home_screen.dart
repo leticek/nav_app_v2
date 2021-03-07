@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
-import 'package:navigation_app/resources/route_builders/route_builder.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigation_app/screens/home_screen/widgets/button.dart';
