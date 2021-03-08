@@ -42,6 +42,7 @@ class _RegisterFormController extends State<RegisterForm> {
   }
 
   _signup() async {
+    FocusManager.instance.primaryFocus.unfocus();
     if (_formKey.currentState.validate()) {
       if (!await context
           .read(authServiceProvider)

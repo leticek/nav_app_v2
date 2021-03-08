@@ -27,6 +27,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 dependencies{
     implementation platform('com.google.firebase:firebase-bom:26.6.0')
+    implementation "androidx.multidex:multidex:2.0.1"
 }
 
 android {
@@ -37,6 +38,7 @@ android {
         applicationId "com.navapptwo.nav_app_v2"
         minSdkVersion 16
         targetSdkVersion 30
+        multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

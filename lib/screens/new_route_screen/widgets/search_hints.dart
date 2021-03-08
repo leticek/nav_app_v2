@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/resources/models/named_point.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:sizer/sizer.dart';
 
@@ -12,8 +11,7 @@ class SearchHints extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, watch, _) {
-      final _suggestions =
-          watch(openRouteServiceProvider).suggestions;
+      final _suggestions = watch(openRouteServiceProvider).suggestions;
       return _suggestions.isNotEmpty
           ? Positioned(
               left: 5.0.w,

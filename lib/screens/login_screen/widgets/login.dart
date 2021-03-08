@@ -28,6 +28,7 @@ class _LoginFormController extends State<LoginForm> {
   }
 
   _login() async {
+    FocusManager.instance.primaryFocus.unfocus();
     if (_formKey.currentState.validate()) {
       if (!await context
           .read(authServiceProvider)

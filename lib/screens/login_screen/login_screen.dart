@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/screens/login_screen/widgets/auth_dialog.dart';
+import 'package:sizer/sizer.dart';
+
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
-import 'package:navigation_app/screens/login_screen/widgets/auth_dialog.dart';
-import 'package:sizer/sizer.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -20,7 +21,13 @@ class _LoginController extends State<Login> {
   SelectedTab _selectedTab = SelectedTab.Login;
 
   void _loginWithGoogle() async {
-    await context.read(authServiceProvider).signInWithGoogle();
+    if (!await context.read(authServiceProvider).signInWithGoogle()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read(authServiceProvider).errorCode),
+        ),
+      );
+    }
   }
 
   void _register() {

@@ -3,11 +3,12 @@ import 'package:latlong/latlong.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
 
 class NewRoute {
-  NewRoute() : geoJson = GeoJson();
+  NewRoute();
 
   NamedPoint start;
   NamedPoint goal;
   List<LatLng> waypoints = [];
+  String geoJsonString;
   GeoJson geoJson;
 
   List getWaypoints() {
@@ -16,7 +17,6 @@ class NewRoute {
     list.addAll(
         waypoints.map((point) => [point.longitude, point.latitude]).toList());
     list.add([goal.point.longitude, goal.point.latitude]);
-    print(list);
     return list;
   }
 

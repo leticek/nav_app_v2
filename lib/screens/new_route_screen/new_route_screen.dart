@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
 import 'package:navigation_app/resources/models/new_route.dart';
+import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/gpx_import_button.dart';
@@ -37,9 +39,19 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   FocusNode _goalFocus;
   MapController _mapController;
   StatefulMapController _statefulMapController;
-  NewRoute _currentRoute;
-  List<Map<String, LatLng>> _lastPoints = [];
+  NewRoute _newRoute;
+  List<Map<String, LatLng>> _history = [];
   Position _currentPosition;
+
+  void _saveRoute() {
+    SavedRoute(
+      start: _newRoute.start,
+      goal: _newRoute.goal,
+      waypoints: _newRoute.waypoints,
+      history: _history,
+      routeGeoJsonString: _newRoute.geoJsonString,
+    );
+  }
 
   Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
     return Marker(
@@ -56,7 +68,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _debouncer = Debouncer();
     _startFocus = FocusNode();
     _goalFocus = FocusNode();
-    _currentRoute = NewRoute();
+    _newRoute = NewRoute();
     _startFocus.addListener(() {
       if (!_startFocus.hasFocus)
         context.read(openRouteServiceProvider).clearList();
@@ -110,37 +122,38 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
 
   void _addPlaceFromTap(LatLng point) async {
     final namedPoint = NamedPoint.fromPoint(point);
-    if (_currentRoute.start == null) {
+    if (_newRoute.start == null) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
-      _currentRoute.start = namedPoint;
-      print(_currentRoute.start);
-    } else if (_currentRoute.goal == null) {
+      _newRoute.start = namedPoint;
+      print(_newRoute.start);
+    } else if (_newRoute.goal == null) {
       _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
-      _currentRoute.goal = namedPoint;
+      _newRoute.goal = namedPoint;
     } else {
-      _currentRoute.waypoints.add(point);
+      _newRoute.waypoints.add(point);
       _statefulMapController.addMarker(
           marker:
               _makeMarker(position: point, iconData: Icons.pin_drop_outlined),
           name: point.toString());
-      _lastPoints.add({point.toString(): point});
+      _history.add({point.toString(): point});
     }
     _searchRoute();
   }
 
   void _removeLast() {
-    final pointToRemove = _lastPoints.last;
-    _lastPoints.removeLast();
+    if (context.read(openRouteServiceProvider).isLoading) return;
+    final pointToRemove = _history.last;
+    _history.removeLast();
     if (pointToRemove.containsKey('start')) {
-      _currentRoute.start = null;
+      _newRoute.start = null;
       _startController.text = '';
       _statefulMapController.removeMarker(name: 'start');
     } else if (pointToRemove.containsKey('goal')) {
-      _currentRoute.goal = null;
+      _newRoute.goal = null;
       _goalController.text = '';
       _statefulMapController.removeMarker(name: 'goal');
     } else {
-      _currentRoute.waypoints.removeLast();
+      _newRoute.waypoints.removeLast();
       _statefulMapController.removeMarker(name: pointToRemove.keys.first);
     }
 
@@ -150,10 +163,10 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   void _suggestionPicked(NamedPoint namedPoint) async {
     if (_startFocus.hasFocus) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
-      _currentRoute.start = namedPoint;
+      _newRoute.start = namedPoint;
     } else {
       _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
-      _currentRoute.goal = namedPoint;
+      _newRoute.goal = namedPoint;
     }
     _searchRoute();
   }
@@ -164,28 +177,29 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _statefulMapController.addMarker(
         marker: _makeMarker(position: pickedPoint.point, iconData: icon),
         name: markerName);
-    _lastPoints.add({markerName: pickedPoint.point});
-    print(_lastPoints);
+    _history.add({markerName: pickedPoint.point});
   }
 
   void _searchRoute() async {
     _statefulMapController.removeLine('route');
-    if (_currentRoute.start != null && _currentRoute.goal != null) {
+    if (_newRoute.start != null && _newRoute.goal != null) {
       final _result = await context
           .read(openRouteServiceProvider)
-          .searchRoute(_currentRoute.getWaypoints());
+          .searchRoute(_newRoute.getWaypoints());
       if (_result == null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Stala se chyba.')));
+        context.read(openRouteServiceProvider).setIsLoading();
         return;
       }
-      _currentRoute.geoJson = GeoJson();
-      await _currentRoute.geoJson.parse(_result);
+      _newRoute.geoJsonString = _result;
+      _newRoute.geoJson = GeoJson();
+      await _newRoute.geoJson.parse(_result);
       _statefulMapController.addLineFromGeoPoints(
           color: Colors.red,
           isDotted: true,
           name: 'route',
-          geoPoints: _currentRoute.geoJson.lines[0].geoSerie.geoPoints);
+          geoPoints: _newRoute.geoJson.lines[0].geoSerie.geoPoints);
       context.read(openRouteServiceProvider).setIsLoading();
       return;
     }
@@ -261,7 +275,7 @@ class _NewRouteScreenView
                   )
                 : SearchButton(onPressed: state._showHintList),
           ),
-          if (!state._inputVisible) SaveRouteButton(),
+          if (!state._inputVisible) SaveRouteButton(onTap: state._saveRoute),
           SearchHints(
             onTap: state._suggestionPicked,
           )
