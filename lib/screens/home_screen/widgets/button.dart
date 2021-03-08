@@ -16,6 +16,7 @@ class HomeScreenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      splashColor: Colors.cyan,
       onTap: _onTap,
       child: Container(
         margin: EdgeInsets.all(5),

@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geojson/geojson.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
 import 'package:navigation_app/resources/models/new_route.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/gpx_import_button.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/input_field.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/map.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/save_route_button.dart';
+import 'package:navigation_app/screens/new_route_screen/widgets/search_button.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/search_hints.dart';
 import 'package:sizer/sizer.dart';
 
@@ -35,6 +39,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   StatefulMapController _statefulMapController;
   NewRoute _currentRoute;
   List<Map<String, LatLng>> _lastPoints = [];
+  Position _currentPosition;
 
   Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
     return Marker(
@@ -69,6 +74,21 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   }
 
   @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    _currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    _statefulMapController.addMarker(
+        marker: Marker(
+            builder: (context) => Icon(Icons.person),
+            height: 10,
+            width: 10,
+            point:
+                LatLng(_currentPosition.latitude, _currentPosition.longitude)),
+        name: 'currentLoaction');
+  }
+
+  @override
   void dispose() {
     super.dispose();
     _startController.dispose();
@@ -80,6 +100,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   void _showHintList() {
     setState(() {
       _inputVisible = !_inputVisible;
+      _startFocus.requestFocus();
       context.read(openRouteServiceProvider).clearList();
     });
   }
@@ -122,6 +143,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       _currentRoute.waypoints.removeLast();
       _statefulMapController.removeMarker(name: pointToRemove.keys.first);
     }
+
     _searchRoute();
   }
 
@@ -147,6 +169,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   }
 
   void _searchRoute() async {
+    _statefulMapController.removeLine('route');
     if (_currentRoute.start != null && _currentRoute.goal != null) {
       final _result = await context
           .read(openRouteServiceProvider)
@@ -166,7 +189,6 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       context.read(openRouteServiceProvider).setIsLoading();
       return;
     }
-    _statefulMapController.removeLine('route');
   }
 }
 
@@ -210,6 +232,7 @@ class _NewRouteScreenView
               onLongPress: state._removeLast,
             ),
           ),
+          if (!state._inputVisible) GpxImportButton(),
           AnimatedSwitcher(
             duration: Duration(milliseconds: 0),
             child: state._inputVisible
@@ -236,23 +259,7 @@ class _NewRouteScreenView
                       ],
                     ),
                   )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.black),
-                        margin: EdgeInsets.all(10),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.search,
-                            color: Colors.white,
-                          ),
-                          onPressed: state._showHintList,
-                        ),
-                      )
-                    ],
-                  ),
+                : SearchButton(onPressed: state._showHintList),
           ),
           if (!state._inputVisible) SaveRouteButton(),
           SearchHints(
@@ -260,38 +267,6 @@ class _NewRouteScreenView
           )
         ],
       ),
-    );
-  }
-}
-
-class MyMap extends StatelessWidget {
-  const MyMap({controller, onTap, onLongPress})
-      : _controller = controller,
-        _onTap = onTap,
-        _onLongPress = onLongPress;
-
-  final StatefulMapController _controller;
-  final Function _onTap;
-  final Function _onLongPress;
-
-  @override
-  Widget build(BuildContext context) {
-    return FlutterMap(
-      mapController: _controller.mapController,
-      options: MapOptions(
-        onTap: (latLng) => _onTap(latLng),
-        onLongPress: (latLng) => _onLongPress(),
-        zoom: 5,
-        center: LatLng(49.761752, 15.427551),
-      ),
-      layers: [
-        TileLayerOptions(
-          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
-        ),
-        MarkerLayerOptions(markers: _controller.markers),
-        PolylineLayerOptions(polylines: _controller.lines)
-      ],
     );
   }
 }
