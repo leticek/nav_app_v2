@@ -43,7 +43,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   List<Map<String, LatLng>> _history = [];
   Position _currentPosition;
 
-  void _saveRoute() {
+  void _saveRoute() async {
     SavedRoute(
       start: _newRoute.start,
       goal: _newRoute.goal,
