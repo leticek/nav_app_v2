@@ -15,7 +15,6 @@ class UserModel {
   UserModel.fromFirestore(Map<String, dynamic> _map) {
     userId = _map['userId'];
     email = _map['email'];
-    print(this.toString());
   }
 
   Map<String, dynamic> toMap() {
@@ -25,10 +24,6 @@ class UserModel {
   @override
   String toString() {
     return 'UserModel{userId: $userId, email: $email, savedRoutes: $savedRoutes}';
-  }
-
-  void addRouteFromStream(QuerySnapshot q){
-    print('//TODO: parseRouty ze streamu');
   }
 
 }

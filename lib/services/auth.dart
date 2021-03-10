@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,15 +16,16 @@ class AuthService with ChangeNotifier {
   UserModel _userModel;
   Status _status = Status.Uninitialized;
   String _errorCode;
-  ProviderContainer _providerContainer;
+  final Reader read;
+  StreamSubscription _userListener;
 
   Status get status => _status;
 
   String get errorCode => _errorCode;
+
   UserModel get userModel => _userModel;
 
-  AuthService.instance() {
-    _providerContainer = ProviderContainer();
+  AuthService.instance(this.read) {
     _firebaseAuth = FirebaseAuth.instance;
     _googleSignIn = GoogleSignIn(scopes: ['email']);
     _errorCode = '';
@@ -33,12 +36,8 @@ class AuthService with ChangeNotifier {
     try {
       _status = Status.Authenticating;
       notifyListeners();
-      final _userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+      await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-      _userModel = UserModel.fromUser(_userCredential.user);
-      _userModel = await _providerContainer
-          .read(firestoreProvider)
-          .loadUser(_userModel.userId);
       _errorCode = '';
       return true;
     } catch (e) {
@@ -53,13 +52,8 @@ class AuthService with ChangeNotifier {
     try {
       _status = Status.Authenticating;
       notifyListeners();
-      final _userCredential = await _firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password);
-      _userModel = UserModel.fromUser(_userCredential.user);
-      await _providerContainer.read(firestoreProvider).createUser(_userModel);
-      _userModel = await _providerContainer
-          .read(firestoreProvider)
-          .loadUser(_userModel.userId);
+      await _firebaseAuth.createUserWithEmailAndPassword(
+          email: email, password: password);
       _errorCode = '';
       return true;
     } catch (e) {
@@ -80,13 +74,7 @@ class AuthService with ChangeNotifier {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      final _userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
-      _userModel = UserModel.fromUser(_userCredential.user);
-      await _providerContainer.read(firestoreProvider).createUser(_userModel);
-      _userModel = await _providerContainer
-          .read(firestoreProvider)
-          .loadUser(_userModel.userId);
+      await _firebaseAuth.signInWithCredential(credential);
       _errorCode = '';
       return true;
     } catch (e) {
@@ -102,6 +90,7 @@ class AuthService with ChangeNotifier {
     _googleSignIn.signOut();
     _status = Status.Unauthenticated;
     _userModel = null;
+    _userListener.cancel();
     notifyListeners();
     return Future.delayed(Duration.zero);
   }
@@ -112,6 +101,10 @@ class AuthService with ChangeNotifier {
       _user = null;
     } else {
       _user = firebaseUser;
+      _userListener =
+          read(firestoreProvider).streamUserById(_user).listen((event) {
+        _userModel = event;
+      });
       _status = Status.Authenticated;
     }
     notifyListeners();

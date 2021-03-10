@@ -1,16 +1,19 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
-import 'package:navigation_app/resources/models/route_segment.dart';
+import 'package:navigation_app/resources/models/route_step.dart';
 
 class SavedRoute {
+  String id;
+
   NamedPoint start;
   NamedPoint goal;
 
-  List<RouteSegment> routeSegments;
+  List<RouteStep> routeSteps = [];
   List<double> messageBoundingBox = [];
   List<LatLng> latLngRoutePoints = [];
 
@@ -27,10 +30,13 @@ class SavedRoute {
     @required this.history,
     @required this.routeGeoJsonString,
   }) {
+    id = DateTime.now().toIso8601String();
     _parsedRoute = json.decode(routeGeoJsonString);
     parseBoundingBox();
     parseRoutePoints();
+    parseRouteSegments();
   }
+
 
   void parseBoundingBox() {
     try {
@@ -54,7 +60,50 @@ class SavedRoute {
     }
   }
 
+  void parseRouteSegments() {
+    List<dynamic> segments =
+        _parsedRoute['features'].first['properties']['segments'];
+
+    for (dynamic segment in segments) {
+      for (dynamic step in segment['steps']) {
+        routeSteps.add(RouteStep(
+          step['instruction'],
+          step['type'],
+          step['distance'].toInt(),
+        ));
+      }
+    }
+  }
+
+  SavedRoute.fromMap({Map route}){
+    //TODO: dodělat rozparsovaní
+    id = route['id'];
+    start = NamedPoint.fromMap(point: route['start']);
+    goal = NamedPoint.fromMap(point: route['goal']);
+  }
+
   Map<String, dynamic> toMap() {
-    return null;
+    return {
+      'id': id,
+      'start': start.toMap(),
+      'goal': goal.toMap(),
+      'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
+      'boundingBox': messageBoundingBox,
+      'line': latLngRoutePoints
+          .map<GeoPoint>(
+              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
+          .toList(),
+      'waypoints': waypoints
+          .map<GeoPoint>(
+              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
+          .toList(),
+      'history': history
+          .map(
+            (e) => e.map((key, value) =>
+                MapEntry(key, GeoPoint(value.latitude, value.latitude))),
+          )
+          .toList(),
+      'geojson': routeGeoJsonString,
+    };
   }
 }

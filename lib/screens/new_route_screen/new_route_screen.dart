@@ -44,13 +44,13 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Position _currentPosition;
 
   void _saveRoute() async {
-    SavedRoute(
-      start: _newRoute.start,
-      goal: _newRoute.goal,
-      waypoints: _newRoute.waypoints,
-      history: _history,
-      routeGeoJsonString: _newRoute.geoJsonString,
-    );
+    context.read(firestoreProvider).saveNewRoute(SavedRoute(
+          start: _newRoute.start,
+          goal: _newRoute.goal,
+          waypoints: _newRoute.waypoints,
+          history: _history,
+          routeGeoJsonString: _newRoute.geoJsonString,
+        ), context.read(authServiceProvider).userModel.userId);
   }
 
   Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
@@ -161,6 +161,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   }
 
   void _suggestionPicked(NamedPoint namedPoint) async {
+    //TODO: fix odebrání z historie po vybrání z našeptávače
     if (_startFocus.hasFocus) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
       _newRoute.start = namedPoint;

@@ -1,15 +1,18 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
 import 'package:sizer/sizer.dart';
+
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
 
 import 'screens/login_screen/home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(ProviderScope(child: MyApp()));
+  runApp(ProviderScope(
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,9 +26,7 @@ class MyApp extends StatelessWidget {
         SizerUtil().init(constraints, orientation);
         return MaterialApp(
           title: 'Flutter Demo',
-          theme: ThemeData(
-            primaryColor: Colors.cyan
-          ),
+          theme: ThemeData(primaryColor: Colors.cyan),
           onGenerateRoute: AppRoutes.onGenerateRoute,
           home: AuthHome(),
         );
