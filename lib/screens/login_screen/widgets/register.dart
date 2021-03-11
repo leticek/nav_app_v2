@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/services/validator.dart';
+
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
-import 'package:navigation_app/services/validator.dart';
 
 import '../../../resources/widget_view.dart';
 
@@ -41,7 +42,7 @@ class _RegisterFormController extends State<RegisterForm> {
     super.dispose();
   }
 
-  _signup() async {
+  Future<void> _signup() async {
     FocusManager.instance.primaryFocus.unfocus();
     if (_formKey.currentState.validate()) {
       if (!await context
@@ -59,7 +60,7 @@ class _RegisterFormController extends State<RegisterForm> {
 
 class _RegisterFormView
     extends WidgetView<RegisterForm, _RegisterFormController> {
-  _RegisterFormView(_RegisterFormController state) : super(state);
+  const _RegisterFormView(_RegisterFormController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
@@ -68,21 +69,21 @@ class _RegisterFormView
       return Form(
         key: state._formKey,
         child: ListView(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           children: [
             Container(
               padding: const EdgeInsets.all(0),
               child: TextFormField(
-                key: Key("email-field"),
+                key: const Key("email-field"),
                 controller: state._email,
                 validator: (value) => Validator.validateEmail(value),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan),
+                    borderSide: BorderSide(color: Colors.cyan),
                   ),
                 ),
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 textInputAction: TextInputAction.next,
                 onEditingComplete: () =>
                     FocusScope.of(context).requestFocus(state._passwordField),
@@ -93,18 +94,18 @@ class _RegisterFormView
               padding: const EdgeInsets.all(0),
               child: TextFormField(
                 focusNode: state._passwordField,
-                key: Key("password-field"),
+                key: const Key("password-field"),
                 controller: state._password,
                 obscureText: true,
                 validator: (value) =>
                     Validator.validatePasswordComplexity(value),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Heslo',
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan),
+                    borderSide: BorderSide(color: Colors.cyan),
                   ),
                 ),
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 onEditingComplete: () => FocusScope.of(context)
                     .requestFocus(state._confirmPasswordField),
               ),
@@ -114,30 +115,30 @@ class _RegisterFormView
               padding: const EdgeInsets.all(0),
               child: TextFormField(
                 focusNode: state._confirmPasswordField,
-                key: Key("confirm_password-field"),
+                key: const Key("confirm_password-field"),
                 controller: state._confirmPassword,
                 obscureText: true,
                 validator: (value) =>
                     Validator.comparePasswords(state._password.text, value),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Potvrďte heslo',
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan),
+                    borderSide: BorderSide(color: Colors.cyan),
                   ),
                 ),
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 onEditingComplete: state._signup,
               ),
             ),
-            SizedBox(height: 10.0),
-            if (user.status == Status.Authenticating)
-              Center(child: CircularProgressIndicator()),
-            if (user.status != Status.Authenticating)
+            const SizedBox(height: 10.0),
+            if (user.status == Status.authenticating)
+              const Center(child: CircularProgressIndicator()),
+            if (user.status != Status.authenticating)
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.black),
                   onPressed: state._signup,
-                  child: Text('Registrovat'),
+                  child: const Text('Registrovat'),
                 ),
               ),
           ],

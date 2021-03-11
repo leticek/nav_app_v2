@@ -9,12 +9,15 @@ class Validator {
   static String validatePasswordComplexity(String val) {
     if (val.isEmpty) return 'Zadejte heslo';
     if (val.length < 6) return 'Heslo musí mít minimálně 6 znaků.';
-    if (!val.contains(new RegExp(r'[a-z]')))
+    if (!val.contains(RegExp('[a-z]'))) {
       return 'Heslo musí obsahovat alespoň 1 malé písmeno.';
-    if (!val.contains(new RegExp(r'[A-Z]')))
+    }
+    if (!val.contains(RegExp('[A-Z]'))) {
       return 'Heslo musí obsahovat alespoň 1 velké písmeno.';
-    if (!val.contains(new RegExp(r'[0-9]')))
+    }
+    if (!val.contains(RegExp('[0-9]'))) {
       return 'Heslo musí obsahovat alespoň 1 číslici.';
+    }
     return null;
   }
 

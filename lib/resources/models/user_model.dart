@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 
 class UserModel {
@@ -12,9 +12,10 @@ class UserModel {
     email = user.email;
   }
 
-  UserModel.fromFirestore(Map<String, dynamic> _map) {
-    userId = _map['userId'];
-    email = _map['email'];
+  UserModel.fromFirestore(Map<String, dynamic> map) {
+    debugPrint(map.toString());
+    userId = map['userId'] as String;
+    email = map['email'] as String;
   }
 
   Map<String, dynamic> toMap() {

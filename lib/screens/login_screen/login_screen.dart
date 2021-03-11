@@ -18,9 +18,9 @@ class _LoginController extends State<Login> {
   Widget build(BuildContext context) => _LoginView(this);
 
   bool _authVisible = false;
-  SelectedTab _selectedTab = SelectedTab.Login;
+  SelectedTab _selectedTab = SelectedTab.login;
 
-  void _loginWithGoogle() async {
+  Future<void> _loginWithGoogle() async {
     if (!await context.read(authServiceProvider).signInWithGoogle()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -33,14 +33,14 @@ class _LoginController extends State<Login> {
   void _register() {
     setState(() {
       _authVisible = true;
-      _selectedTab = SelectedTab.Register;
+      _selectedTab = SelectedTab.register;
     });
   }
 
   void _login() {
     setState(() {
       _authVisible = true;
-      _selectedTab = SelectedTab.Login;
+      _selectedTab = SelectedTab.login;
     });
   }
 
@@ -52,7 +52,7 @@ class _LoginController extends State<Login> {
 }
 
 class _LoginView extends WidgetView<Login, _LoginController> {
-  _LoginView(_LoginController state) : super(state);
+  const _LoginView(_LoginController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class _LoginView extends WidgetView<Login, _LoginController> {
         child: Stack(
           children: [
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.cyan,
               ),
               width: double.infinity,
@@ -69,7 +69,7 @@ class _LoginView extends WidgetView<Login, _LoginController> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(
+                SizedBox(
                     height: 25.0.h,
                     width: 50.0.w,
                     child: Image.asset('assets/splash_logo.png')),
@@ -90,10 +90,10 @@ class _LoginView extends WidgetView<Login, _LoginController> {
                         child: ElevatedButton(
                           style:
                               ElevatedButton.styleFrom(primary: Colors.black),
-                          child: Text(
+                          onPressed: state._login,
+                          child: const Text(
                             'Mám účet',
                           ),
-                          onPressed: state._login,
                         ),
                       ),
                       SizedBox(width: 2.6.w),
@@ -101,10 +101,10 @@ class _LoginView extends WidgetView<Login, _LoginController> {
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
                             primary: Colors.black,
-                            side: BorderSide(color: Colors.black),
+                            backgroundColor: Colors.white
                           ),
-                          child: Text('Nemám účet'),
                           onPressed: state._register,
+                          child: const Text('Nemám účet'),
                           //borderSide: BorderSide(color: Colors.white),
                         ),
                       ),
@@ -119,7 +119,7 @@ class _LoginView extends WidgetView<Login, _LoginController> {
               ],
             ),
             AnimatedSwitcher(
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               child: state._authVisible
                   ? Container(
                       color: Colors.black54,

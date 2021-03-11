@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 class InputField extends StatelessWidget {
-  const InputField({key, textEditingController, focusNode, onChanged, label})
-      : _key = key,
+  const InputField({
+    Key key,
+    TextEditingController textEditingController,
+    FocusNode focusNode,
+    void Function(String) onChanged,
+    String label,
+  })  : _key = key,
         _textEditingController = textEditingController,
         _focusNode = focusNode,
         _onChanged = onChanged,
@@ -26,8 +31,8 @@ class InputField extends StatelessWidget {
         focusNode: _focusNode,
         decoration: InputDecoration(
           labelText: _label,
-          focusedBorder: UnderlineInputBorder(
-            borderSide: const BorderSide(color: Colors.cyan),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.cyan),
           ),
         ),
         style: TextStyle(fontSize: 15.0.sp),

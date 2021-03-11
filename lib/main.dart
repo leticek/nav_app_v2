@@ -7,7 +7,7 @@ import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route
 
 import 'screens/login_screen/home.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(ProviderScope(

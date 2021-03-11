@@ -6,20 +6,20 @@ class NamedPoint {
   LatLng point;
 
   NamedPoint(this.name, this.point);
-  NamedPoint.fromMap({Map<String, GeoPoint> point}){
-    name = point['name'] as String;
-    point = LatLng(point['point'].latitude, point['point'].longitude) as Map<String, GeoPoint>;
-  }
 
+  NamedPoint.fromMap({Map<String, GeoPoint> point}) {
+    name = point['name'] as String;
+    point = LatLng(point['point'].latitude, point['point'].longitude)
+        as Map<String, GeoPoint>;
+  }
 
   @override
   String toString() {
     return point.toString();
   }
 
-  NamedPoint.fromPoint(LatLng point)
-      : this.name = '${point.latitude} ${point.longitude}',
-        this.point = point;
+  NamedPoint.fromPoint(this.point)
+      : name = '${point.latitude} ${point.longitude}';
 
   Map<String, dynamic> toMap() {
     return {

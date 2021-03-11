@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
 
@@ -10,30 +11,30 @@ class FirestoreService {
 
   FirestoreService.instance() {
     _instance = FirebaseFirestore.instance;
-    _instance.settings = Settings(persistenceEnabled: true);
+    _instance.settings = const Settings(persistenceEnabled: true);
     _instance.settings =
-        Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
+        const Settings(cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
   }
 
   Future<bool> saveNewRoute(SavedRoute route, String id) async {
     try {
-      CollectionReference _collection =
+      final _collection =
           _instance.collection('users').doc(id).collection('routes');
       _collection.doc(route.id).set(route.toMap());
       return null;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return null;
     }
   }
 
   UserModel createUser(User user) {
     try {
-      UserModel userModel = UserModel.fromUser(user);
+      final userModel = UserModel.fromUser(user);
       _instance.collection('users').doc(user.uid).set(userModel.toMap());
       return userModel;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return null;
     }
   }

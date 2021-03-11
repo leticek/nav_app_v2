@@ -5,9 +5,10 @@ class HomeScreenButton extends StatelessWidget {
   final String _label;
   final String _heroTag;
   final IconData _icon;
-  final Function _onTap;
+  final void Function() _onTap;
 
-  HomeScreenButton({label, heroTag, icon, onTap})
+  const HomeScreenButton(
+      {String label, String heroTag, IconData icon, void Function() onTap})
       : _label = label,
         _heroTag = heroTag,
         _icon = icon,
@@ -19,13 +20,11 @@ class HomeScreenButton extends StatelessWidget {
       splashColor: Colors.cyan,
       onTap: _onTap,
       child: Container(
-        margin: EdgeInsets.all(5),
+        margin: const EdgeInsets.all(5),
         width: SizerUtil.orientation == Orientation.portrait ? 45.0.w : 40.0.h,
         height: SizerUtil.orientation == Orientation.portrait ? 40.0.h : 45.0.w,
         decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            color: Colors.cyan,
-            borderRadius: BorderRadius.circular(35)),
+            color: Colors.cyan, borderRadius: BorderRadius.circular(35)),
         child: LayoutBuilder(
           builder: (context, constraints) => Column(
             children: [

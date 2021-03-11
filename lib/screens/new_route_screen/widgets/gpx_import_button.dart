@@ -13,8 +13,8 @@ class GpxImportButton extends StatelessWidget {
         left: 1.2.h,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(primary: Colors.black),
-          child: Text('GPX'),
-          onPressed: () => print('ola'),
+          child: const Text('GPX'),
+          onPressed: () => debugPrint('ola'),
         ));
   }
 }

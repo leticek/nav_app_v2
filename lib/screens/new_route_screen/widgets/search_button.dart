@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SearchButton extends StatelessWidget {
-  const SearchButton({Function onPressed}) : _onPressed = onPressed;
+  const SearchButton({void Function() onPressed}) : _onPressed = onPressed;
 
-  final Function _onPressed;
+  final void Function() _onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +12,10 @@ class SearchButton extends StatelessWidget {
       children: [
         Container(
           decoration:
-              BoxDecoration(shape: BoxShape.circle, color: Colors.black),
-          margin: EdgeInsets.all(10),
+              const BoxDecoration(shape: BoxShape.circle, color: Colors.black),
+          margin: const EdgeInsets.all(10),
           child: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.search,
               color: Colors.white,
             ),

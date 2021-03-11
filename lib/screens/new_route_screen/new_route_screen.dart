@@ -40,17 +40,19 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   MapController _mapController;
   StatefulMapController _statefulMapController;
   NewRoute _newRoute;
-  List<Map<String, LatLng>> _history = [];
+  final List<Map<String, LatLng>> _history = [];
   Position _currentPosition;
 
-  void _saveRoute() async {
-    context.read(firestoreProvider).saveNewRoute(SavedRoute(
+  Future<void> _saveRoute() async {
+    context.read(firestoreProvider).saveNewRoute(
+        SavedRoute(
           start: _newRoute.start,
           goal: _newRoute.goal,
           waypoints: _newRoute.waypoints,
           history: _history,
           routeGeoJsonString: _newRoute.geoJsonString,
-        ), context.read(authServiceProvider).userModel.userId);
+        ),
+        context.read(authServiceProvider).userModel.userId);
   }
 
   Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
@@ -70,12 +72,14 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _goalFocus = FocusNode();
     _newRoute = NewRoute();
     _startFocus.addListener(() {
-      if (!_startFocus.hasFocus)
+      if (!_startFocus.hasFocus) {
         context.read(openRouteServiceProvider).clearList();
+      }
     });
     _goalFocus.addListener(() {
-      if (!_goalFocus.hasFocus)
+      if (!_goalFocus.hasFocus) {
         context.read(openRouteServiceProvider).clearList();
+      }
     });
     _mapController = MapController();
     _statefulMapController =
@@ -86,13 +90,13 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   }
 
   @override
-  void didChangeDependencies() async {
+  Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
     _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     _statefulMapController.addMarker(
         marker: Marker(
-            builder: (context) => Icon(Icons.person),
+            builder: (context) => const Icon(Icons.person),
             height: 10,
             width: 10,
             point:
@@ -120,12 +124,12 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   void _textFieldChanged(String value) => _debouncer(
       () => context.read(openRouteServiceProvider).getSuggestion(value));
 
-  void _addPlaceFromTap(LatLng point) async {
+  Future<void> _addPlaceFromTap(LatLng point) async {
     final namedPoint = NamedPoint.fromPoint(point);
     if (_newRoute.start == null) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
       _newRoute.start = namedPoint;
-      print(_newRoute.start);
+      debugPrint(_newRoute.start.toString());
     } else if (_newRoute.goal == null) {
       _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
       _newRoute.goal = namedPoint;
@@ -160,7 +164,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _searchRoute();
   }
 
-  void _suggestionPicked(NamedPoint namedPoint) async {
+  Future<void> _suggestionPicked(NamedPoint namedPoint) async {
     //TODO: fix odebrání z historie po vybrání z našeptávače
     if (_startFocus.hasFocus) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
@@ -181,15 +185,16 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _history.add({markerName: pickedPoint.point});
   }
 
-  void _searchRoute() async {
+  Future<void> _searchRoute() async {
     _statefulMapController.removeLine('route');
     if (_newRoute.start != null && _newRoute.goal != null) {
       final _result = await context
           .read(openRouteServiceProvider)
           .searchRoute(_newRoute.getWaypoints());
       if (_result == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Stala se chyba.')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Stala se chyba.'),
+        ));
         context.read(openRouteServiceProvider).setIsLoading();
         return;
       }
@@ -209,7 +214,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
 
 class _NewRouteScreenView
     extends WidgetView<NewRouteScreen, _NewRouteScreenController> {
-  _NewRouteScreenView(_NewRouteScreenController state) : super(state);
+  const _NewRouteScreenView(_NewRouteScreenController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
@@ -223,9 +228,10 @@ class _NewRouteScreenView
           },
         ),
         actions: [
-          !state._inputVisible
-              ? Container()
-              : HideFormButton(onTap: state._showHintList)
+          if (!state._inputVisible)
+            Container()
+          else
+            HideFormButton(state._showHintList)
         ],
         centerTitle: true,
         backgroundColor: Colors.cyan,
@@ -240,16 +246,14 @@ class _NewRouteScreenView
       ),
       body: Stack(
         children: [
-          Container(
-            child: MyMap(
-              controller: state._statefulMapController,
-              onTap: state._addPlaceFromTap,
-              onLongPress: state._removeLast,
-            ),
+          MyMap(
+            controller: state._statefulMapController,
+            onTap: state._addPlaceFromTap,
+            onLongPress: state._removeLast,
           ),
-          if (!state._inputVisible) GpxImportButton(),
+          if (!state._inputVisible) const GpxImportButton(),
           AnimatedSwitcher(
-            duration: Duration(milliseconds: 0),
+            duration: const Duration(milliseconds: 1),
             child: state._inputVisible
                 ? Container(
                     color: Colors.white38,
@@ -258,14 +262,14 @@ class _NewRouteScreenView
                     child: ListView(
                       children: [
                         InputField(
-                          key: Key('start-field'),
+                          key: const Key('start-field'),
                           focusNode: state._startFocus,
                           textEditingController: state._startController,
                           label: 'Start',
                           onChanged: state._textFieldChanged,
                         ),
                         InputField(
-                          key: Key('goal-field'),
+                          key: const Key('goal-field'),
                           focusNode: state._goalFocus,
                           textEditingController: state._goalController,
                           label: 'Cíl',

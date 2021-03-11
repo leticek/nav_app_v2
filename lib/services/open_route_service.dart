@@ -44,26 +44,26 @@ class OpenRouteService with ChangeNotifier {
       'elevation': 'true',
       'preference': 'recommended'
     };
-    print(_body);
+
     try {
       setIsLoading();
       final _apiResponse = await _client.post(_request,
           headers: _header, body: json.encode(_body));
-      print(_apiResponse.statusCode);
+      debugPrint(_apiResponse.statusCode.toString());
       if (_apiResponse.statusCode == 200) {
         return _apiResponse.body;
       }
-      dynamic _parsedResponse = json.decode(_apiResponse.body);
+      final _parsedResponse = json.decode(_apiResponse.body);
       if (_parsedResponse['error']['code'] as int == 2010) {
         return null;
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return null;
   }
 
-  void getSuggestion(String query) async {
+  Future<void> getSuggestion(String query) async {
     if (query.isEmpty) {
       _suggestions = [];
       notifyListeners();
@@ -85,27 +85,27 @@ class OpenRouteService with ChangeNotifier {
       final _apiResponse = await _client.get(_request);
       if (_apiResponse.statusCode == 200) _parseSuggestions(_apiResponse.body);
     } catch (e) {
-      print('suggestion ors excep');
+      debugPrint('suggestion ors excep');
     }
   }
 
   void _parseSuggestions(String response) {
-    Map<dynamic, dynamic> _decodedResponse = json.decode(response);
+    final _decodedResponse = json.decode(response);
     if (_decodedResponse['features'].length == 0) {
       return;
     }
     try {
       _suggestions = _decodedResponse['features']
           .map((feature) => NamedPoint(
-                feature['properties']['label'],
-                LatLng(feature['geometry']['coordinates'][1].toDouble() ?? 0.0,
-                    feature['geometry']['coordinates'][0].toDouble() ?? 0.0),
+                feature['properties']['label'] as String,
+                LatLng(feature['geometry']['coordinates'][1].toDouble() as double ?? 0.0,
+                    feature['geometry']['coordinates'][0].toDouble() as double ?? 0.0),
               ))
           .toList() as List<dynamic>;
       notifyListeners();
       return;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return;
     }
   }

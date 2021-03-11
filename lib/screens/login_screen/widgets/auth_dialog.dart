@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 import 'package:navigation_app/screens/login_screen/widgets/login.dart';
 import 'package:navigation_app/screens/login_screen/widgets/register.dart';
+
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 
 import '../../../resources/widget_view.dart';
 
 class AuthDialog extends StatefulWidget {
   final SelectedTab _selectedTab;
-  final Function _onClose;
+  final void Function() _onClose;
 
-  const AuthDialog({SelectedTab selectedTab, Function onClose})
+  const AuthDialog({SelectedTab selectedTab, void Function() onClose})
       : _selectedTab = selectedTab,
         _onClose = onClose;
 
@@ -37,7 +38,7 @@ class _AuthDialogController extends State<AuthDialog> {
 }
 
 class _AuthDialogView extends WidgetView<AuthDialog, _AuthDialogController> {
-  _AuthDialogView(_AuthDialogController state) : super(state);
+  const _AuthDialogView(_AuthDialogController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class _AuthDialogView extends WidgetView<AuthDialog, _AuthDialogController> {
                     ),
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.white,
-                    tabs: <Widget>[
+                    tabs: const <Widget>[
                       Tab(
                         text: "Přihlásit se",
                       ),
@@ -71,7 +72,7 @@ class _AuthDialogView extends WidgetView<AuthDialog, _AuthDialogController> {
                 ),
                 IconButton(
                   color: Colors.white,
-                  icon: Icon(Icons.clear),
+                  icon: const Icon(Icons.clear),
                   onPressed: state.widget._onClose,
                 ),
               ],
@@ -85,7 +86,7 @@ class _AuthDialogView extends WidgetView<AuthDialog, _AuthDialogController> {
               padding: const EdgeInsets.all(0),
               height: 300,
               child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 300),
                 child: state._selectedTab == 0 ? LoginForm() : RegisterForm(),
               ),
             ),

@@ -12,7 +12,7 @@ class NewRoute {
   GeoJson geoJson;
 
   List getWaypoints() {
-    var list = [];
+    final list = [];
     list.add([start.point.longitude, start.point.latitude]);
     list.addAll(
         waypoints.map((point) => [point.longitude, point.latitude]).toList());

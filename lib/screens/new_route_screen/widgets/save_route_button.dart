@@ -4,19 +4,21 @@ import 'package:navigation_app/resources/providers.dart';
 import 'package:sizer/sizer.dart';
 
 class SaveRouteButton extends StatelessWidget {
-  const SaveRouteButton({Function onTap}) : _onTap = onTap;
+  const SaveRouteButton({void Function() onTap}) : _onTap = onTap;
 
-  final Function _onTap;
+  final void Function() _onTap;
 
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, watch, child) {
       final isLoading = watch(openRouteServiceProvider).isLoading;
       return Positioned(
+        right: 1.2.h,
+        bottom: 1.2.h,
         child: !isLoading
             ? Container(
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: Colors.black),
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle, color: Colors.black),
                 child: IconButton(
                   icon: Icon(
                     Icons.check,
@@ -26,10 +28,8 @@ class SaveRouteButton extends StatelessWidget {
                   onPressed: _onTap,
                 ),
               )
-            : CircularProgressIndicator(
+            : const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.black)),
-        bottom: 1.2.h,
-        right: 1.2.h,
       );
     });
   }

@@ -6,7 +6,7 @@ class Debouncer {
 
   Debouncer({this.delay = const Duration(milliseconds: 400)});
 
-  call(Function action) {
+  void call(void Function() action) {
     _timer?.cancel();
     _timer = Timer(delay, action);
   }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:map_controller/map_controller.dart';
 import 'package:latlong/latlong.dart';
+import 'package:map_controller/map_controller.dart';
 
 class MyMap extends StatelessWidget {
-  const MyMap({controller, onTap, onLongPress})
+  const MyMap(
+      {StatefulMapController controller,
+      void Function(LatLng) onTap,
+      void Function() onLongPress})
       : _controller = controller,
         _onTap = onTap,
         _onLongPress = onLongPress;

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigation_app/screens/home_screen/widgets/button.dart';
 import 'package:navigation_app/services/auth.dart';
 import 'package:sizer/sizer.dart';
+
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -30,18 +31,17 @@ class _HomeScreenController extends State<HomeScreen> {
 }
 
 class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
-  _HomeScreenView(_HomeScreenController state) : super(state);
+  const _HomeScreenView(_HomeScreenController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      top: true,
       child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.cyan,
             centerTitle: true,
             leading: Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: Image.asset('assets/splash_logo.png')),
             title: Text(
               'Hodinky připojeny',
@@ -51,7 +51,7 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
               IconButton(
                 color: Colors.black,
                 iconSize: 5.0.h,
-                icon: Icon(Icons.exit_to_app),
+                icon: const Icon(Icons.exit_to_app),
                 onPressed: state._authService.signOut,
               )
             ],
@@ -72,7 +72,7 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                     label: 'Moje trasy',
                     heroTag: 'myRoutes',
                     icon: Icons.map_outlined,
-                    onTap: () => print('moje trasy'),
+                    onTap: () => debugPrint('moje trasy'),
                   )
                 ],
               ),
@@ -83,13 +83,13 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                     label: 'Nastavení',
                     heroTag: 'settings',
                     icon: Icons.settings_outlined,
-                    onTap: () => print('nastavení'),
+                    onTap: () => debugPrint('nastavení'),
                   ),
                   HomeScreenButton(
                     label: 'Informace',
                     heroTag: 'about',
                     icon: Icons.info_outline,
-                    onTap: () => print('info'),
+                    onTap: () => debugPrint('info'),
                   )
                 ],
               )

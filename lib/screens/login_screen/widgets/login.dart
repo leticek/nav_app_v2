@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
 import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
 
@@ -27,7 +28,7 @@ class _LoginFormController extends State<LoginForm> {
     _passwordField = FocusNode();
   }
 
-  _login() async {
+  Future<void> _login() async {
     FocusManager.instance.primaryFocus.unfocus();
     if (_formKey.currentState.validate()) {
       if (!await context
@@ -44,7 +45,7 @@ class _LoginFormController extends State<LoginForm> {
 }
 
 class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
-  _LoginFormView(_LoginFormController state) : super(state);
+  const _LoginFormView(_LoginFormController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
@@ -53,21 +54,21 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
       return Form(
         key: state._formKey,
         child: ListView(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           children: [
             Container(
               padding: const EdgeInsets.all(0),
               child: TextFormField(
-                key: Key("email-field"),
+                key: const Key("email-field"),
                 controller: state._email,
                 validator: (value) => (value.isEmpty) ? 'Zadejte email.' : null,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan),
+                    borderSide: BorderSide(color: Colors.cyan),
                   ),
                 ),
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 textInputAction: TextInputAction.next,
                 onEditingComplete: () =>
                     FocusScope.of(context).requestFocus(state._passwordField),
@@ -78,29 +79,29 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
               padding: const EdgeInsets.all(0),
               child: TextFormField(
                 focusNode: state._passwordField,
-                key: Key("password-field"),
+                key: const Key("password-field"),
                 controller: state._password,
                 obscureText: true,
                 validator: (value) => (value.isEmpty) ? 'Zadejte heslo.' : null,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Heslo',
                   focusedBorder: UnderlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.cyan),
+                    borderSide: BorderSide(color: Colors.cyan),
                   ),
                 ),
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
                 onEditingComplete: state._login,
               ),
             ),
-            SizedBox(height: 10.0),
-            if (user.status == Status.Authenticating)
-              Center(child: CircularProgressIndicator()),
-            if (user.status != Status.Authenticating)
+            const SizedBox(height: 10.0),
+            if (user.status == Status.authenticating)
+              const Center(child: CircularProgressIndicator()),
+            if (user.status != Status.authenticating)
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.black),
                   onPressed: state._login,
-                  child: Text('Přihlásit se'),
+                  child: const Text('Přihlásit se'),
                 ),
               ),
           ],
@@ -109,4 +110,3 @@ class _LoginFormView extends WidgetView<LoginForm, _LoginFormController> {
     });
   }
 }
-

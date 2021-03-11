@@ -15,7 +15,6 @@ class AppRoutes {
     return MaterialPageRoute(
         settings: settings,
         builder: (_) {
-          print(settings.name);
           switch (settings.name) {
             case auth:
               return AuthHome();
