@@ -13,12 +13,12 @@ class SavedRoute {
   NamedPoint start;
   NamedPoint goal;
 
-  List<RouteStep> routeSteps = [];
+  List<dynamic> routeSteps = [];
   List<double> messageBoundingBox = [];
-  List<LatLng> latLngRoutePoints = [];
+  List<dynamic> latLngRoutePoints = [];
 
-  List<LatLng> waypoints;
-  List<Map<String, LatLng>> history;
+  List<dynamic> waypoints;
+  dynamic history;
   String routeGeoJsonString;
 
   Map _parsedRoute;
@@ -78,11 +78,29 @@ class SavedRoute {
     }
   }
 
-  SavedRoute.fromMap({Map route}) {
-    //TODO: dodělat rozparsovaní
+  SavedRoute.fromMap(Map route) {
     id = route['id'] as String;
-    start = NamedPoint.fromMap(point: route['start'] as Map<String, GeoPoint>);
-    goal = NamedPoint.fromMap(point: route['goal'] as Map<String, GeoPoint>);
+    start = NamedPoint.fromMap(point: route['start'] as Map<String, dynamic>);
+    goal = NamedPoint.fromMap(point: route['goal'] as Map<String, dynamic>);
+    messageBoundingBox = List<double>.from(route['boundingBox'] as List);
+    routeGeoJsonString = route['geojson'] as String;
+    history = route['history']
+        .map((e) => e.map(
+              (String key, value) => MapEntry(key,
+                  LatLng(value.latitude as double, value.latitude as double)),
+            ))
+        .toList();
+    latLngRoutePoints = route['line']
+        .map((latLng) =>
+            GeoPoint(latLng.latitude as double, latLng.longitude as double))
+        .toList() as List<dynamic>;
+    routeSteps = route['routeSteps']
+        .map((e) => RouteStep.fromMap(e as Map))
+        .toList() as List<dynamic>;
+    waypoints = route['waypoints']
+        .map((point) =>
+            LatLng(point.latitude as double, point.latitude as double))
+        .toList() as List<dynamic>;
   }
 
   Map<String, dynamic> toMap() {
@@ -93,20 +111,20 @@ class SavedRoute {
       'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
       'boundingBox': messageBoundingBox,
       'line': latLngRoutePoints
-          .map<GeoPoint>(
-              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
+          .map<GeoPoint>((latLng) =>
+              GeoPoint(latLng.latitude as double, latLng.longitude as double))
           .toList(),
       'waypoints': waypoints
-          .map<GeoPoint>(
-              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
+          .map<GeoPoint>((latLng) =>
+              GeoPoint(latLng.latitude as double, latLng.longitude as double))
           .toList(),
       'history': history
-          .map(
-            (e) => e.map(
-              (key, value) =>
-                  MapEntry(key, GeoPoint(value.latitude, value.latitude)),
-            ),
-          )
+          .map((e) => e.map(
+                (key, value) => MapEntry(
+                    key,
+                    GeoPoint(
+                        value.latitude as double, value.latitude as double)),
+              ))
           .toList(),
       'geojson': routeGeoJsonString,
     };

@@ -1,7 +1,7 @@
 class RouteStep {
-  final String instruction;
-  final int type;
-  final int distance;
+  String instruction;
+  int type;
+  int distance;
 
   RouteStep(
     this.instruction,
@@ -14,6 +14,12 @@ class RouteStep {
         "type": type,
         "distance": distance,
       };
+
+  RouteStep.fromMap(Map map) {
+    instruction = map['instruction'] as String;
+    type = map['type'] as int;
+    distance = map['distance'] as int;
+  }
 
   @override
   String toString() {

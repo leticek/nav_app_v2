@@ -40,7 +40,23 @@ class FirestoreService {
   }
 
   Stream<UserModel> streamUserById(User user) {
-    return _instance.collection('users').doc(user.uid).snapshots().map((snap) =>
-        snap.exists ? UserModel.fromFirestore(snap.data()) : null);
+    return _instance.collection('users').doc(user.uid).snapshots().map(
+        (snap) => snap.exists ? UserModel.fromFirestore(snap.data()) : null);
+  }
+
+  Stream<List<SavedRoute>> streamUserRoutes(User user) {
+    return _instance
+        .collection('users/${user.uid}/routes')
+        .snapshots()
+        .map((snap) => snap.docs.isNotEmpty ? loadRoutes(snap.docs) : null);
+  }
+
+  List<SavedRoute> loadRoutes(List<QueryDocumentSnapshot> snap) {
+    final List<SavedRoute> list = [];
+    for (final documentSnap in snap) {
+      list.add(SavedRoute.fromMap(documentSnap.data()));
+    }
+    print('route stream');
+    return list;
   }
 }

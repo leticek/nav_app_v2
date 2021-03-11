@@ -5,7 +5,7 @@ import 'package:navigation_app/resources/models/saved_route.dart';
 class UserModel {
   String userId;
   String email;
-  List<SavedRoute> savedRoutes;
+  List<SavedRoute> savedRoutes = [];
 
   UserModel.fromUser(User user) {
     userId = user.uid;

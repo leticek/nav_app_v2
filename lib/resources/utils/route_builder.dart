@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:navigation_app/screens/home_screen/home_screen.dart';
 import 'package:navigation_app/screens/login_screen/home.dart';
+import 'package:navigation_app/screens/my_routes_screen/my_routes_screen.dart';
 import 'package:navigation_app/screens/new_route_screen/new_route_screen.dart';
 
 class AppRoutes {
@@ -23,7 +24,7 @@ class AppRoutes {
             case newRoute:
               return NewRouteScreen();
             case myRoutes:
-              return null;
+              return MyRoutesScreen();
             case about:
               return null;
             default:

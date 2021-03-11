@@ -28,6 +28,13 @@ class _HomeScreenController extends State<HomeScreen> {
   void _goToNewRouteScreen() {
     Navigator.pushNamed(context, AppRoutes.newRoute);
   }
+
+
+    void _goToMyRoutesScreen() {
+      Navigator.pushNamed(context, AppRoutes.myRoutes);
+    }
+
+
 }
 
 class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
@@ -72,7 +79,7 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                     label: 'Moje trasy',
                     heroTag: 'myRoutes',
                     icon: Icons.map_outlined,
-                    onTap: () => debugPrint('moje trasy'),
+                    onTap: state._goToMyRoutesScreen,
                   )
                 ],
               ),
