@@ -110,10 +110,12 @@ class AuthService with ChangeNotifier {
       _userListener =
           read(firestoreProvider).streamUserById(_user).listen((event) {
         _userModel = event;
+        notifyListeners();
       });
       _userRoutesListener =
           read(firestoreProvider).streamUserRoutes(_user).listen((event) {
         _userModel.savedRoutes = event;
+        notifyListeners();
       });
       _status = Status.authenticated;
     }

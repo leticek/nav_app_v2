@@ -44,7 +44,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Position _currentPosition;
 
   Future<void> _saveRoute() async {
-    context.read(firestoreProvider).saveNewRoute(
+    if (await context.read(firestoreProvider).saveNewRoute(
         SavedRoute(
           start: _newRoute.start,
           goal: _newRoute.goal,
@@ -52,7 +52,15 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
           history: _history,
           routeGeoJsonString: _newRoute.geoJsonString,
         ),
-        context.read(authServiceProvider).userModel.userId);
+        context.read(authServiceProvider).userModel.userId)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Trasa úspěšně uložena.'),
+      ));
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text('Chyba. Zkuste to později.'),
+    ));
   }
 
   Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
