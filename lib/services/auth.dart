@@ -96,7 +96,6 @@ class AuthService with ChangeNotifier {
     _userModel = null;
     _userListener.cancel();
     _userRoutesListener.cancel();
-    _authListener.cancel();
     notifyListeners();
     return Future.delayed(Duration.zero);
   }
@@ -120,12 +119,6 @@ class AuthService with ChangeNotifier {
       _status = Status.authenticated;
     }
     notifyListeners();
-  }
-
-  bool temp(SavedRoute route){
-    _userModel.savedRoutes.remove(route);
-    notifyListeners();
-    return true;
   }
 
 }

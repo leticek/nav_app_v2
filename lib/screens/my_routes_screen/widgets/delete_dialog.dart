@@ -23,13 +23,9 @@ class DeleteConfirmation extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(primary: Colors.black),
           onPressed: () {
-            if (context.read(authServiceProvider).temp(route)) {
-              context.read(firestoreProvider).deleteRoute(
-                  context.read(authServiceProvider).userModel.userId, route.id);
-              Navigator.of(context).pop(true);
-              return;
-            }
-            Navigator.of(context).pop(false);
+            context.read(firestoreProvider).deleteRoute(
+                context.read(authServiceProvider).userModel.userId, route.id);
+            Navigator.of(context).pop(true);
           },
           child: const Text('Smazat'),
         )

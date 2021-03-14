@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/providers.dart';
+import 'package:navigation_app/resources/utils/route_builder.dart';
+import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/home_screen/widgets/button.dart';
 import 'package:navigation_app/services/auth.dart';
 import 'package:sizer/sizer.dart';
 
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
+
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -89,7 +90,10 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                     label: 'Nastavení',
                     heroTag: 'settings',
                     icon: Icons.settings_outlined,
-                    onTap: () => debugPrint('nastavení'),
+                    onTap: ()  {
+                      var t = context.read(authServiceProvider).userModel.savedRoutes;
+                      print(t);
+                    },
                   ),
                   HomeScreenButton(
                     label: 'Informace',

@@ -44,9 +44,10 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Position _currentPosition;
 
   Future<void> _saveRoute() async {
-    print('save route');
     setState(() {
-      context.read(openRouteServiceProvider).isLoading = true;
+      context
+          .read(openRouteServiceProvider)
+          .isLoading = true;
     });
     if (await context.read(firestoreProvider).saveNewRoute(
         SavedRoute(
@@ -56,17 +57,24 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
           history: _history,
           routeGeoJsonString: _newRoute.geoJsonString,
         ),
-        context.read(authServiceProvider).userModel.userId)) {
+        context
+            .read(authServiceProvider)
+            .userModel
+            .userId)) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Trasa úspěšně uložena.'),
       ));
       setState(() {
-        context.read(openRouteServiceProvider).isLoading = false;
+        context
+            .read(openRouteServiceProvider)
+            .isLoading = false;
       });
       return;
     }
     setState(() {
-      context.read(openRouteServiceProvider).isLoading = false;
+      context
+          .read(openRouteServiceProvider)
+          .isLoading = false;
     });
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Chyba. Zkuste to později.'),
@@ -112,15 +120,21 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     super.didChangeDependencies();
     _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    _statefulMapController.addMarker(
+    _statefulMapController.centerOnPoint(
+        LatLng(_currentPosition.latitude, _currentPosition.longitude));
+    _statefulMapController.zoomTo(14);
+        _statefulMapController.addMarker(
         marker: Marker(
-            builder: (context) => const Icon(Icons.person),
-            height: 10,
-            width: 10,
-            point:
-                LatLng(_currentPosition.latitude, _currentPosition.longitude)),
-        name: 'currentLoaction');
-  }
+        builder: (context)
+    =>
+    const Icon(Icons.person)
+    ,
+    height: 10,
+    width: 10,
+    point:
+    LatLng(_currentPosition.latitude, _currentPosition.longitude)),
+    name: 'currentLoaction');
+    }
 
   @override
   void dispose() {
@@ -139,8 +153,10 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     });
   }
 
-  void _textFieldChanged(String value) => _debouncer(
-      () => context.read(openRouteServiceProvider).getSuggestion(value));
+  void _textFieldChanged(String value) =>
+      _debouncer(
+              () =>
+              context.read(openRouteServiceProvider).getSuggestion(value));
 
   Future<void> _addPlaceFromTap(LatLng point) async {
     final namedPoint = NamedPoint.fromPoint(point);
@@ -155,7 +171,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       _newRoute.waypoints.add(point);
       _statefulMapController.addMarker(
           marker:
-              _makeMarker(position: point, iconData: Icons.pin_drop_outlined),
+          _makeMarker(position: point, iconData: Icons.pin_drop_outlined),
           name: point.toString());
       _history.add({point.toString(): point});
     }
@@ -163,7 +179,9 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   }
 
   void _removeLast() {
-    if (context.read(openRouteServiceProvider).isLoading) return;
+    if (context
+        .read(openRouteServiceProvider)
+        .isLoading) return;
     final pointToRemove = _history.last;
     _history.removeLast();
     if (pointToRemove.containsKey('start')) {
@@ -274,28 +292,28 @@ class _NewRouteScreenView
             duration: const Duration(milliseconds: 1),
             child: state._inputVisible
                 ? Container(
-                    color: Colors.white38,
-                    height: 20.0.h,
-                    width: 100.0.w,
-                    child: ListView(
-                      children: [
-                        InputField(
-                          key: const Key('start-field'),
-                          focusNode: state._startFocus,
-                          textEditingController: state._startController,
-                          label: 'Start',
-                          onChanged: state._textFieldChanged,
-                        ),
-                        InputField(
-                          key: const Key('goal-field'),
-                          focusNode: state._goalFocus,
-                          textEditingController: state._goalController,
-                          label: 'Cíl',
-                          onChanged: state._textFieldChanged,
-                        )
-                      ],
-                    ),
+              color: Colors.white38,
+              height: 20.0.h,
+              width: 100.0.w,
+              child: ListView(
+                children: [
+                  InputField(
+                    key: const Key('start-field'),
+                    focusNode: state._startFocus,
+                    textEditingController: state._startController,
+                    label: 'Start',
+                    onChanged: state._textFieldChanged,
+                  ),
+                  InputField(
+                    key: const Key('goal-field'),
+                    focusNode: state._goalFocus,
+                    textEditingController: state._goalController,
+                    label: 'Cíl',
+                    onChanged: state._textFieldChanged,
                   )
+                ],
+              ),
+            )
                 : SearchButton(onPressed: state._showHintList),
           ),
           if (!state._inputVisible) SaveRouteButton(onTap: state._saveRoute),

@@ -46,7 +46,7 @@ class FirestoreService {
   }
 
   Stream<List<SavedRoute>> streamUserRoutes(User user) {
-    final List<DocumentSnapshot> changedDocs = [];
+    final Map<String, DocumentSnapshot> changedDocs = {};
     return _instance
         .collection('users/${user.uid}/routes')
         .snapshots()
@@ -55,20 +55,20 @@ class FirestoreService {
       print('cache: ${snap.metadata.isFromCache}');
       print('počet cest: ${snap.docs.length}');
       print('počet zmeň: ${snap.docChanges.length}');
-      print('změna: ${snap.docChanges.first.type}');
-      for (final doc in snap.docChanges) {
-        if (doc.type == DocumentChangeType.removed) {
-          changedDocs.remove(doc.doc);
+      for (final docChange in snap.docChanges) {
+        print('id: ${docChange.doc.id} změna: ${docChange.type}');
+        if (docChange.type == DocumentChangeType.removed) {
+          changedDocs.remove(docChange.doc.id);
           break;
         }
-        if (doc.type == DocumentChangeType.modified ||
-            doc.type == DocumentChangeType.added) {
-          if (!changedDocs.contains(doc.doc)) {
-            changedDocs.add(doc.doc);
-          }
+        if (docChange.type == DocumentChangeType.modified ||
+            docChange.type == DocumentChangeType.added) {
+          changedDocs.putIfAbsent(docChange.doc.id, () => docChange.doc);
         }
       }
-      return changedDocs.isNotEmpty ? loadRoutes(changedDocs) : [];
+      return changedDocs.isNotEmpty
+          ? loadRoutes(changedDocs.values.toList())
+          : [];
     });
   }
 

@@ -16,7 +16,7 @@ class RouteWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Stack(key: UniqueKey(),
       children: [
         Container(
           decoration: const BoxDecoration(
