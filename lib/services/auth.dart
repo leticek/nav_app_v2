@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:navigation_app/resources/enums.dart';
+import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/services/validator.dart';
@@ -101,7 +102,6 @@ class AuthService with ChangeNotifier {
   }
 
   Future<void> _onAuthStateChanged(User firebaseUser) async {
-    print('auth change');
     if (firebaseUser == null) {
       _status = Status.unauthenticated;
       _user = null;
@@ -121,4 +121,11 @@ class AuthService with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  bool temp(SavedRoute route){
+    _userModel.savedRoutes.remove(route);
+    notifyListeners();
+    return true;
+  }
+
 }

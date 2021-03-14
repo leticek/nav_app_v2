@@ -37,13 +37,15 @@ class _MyRoutesScreenView
           ),
         ),
         Consumer(
-          builder: (context, watch, child) => SliverList(
-            delegate: SliverChildBuilderDelegate(
-                (context, index) => RouteWidget(
-                    watch(authServiceProvider).userModel.savedRoutes[index]),
-                childCount:
-                    watch(authServiceProvider).userModel.savedRoutes.length),
-          ),
+          builder: (context, watch, child) {
+            final service = watch(authServiceProvider);
+            return SliverList(
+              delegate: SliverChildBuilderDelegate(
+                  (context, index) =>
+                      RouteWidget(service.userModel.savedRoutes[index]),
+                  childCount: service.userModel.savedRoutes?.length ??= 0),
+            );
+          },
         )
       ]),
     );

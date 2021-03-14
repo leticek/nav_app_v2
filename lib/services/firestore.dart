@@ -17,10 +17,10 @@ class FirestoreService {
         persistenceEnabled: true);
   }
 
-  Future<bool> saveNewRoute(SavedRoute route, String id) async {
+  Future<bool> saveNewRoute(SavedRoute route, String userId) async {
     try {
       final _collection =
-          _instance.collection('users').doc(id).collection('routes');
+          _instance.collection('users').doc(userId).collection('routes');
       await _collection.add(route.toMap());
       return true;
     } catch (e) {
@@ -56,21 +56,31 @@ class FirestoreService {
       print('počet cest: ${snap.docs.length}');
       print('počet zmeň: ${snap.docChanges.length}');
       print('změna: ${snap.docChanges.first.type}');
-      for (final docs in snap.docChanges) {
-        if (docs.type == DocumentChangeType.added ||
-            docs.type == DocumentChangeType.modified) {
-          changedDocs.add(docs.doc);
+      for (final doc in snap.docChanges) {
+        if (doc.type == DocumentChangeType.removed) {
+          changedDocs.remove(doc.doc);
+          break;
+        }
+        if (doc.type == DocumentChangeType.modified ||
+            doc.type == DocumentChangeType.added) {
+          if (!changedDocs.contains(doc.doc)) {
+            changedDocs.add(doc.doc);
+          }
         }
       }
-      return snap.docChanges.isNotEmpty ? loadRoutes(changedDocs) : null;
+      return changedDocs.isNotEmpty ? loadRoutes(changedDocs) : [];
     });
   }
 
   List<SavedRoute> loadRoutes(List<DocumentSnapshot> docs) {
     final List<SavedRoute> list = [];
     for (final documentSnap in docs) {
-      list.add(SavedRoute.fromMap(documentSnap.data()));
+      list.add(SavedRoute.fromMap(documentSnap.data(), documentSnap.id));
     }
     return list;
+  }
+
+  void deleteRoute(String userId, String routeId) {
+    _instance.collection('users/$userId/routes').doc(routeId).delete();
   }
 }

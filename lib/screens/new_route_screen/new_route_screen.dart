@@ -44,6 +44,10 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   Position _currentPosition;
 
   Future<void> _saveRoute() async {
+    print('save route');
+    setState(() {
+      context.read(openRouteServiceProvider).isLoading = true;
+    });
     if (await context.read(firestoreProvider).saveNewRoute(
         SavedRoute(
           start: _newRoute.start,
@@ -56,8 +60,14 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Trasa úspěšně uložena.'),
       ));
+      setState(() {
+        context.read(openRouteServiceProvider).isLoading = false;
+      });
       return;
     }
+    setState(() {
+      context.read(openRouteServiceProvider).isLoading = false;
+    });
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Chyba. Zkuste to později.'),
     ));

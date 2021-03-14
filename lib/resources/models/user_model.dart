@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 
-class UserModel {
+class UserModel with ChangeNotifier{
   String userId;
   String email;
   List<SavedRoute> savedRoutes = [];
@@ -27,4 +27,9 @@ class UserModel {
     return 'UserModel{userId: $userId, email: $email, savedRoutes: $savedRoutes}';
   }
 
+  bool removeRoute(SavedRoute route) {
+    final result = savedRoutes.remove(route);
+    notifyListeners();
+    return result;
+  }
 }

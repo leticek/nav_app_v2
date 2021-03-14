@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
+import 'package:navigation_app/screens/my_routes_screen/widgets/delete_dialog.dart';
 import 'package:navigation_app/screens/my_routes_screen/widgets/route_preview.dart';
 import 'package:sizer/sizer.dart';
 
@@ -9,7 +10,7 @@ class RouteWidget extends StatelessWidget {
   final SavedRoute savedRoute;
 
   final textStyle = TextStyle(
-    fontSize: 10.0.sp,
+    fontSize: 9.0.sp,
     fontWeight: FontWeight.w600,
   );
 
@@ -28,35 +29,42 @@ class RouteWidget extends StatelessWidget {
         buildMap(),
         buildStartAndGoal(),
         buildAscentDescent(),
-        buildButtons()
+        buildButtons(context)
       ],
     );
   }
 
-  Positioned buildButtons() {
+  Positioned buildButtons(BuildContext context) {
     return Positioned(
-        left: 5.0.w,
-        right: 5.0.w,
-        bottom: 1.1.h,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    primary: Colors.black, backgroundColor: Colors.white),
-                onPressed: () {},
-                child: const Text('Upravit')),
-            OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                    primary: Colors.black, backgroundColor: Colors.white),
-                onPressed: () {},
-                child: const Text('Smazat')),
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(primary: Colors.black),
-                onPressed: () {},
-                child: const Text('Navigovat'))
-          ],
-        ));
+      left: 5.0.w,
+      right: 5.0.w,
+      bottom: 1.1.h,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+                primary: Colors.black, backgroundColor: Colors.white),
+            onPressed: () {},
+            child: const Text('Upravit'),
+          ),
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+                primary: Colors.black, backgroundColor: Colors.white),
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => DeleteConfirmation(savedRoute),
+            ),
+            child: const Text('Smazat'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(primary: Colors.black),
+            onPressed: () {},
+            child: const Text('Navigovat'),
+          )
+        ],
+      ),
+    );
   }
 
   Positioned buildAscentDescent() {
@@ -104,14 +112,25 @@ class RouteWidget extends StatelessWidget {
         ),
         height: 6.5.h,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(savedRoute.start.name,
-                overflow: TextOverflow.ellipsis, style: textStyle),
-            Text(savedRoute.goal.name,
-                overflow: TextOverflow.ellipsis, style: textStyle),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Icon(Icons.person_pin),
+                Text(savedRoute.start.name,
+                    overflow: TextOverflow.ellipsis, style: textStyle),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Icon(Icons.flag_rounded),
+                Text(savedRoute.goal.name,
+                    overflow: TextOverflow.ellipsis, style: textStyle),
+              ],
+            ),
           ],
         ),
       ),

@@ -33,7 +33,6 @@ class SavedRoute {
     @required this.history,
     @required this.routeGeoJsonString,
   }) {
-    id = DateTime.now().toIso8601String();
     _parsedRoute = json.decode(routeGeoJsonString) as Map;
     ascent = _parsedRoute['features'].first['properties']['ascent'] as double;
     descent = _parsedRoute['features'].first['properties']['descent'] as double;
@@ -83,8 +82,7 @@ class SavedRoute {
     }
   }
 
-  SavedRoute.fromMap(Map<String, dynamic> route) {
-    id = route['id'] as String;
+  SavedRoute.fromMap(Map<String, dynamic> route, this.id) {
     start = NamedPoint.fromMap(point: route['start'] as Map<String, dynamic>);
     goal = NamedPoint.fromMap(point: route['goal'] as Map<String, dynamic>);
     ascent = route['ascent'] as double;
@@ -116,7 +114,6 @@ class SavedRoute {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'start': start.toMap(),
       'goal': goal.toMap(),
       'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
@@ -141,5 +138,10 @@ class SavedRoute {
       'ascent': ascent,
       'descent': descent,
     };
+  }
+
+  @override
+  String toString() {
+    return 'SavedRoute{id: $id}';
   }
 }
