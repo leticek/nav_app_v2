@@ -20,7 +20,6 @@ class _HomeScreenController extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _authService = context.read(authServiceProvider);
   }

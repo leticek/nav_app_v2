@@ -17,6 +17,9 @@ class SavedRoute {
   List<double> messageBoundingBox = [];
   List<LatLng> latLngRoutePoints = [];
 
+  double ascent;
+  double descent;
+
   List<LatLng> waypoints;
   dynamic history;
   String routeGeoJsonString;
@@ -32,6 +35,8 @@ class SavedRoute {
   }) {
     id = DateTime.now().toIso8601String();
     _parsedRoute = json.decode(routeGeoJsonString) as Map;
+    ascent = _parsedRoute['features'].first['properties']['ascent'] as double;
+    descent = _parsedRoute['features'].first['properties']['descent'] as double;
     parseBoundingBox();
     parseRoutePoints();
     parseRouteSegments();
@@ -82,6 +87,8 @@ class SavedRoute {
     id = route['id'] as String;
     start = NamedPoint.fromMap(point: route['start'] as Map<String, dynamic>);
     goal = NamedPoint.fromMap(point: route['goal'] as Map<String, dynamic>);
+    ascent = route['ascent'] as double;
+    descent = route['descent'] as double;
     messageBoundingBox = List<double>.from(route['boundingBox'] as List);
     routeGeoJsonString = route['geojson'] as String;
     history = route['history']
@@ -115,12 +122,12 @@ class SavedRoute {
       'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
       'boundingBox': messageBoundingBox,
       'line': latLngRoutePoints
-          .map<GeoPoint>((latLng) =>
-              GeoPoint(latLng.latitude, latLng.longitude))
+          .map<GeoPoint>(
+              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
           .toList(),
       'waypoints': waypoints
-          .map<GeoPoint>((latLng) =>
-              GeoPoint(latLng.latitude, latLng.longitude))
+          .map<GeoPoint>(
+              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
           .toList(),
       'history': history
           .map((e) => e.map(
@@ -131,6 +138,8 @@ class SavedRoute {
               ))
           .toList(),
       'geojson': routeGeoJsonString,
+      'ascent': ascent,
+      'descent': descent,
     };
   }
 }
