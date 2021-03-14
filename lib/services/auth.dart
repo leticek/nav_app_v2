@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:navigation_app/resources/enums.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/services/validator.dart';
@@ -18,7 +17,6 @@ class AuthService with ChangeNotifier {
   Status _status = Status.uninitialized;
   String _errorCode;
   final Reader read;
-  StreamSubscription _authListener;
   StreamSubscription _userListener;
   StreamSubscription _userRoutesListener;
 
@@ -32,8 +30,7 @@ class AuthService with ChangeNotifier {
     _firebaseAuth = FirebaseAuth.instance;
     _googleSignIn = GoogleSignIn(scopes: ['email']);
     _errorCode = '';
-    _authListener =
-        _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
+    _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
   }
 
   Future<bool> signIn(String email, String password) async {
@@ -120,5 +117,4 @@ class AuthService with ChangeNotifier {
     }
     notifyListeners();
   }
-
 }
