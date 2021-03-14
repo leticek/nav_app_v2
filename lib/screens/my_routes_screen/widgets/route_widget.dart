@@ -80,18 +80,20 @@ class RouteWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Icon(Icons.arrow_circle_up),
-                Text(savedRoute.ascent.toString(),
+                const Spacer(),
+                Text('${savedRoute.ascent.toString()}m ',
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Icon(Icons.arrow_circle_down),
-                Text(savedRoute.descent.toString(),
+                const Spacer(),
+                Text('${savedRoute.descent.toString()}m',
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
