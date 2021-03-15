@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:navigation_app/resources/models/saved_route.dart';
+import 'package:navigation_app/screens/edit_route_screen/edit_route_screen.dart';
 import 'package:navigation_app/screens/home_screen/home_screen.dart';
 import 'package:navigation_app/screens/login_screen/home.dart';
 import 'package:navigation_app/screens/my_routes_screen/my_routes_screen.dart';
@@ -11,6 +13,7 @@ class AppRoutes {
   static const String myRoutes = 'myRoutes';
   static const String about = 'about';
   static const String settings = 'settings';
+  static const String editRoute = 'editRoute';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -27,6 +30,10 @@ class AppRoutes {
               return MyRoutesScreen();
             case about:
               return null;
+            case editRoute:
+              return EditRouteScreen(
+                routeToEdit: settings.arguments as SavedRoute,
+              );
             default:
               return null;
           }

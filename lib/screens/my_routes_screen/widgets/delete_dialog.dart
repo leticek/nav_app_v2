@@ -17,7 +17,7 @@ class DeleteConfirmation extends StatelessWidget {
         OutlinedButton(
           style: OutlinedButton.styleFrom(
               primary: Colors.black, backgroundColor: Colors.white),
-          onPressed: () {},
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text('Zpět'),
         ),
         ElevatedButton(
@@ -25,7 +25,10 @@ class DeleteConfirmation extends StatelessWidget {
           onPressed: () {
             context.read(firestoreProvider).deleteRoute(
                 context.read(authServiceProvider).userModel.userId, route.id);
-            Navigator.of(context).pop(true);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Trasa byla smazána.'),
+            ));
+            Navigator.of(context).pop();
           },
           child: const Text('Smazat'),
         )

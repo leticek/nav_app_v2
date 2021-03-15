@@ -1,6 +1,7 @@
 import 'package:geojson/geojson.dart';
 import 'package:latlong/latlong.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
+import 'package:navigation_app/resources/models/saved_route.dart';
 
 class NewRoute {
   NewRoute();
@@ -10,6 +11,13 @@ class NewRoute {
   List<LatLng> waypoints = [];
   String geoJsonString;
   GeoJson geoJson;
+
+  NewRoute.fromSavedRoute(SavedRoute savedRoute) {
+    start = savedRoute.start;
+    goal = savedRoute.goal;
+    waypoints = savedRoute.waypoints;
+    geoJsonString = savedRoute.routeGeoJsonString;
+  }
 
   List getWaypoints() {
     final list = [];

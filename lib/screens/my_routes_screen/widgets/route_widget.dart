@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
+import 'package:navigation_app/resources/utils/route_builder.dart';
 import 'package:navigation_app/screens/my_routes_screen/widgets/delete_dialog.dart';
 import 'package:navigation_app/screens/my_routes_screen/widgets/route_preview.dart';
 import 'package:sizer/sizer.dart';
@@ -16,7 +18,8 @@ class RouteWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(key: UniqueKey(),
+    return Stack(
+      key: UniqueKey(),
       children: [
         Container(
           decoration: const BoxDecoration(
@@ -24,7 +27,7 @@ class RouteWidget extends StatelessWidget {
             color: Colors.cyan,
           ),
           margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          height: 31.0.h,
+          height: 31.4.h,
         ),
         buildMap(),
         buildStartAndGoal(),
@@ -45,7 +48,10 @@ class RouteWidget extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
                 primary: Colors.black, backgroundColor: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.editRoute,
+                  arguments: savedRoute);
+            },
             child: const Text('Upravit'),
           ),
           OutlinedButton(
@@ -53,7 +59,9 @@ class RouteWidget extends StatelessWidget {
                 primary: Colors.black, backgroundColor: Colors.white),
             onPressed: () => showDialog(
               context: context,
-              builder: (context) => DeleteConfirmation(savedRoute),
+              builder: (context) {
+                return DeleteConfirmation(savedRoute);
+              },
             ),
             child: const Text('Smazat'),
           ),
@@ -70,17 +78,16 @@ class RouteWidget extends StatelessWidget {
   Positioned buildAscentDescent() {
     return Positioned(
       left: 74.5.w,
-      bottom: 8.0.h,
+      bottom: 7.6.h,
       right: 5.0.w,
       child: SizedBox(
-        height: 6.0.h,
+        height: 6.4.h,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Icon(Icons.arrow_circle_up),
                 const Spacer(),
@@ -89,7 +96,7 @@ class RouteWidget extends StatelessWidget {
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Icon(Icons.arrow_circle_down),
                 const Spacer(),
@@ -106,7 +113,7 @@ class RouteWidget extends StatelessWidget {
   Positioned buildStartAndGoal() {
     return Positioned(
       left: 5.0.w,
-      bottom: 8.0.h,
+      bottom: 7.6.h,
       right: 27.0.w,
       child: Container(
         decoration: const BoxDecoration(

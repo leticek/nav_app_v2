@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +10,7 @@ import 'package:navigation_app/resources/models/new_route.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/gpx_import_button.dart';
+import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/input_field.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/map.dart';
@@ -20,28 +19,121 @@ import 'package:navigation_app/screens/new_route_screen/widgets/search_button.da
 import 'package:navigation_app/screens/new_route_screen/widgets/search_hints.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../resources/widget_view.dart';
+class EditRouteScreen extends StatefulWidget {
+  const EditRouteScreen({Key key, this.routeToEdit}) : super(key: key);
 
-class NewRouteScreen extends StatefulWidget {
   @override
-  _NewRouteScreenController createState() => _NewRouteScreenController();
+  _EditRouteScreenController createState() => _EditRouteScreenController();
+
+  final SavedRoute routeToEdit;
 }
 
-class _NewRouteScreenController extends State<NewRouteScreen> {
+class _EditRouteScreenController extends State<EditRouteScreen> {
   @override
-  Widget build(BuildContext context) => _NewRouteScreenView(this);
+  Widget build(BuildContext context) => _EditRouteScreenView(this);
 
   bool _inputVisible = false;
   TextEditingController _startController;
   TextEditingController _goalController;
-  Debouncer _debouncer;
   FocusNode _startFocus;
   FocusNode _goalFocus;
-  MapController _mapController;
   StatefulMapController _statefulMapController;
+  MapController _mapController;
   NewRoute _newRoute;
-  final List<Map<String, LatLng>> _history = [];
+  Debouncer _debouncer;
   Position _currentPosition;
+  dynamic _history = [];
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint(widget.routeToEdit.toString());
+    _debouncer = Debouncer();
+    _startController = TextEditingController();
+    _goalController = TextEditingController();
+    _newRoute = NewRoute.fromSavedRoute(widget.routeToEdit);
+    _history = widget.routeToEdit.history;
+    _goalFocus = FocusNode();
+    _startFocus = FocusNode();
+    _startFocus.addListener(() {
+      if (!_startFocus.hasFocus) {
+        context.read(openRouteServiceProvider).clearList();
+      }
+    });
+    _goalFocus.addListener(() {
+      if (!_goalFocus.hasFocus) {
+        context.read(openRouteServiceProvider).clearList();
+      }
+    });
+
+    _mapController = MapController();
+    _statefulMapController =
+        StatefulMapController(mapController: _mapController);
+    _statefulMapController.changeFeed.listen((event) {
+      setState(() {});
+    });
+  }
+
+  @override
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    _startController.text = _newRoute.start.name;
+    _goalController.text = _newRoute.goal.name;
+
+    for (final entry in _history) {
+      final namedPoint = NamedPoint.fromPoint(entry.values.first);
+      if (entry.containsKey('start')) {
+        _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
+        _newRoute.start = namedPoint;
+      } else if (entry.containsKey('goal')) {
+        _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
+        _newRoute.goal = namedPoint;
+      } else {
+        _statefulMapController.addMarker(
+            marker: _makeMarker(
+                position: entry.values.first,
+                iconData: Icons.pin_drop_outlined),
+            name: entry.values.first.toString());
+      }
+    }
+    await _statefulMapController.addLine(
+        color: Colors.red,
+        isDotted: true,
+        name: 'route',
+        points: widget.routeToEdit.latLngRoutePoints);
+
+    _statefulMapController.fitLine('route');
+    _currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    _statefulMapController.addMarker(
+        marker: Marker(
+            builder: (context) => const Icon(Icons.person),
+            height: 10,
+            width: 10,
+            point:
+                LatLng(_currentPosition.latitude, _currentPosition.longitude)),
+        name: 'currentLoaction');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _startController.dispose();
+    _goalController.dispose();
+    _startFocus.dispose();
+  }
+
+  Future<void> _suggestionPicked(NamedPoint namedPoint) async {
+    //TODO: fix odebrání z historie po vybrání z našeptávače
+    if (_startFocus.hasFocus) {
+      _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
+      _newRoute.start = namedPoint;
+    } else {
+      _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
+      _newRoute.goal = namedPoint;
+    }
+    _searchRoute();
+  }
 
   Future<void> _saveRoute() async {
     setState(() {
@@ -72,67 +164,6 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     ));
   }
 
-  Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
-    return Marker(
-      point: position,
-      builder: (context) => Icon(iconData),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _startController = TextEditingController();
-    _goalController = TextEditingController();
-    _debouncer = Debouncer();
-    _startFocus = FocusNode();
-    _goalFocus = FocusNode();
-    _newRoute = NewRoute();
-    _startFocus.addListener(() {
-      if (!_startFocus.hasFocus) {
-        context.read(openRouteServiceProvider).clearList();
-      }
-    });
-    _goalFocus.addListener(() {
-      if (!_goalFocus.hasFocus) {
-        context.read(openRouteServiceProvider).clearList();
-      }
-    });
-    _mapController = MapController();
-    _statefulMapController =
-        StatefulMapController(mapController: _mapController);
-    _statefulMapController.changeFeed.listen((event) {
-      setState(() {});
-    });
-  }
-
-  @override
-  Future<void> didChangeDependencies() async {
-    super.didChangeDependencies();
-    _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    _statefulMapController.centerOnPoint(
-        LatLng(_currentPosition.latitude, _currentPosition.longitude));
-    _statefulMapController.zoomTo(14);
-    _statefulMapController.addMarker(
-        marker: Marker(
-            builder: (context) => const Icon(Icons.person),
-            height: 10,
-            width: 10,
-            point:
-                LatLng(_currentPosition.latitude, _currentPosition.longitude)),
-        name: 'currentLoaction');
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _startController.dispose();
-    _goalController.dispose();
-    _startFocus.dispose();
-    _goalFocus.dispose();
-  }
-
   void _showHintList() {
     setState(() {
       _inputVisible = !_inputVisible;
@@ -141,8 +172,12 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     });
   }
 
-  void _textFieldChanged(String value) => _debouncer(
-      () => context.read(openRouteServiceProvider).getSuggestion(value));
+  Marker _makeMarker({@required LatLng position, @required IconData iconData}) {
+    return Marker(
+      point: position,
+      builder: (context) => Icon(iconData),
+    );
+  }
 
   Future<void> _addPlaceFromTap(LatLng point) async {
     final namedPoint = NamedPoint.fromPoint(point);
@@ -162,47 +197,6 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       _history.add({point.toString(): point});
     }
     _searchRoute();
-  }
-
-  void _removeLast() {
-    if (context.read(openRouteServiceProvider).isLoading) return;
-    final pointToRemove = _history.last;
-    _history.removeLast();
-    if (pointToRemove.containsKey('start')) {
-      _newRoute.start = null;
-      _startController.text = '';
-      _statefulMapController.removeMarker(name: 'start');
-    } else if (pointToRemove.containsKey('goal')) {
-      _newRoute.goal = null;
-      _goalController.text = '';
-      _statefulMapController.removeMarker(name: 'goal');
-    } else {
-      _newRoute.waypoints.removeLast();
-      _statefulMapController.removeMarker(name: pointToRemove.keys.first);
-    }
-
-    _searchRoute();
-  }
-
-  Future<void> _suggestionPicked(NamedPoint namedPoint) async {
-    //TODO: fix odebrání z historie po vybrání z našeptávače
-    if (_startFocus.hasFocus) {
-      _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
-      _newRoute.start = namedPoint;
-    } else {
-      _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
-      _newRoute.goal = namedPoint;
-    }
-    _searchRoute();
-  }
-
-  void _pointPicked(TextEditingController controller, NamedPoint pickedPoint,
-      IconData icon, String markerName) {
-    controller.text = pickedPoint.name;
-    _statefulMapController.addMarker(
-        marker: _makeMarker(position: pickedPoint.point, iconData: icon),
-        name: markerName);
-    _history.add({markerName: pickedPoint.point});
   }
 
   Future<void> _searchRoute() async {
@@ -230,11 +224,43 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       return;
     }
   }
+
+  void _pointPicked(TextEditingController controller, NamedPoint pickedPoint,
+      IconData icon, String markerName) {
+    controller.text = pickedPoint.name;
+    _statefulMapController.addMarker(
+        marker: _makeMarker(position: pickedPoint.point, iconData: icon),
+        name: markerName);
+    _history.add({markerName: pickedPoint.point});
+  }
+
+  void _textFieldChanged(String value) => _debouncer(
+      () => context.read(openRouteServiceProvider).getSuggestion(value));
+
+  void _removeLast() {
+    if (context.read(openRouteServiceProvider).isLoading) return;
+    final pointToRemove = _history.last;
+    _history.removeLast();
+    if (pointToRemove.containsKey('start')) {
+      _newRoute.start = null;
+      _startController.text = '';
+      _statefulMapController.removeMarker(name: 'start');
+    } else if (pointToRemove.containsKey('goal')) {
+      _newRoute.goal = null;
+      _goalController.text = '';
+      _statefulMapController.removeMarker(name: 'goal');
+    } else {
+      _newRoute.waypoints.removeLast();
+      _statefulMapController.removeMarker(name: pointToRemove.keys.first);
+    }
+
+    _searchRoute();
+  }
 }
 
-class _NewRouteScreenView
-    extends WidgetView<NewRouteScreen, _NewRouteScreenController> {
-  const _NewRouteScreenView(_NewRouteScreenController state) : super(state);
+class _EditRouteScreenView
+    extends WidgetView<EditRouteScreen, _EditRouteScreenController> {
+  const _EditRouteScreenView(_EditRouteScreenController state) : super(state);
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +297,6 @@ class _NewRouteScreenView
             onTap: state._addPlaceFromTap,
             onLongPress: state._removeLast,
           ),
-          if (!state._inputVisible) const GpxImportButton(),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 1),
             child: state._inputVisible

@@ -21,6 +21,7 @@ class MyMap extends StatelessWidget {
     return FlutterMap(
       mapController: _controller.mapController,
       options: MapOptions(
+        interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
         onTap: (latLng) => _onTap(latLng),
         onLongPress: (latLng) => _onLongPress(),
         zoom: 5,

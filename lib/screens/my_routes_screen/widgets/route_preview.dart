@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:map_controller/map_controller.dart';
@@ -19,18 +21,28 @@ class _RoutePreviewController extends State<RoutePreview> {
 
   MapController mapController;
   StatefulMapController statefulMapController;
+  StreamSubscription mapStream;
 
   @override
   void initState() {
     super.initState();
     mapController = MapController();
     statefulMapController = StatefulMapController(mapController: mapController);
-    statefulMapController.changeFeed.listen((event) => setState(() {}));
+    mapStream =
+        statefulMapController.changeFeed.listen((event) => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    mapStream.cancel();
   }
 
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
+    //TODO: přidat do preview i vybrané waypointy
     statefulMapController.addMarker(
       name: 'start',
       marker: Marker(
@@ -47,12 +59,13 @@ class _RoutePreviewController extends State<RoutePreview> {
           width: 10,
           point: widget.savedRoute.goal.point),
     );
-    await statefulMapController.addLine(width: 1.5,
+    await statefulMapController.addLine(
+        width: 1.5,
         //isDotted: true,
         color: Colors.pink,
         name: 'route',
         points: widget.savedRoute.latLngRoutePoints);
-    statefulMapController.fitLine('route');
+    await statefulMapController.fitLine('route');
   }
 }
 

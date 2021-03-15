@@ -7,8 +7,6 @@ import 'package:navigation_app/screens/home_screen/widgets/button.dart';
 import 'package:navigation_app/services/auth.dart';
 import 'package:sizer/sizer.dart';
 
-
-
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenController createState() => _HomeScreenController();
@@ -29,12 +27,9 @@ class _HomeScreenController extends State<HomeScreen> {
     Navigator.pushNamed(context, AppRoutes.newRoute);
   }
 
-
-    void _goToMyRoutesScreen() {
-      Navigator.pushNamed(context, AppRoutes.myRoutes);
-    }
-
-
+  void _goToMyRoutesScreen() {
+    Navigator.pushNamed(context, AppRoutes.myRoutes);
+  }
 }
 
 class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
@@ -90,10 +85,7 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                     label: 'Nastavení',
                     heroTag: 'settings',
                     icon: Icons.settings_outlined,
-                    onTap: ()  {
-                      var t = context.read(authServiceProvider).userModel.savedRoutes;
-                      print(t);
-                    },
+                    onTap: () {},
                   ),
                   HomeScreenButton(
                     label: 'Informace',
