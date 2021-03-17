@@ -47,6 +47,12 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     setState(() {
       context.read(openRouteServiceProvider).isLoading = true;
     });
+    if(_newRoute.start == null || _newRoute.goal == null){
+      setState(() {
+        context.read(openRouteServiceProvider).isLoading = false;
+      });
+      return;
+    }
     if (await context.read(firestoreProvider).saveNewRoute(
         SavedRoute(
           start: _newRoute.start,

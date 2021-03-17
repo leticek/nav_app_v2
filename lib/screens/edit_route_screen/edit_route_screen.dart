@@ -42,7 +42,7 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
   NewRoute _newRoute;
   Debouncer _debouncer;
   Position _currentPosition;
-  dynamic _history = [];
+  List<Map<String, LatLng>> _history = [];
 
   @override
   void initState() {
@@ -80,13 +80,13 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
     _startController.text = _newRoute.start.name;
     _goalController.text = _newRoute.goal.name;
 
-    for (final entry in _history) {
+    for(final entry in _history) {
       final namedPoint = NamedPoint.fromPoint(entry.values.first);
       if (entry.containsKey('start')) {
-        _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
+        _addPointFromHistory(_startController, namedPoint, Icons.person_pin, 'start');
         _newRoute.start = namedPoint;
       } else if (entry.containsKey('goal')) {
-        _pointPicked(_goalController, namedPoint, Icons.flag_rounded, 'goal');
+        _addPointFromHistory(_goalController, namedPoint, Icons.flag_rounded, 'goal');
         _newRoute.goal = namedPoint;
       } else {
         _statefulMapController.addMarker(
@@ -96,6 +96,7 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
             name: entry.values.first.toString());
       }
     }
+
     await _statefulMapController.addLine(
         color: Colors.red,
         isDotted: true,
@@ -223,6 +224,14 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
       context.read(openRouteServiceProvider).setIsLoading();
       return;
     }
+  }
+
+  void _addPointFromHistory(TextEditingController controller,
+      NamedPoint pickedPoint, IconData icon, String markerName) {
+    controller.text = pickedPoint.name;
+    _statefulMapController.addMarker(
+        marker: _makeMarker(position: pickedPoint.point, iconData: icon),
+        name: markerName);
   }
 
   void _pointPicked(TextEditingController controller, NamedPoint pickedPoint,

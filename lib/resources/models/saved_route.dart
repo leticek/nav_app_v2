@@ -21,7 +21,7 @@ class SavedRoute {
   double descent;
 
   List<LatLng> waypoints;
-  dynamic history;
+  List<Map<String, LatLng>> history;
   String routeGeoJsonString;
 
   Map _parsedRoute;
@@ -89,12 +89,12 @@ class SavedRoute {
     descent = route['descent'] as double;
     messageBoundingBox = List<double>.from(route['boundingBox'] as List);
     routeGeoJsonString = route['geojson'] as String;
-    history = route['history']
+    history = <Map<String, LatLng>>[...route['history']
         .map((e) => e.map(
               (String key, value) => MapEntry(key,
-                  LatLng(value.latitude as double, value.latitude as double)),
-            ))
-        .toList();
+                  LatLng(value.latitude as double, value.longitude as double)),
+            ).cast<String, LatLng>())
+        .toList()];
     latLngRoutePoints = <LatLng>[
       ...route['line']
           .map((geoPoint) =>
@@ -131,7 +131,7 @@ class SavedRoute {
                 (key, value) => MapEntry(
                     key,
                     GeoPoint(
-                        value.latitude as double, value.latitude as double)),
+                        value.latitude, value.longitude)),
               ))
           .toList(),
       'geojson': routeGeoJsonString,
