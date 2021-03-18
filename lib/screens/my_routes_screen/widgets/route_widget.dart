@@ -6,11 +6,16 @@ import 'package:navigation_app/screens/my_routes_screen/widgets/delete_dialog.da
 import 'package:navigation_app/screens/my_routes_screen/widgets/route_preview.dart';
 import 'package:sizer/sizer.dart';
 
-class RouteWidget extends StatelessWidget {
-  RouteWidget(this.savedRoute);
+class RouteWidget extends StatefulWidget {
+  const RouteWidget(this.savedRoute);
 
   final SavedRoute savedRoute;
 
+  @override
+  _RouteWidgetState createState() => _RouteWidgetState();
+}
+
+class _RouteWidgetState extends State<RouteWidget> {
   final textStyle = TextStyle(
     fontSize: 9.0.sp,
     fontWeight: FontWeight.w600,
@@ -48,9 +53,9 @@ class RouteWidget extends StatelessWidget {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
                 primary: Colors.black, backgroundColor: Colors.white),
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.editRoute,
-                  arguments: savedRoute);
+            onPressed: () async {
+              await Navigator.pushNamed(context, AppRoutes.editRoute,
+                  arguments: widget.savedRoute);
             },
             child: const Text('Upravit'),
           ),
@@ -60,7 +65,7 @@ class RouteWidget extends StatelessWidget {
             onPressed: () => showDialog(
               context: context,
               builder: (context) {
-                return DeleteConfirmation(savedRoute);
+                return DeleteConfirmation(widget.savedRoute);
               },
             ),
             child: const Text('Smazat'),
@@ -91,7 +96,7 @@ class RouteWidget extends StatelessWidget {
               children: [
                 const Icon(Icons.arrow_circle_up),
                 const Spacer(),
-                Text('${savedRoute.ascent.toString()}m ',
+                Text('${widget.savedRoute.ascent.toString()}m ',
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
@@ -100,7 +105,7 @@ class RouteWidget extends StatelessWidget {
               children: [
                 const Icon(Icons.arrow_circle_down),
                 const Spacer(),
-                Text('${savedRoute.descent.toString()}m',
+                Text('${widget.savedRoute.descent.toString()}m',
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
@@ -128,7 +133,7 @@ class RouteWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Icon(Icons.person_pin),
-                Text(savedRoute.start.name,
+                Text(widget.savedRoute.start.name,
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
@@ -136,7 +141,7 @@ class RouteWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 const Icon(Icons.flag_rounded),
-                Text(savedRoute.goal.name,
+                Text(widget.savedRoute.goal.name,
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
@@ -159,7 +164,7 @@ class RouteWidget extends StatelessWidget {
         height: 16.0.h,
         child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: RoutePreview(savedRoute)),
+            child: RoutePreview(widget.savedRoute)),
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/utils/debouncer.dart';
 import 'package:navigation_app/resources/widget_view.dart';
+import 'package:navigation_app/screens/edit_route_screen/widgets/leave_dialog.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/input_field.dart';
 import 'package:navigation_app/screens/new_route_screen/widgets/map.dart';
@@ -140,8 +141,9 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
     setState(() {
       context.read(openRouteServiceProvider).isLoading = true;
     });
-    if (await context.read(firestoreProvider).saveNewRoute(
+    if (await context.read(firestoreProvider).updateRoute(
         SavedRoute(
+          id: widget.routeToEdit.id,
           start: _newRoute.start,
           goal: _newRoute.goal,
           waypoints: _newRoute.waypoints,
@@ -155,6 +157,7 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
       setState(() {
         context.read(openRouteServiceProvider).isLoading = false;
       });
+      Navigator.of(context).pop(true);
       return;
     }
     setState(() {
@@ -264,6 +267,17 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
     }
     _searchRoute();
   }
+
+  Future<void> _goBack() async {
+    if (await showDialog(
+      context: context,
+      builder: (context) => const LeaveConfirmation(),
+    )) {
+      context.read(openRouteServiceProvider).clearList();
+      FocusManager.instance.primaryFocus.unfocus();
+      Navigator.of(context).pop(false);
+    }
+  }
 }
 
 class _EditRouteScreenView
@@ -274,13 +288,7 @@ class _EditRouteScreenView
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            context.read(openRouteServiceProvider).clearList();
-            FocusManager.instance.primaryFocus.unfocus();
-            Navigator.of(context).pop();
-          },
-        ),
+        leading: BackButton(onPressed: state._goBack),
         actions: [
           if (!state._inputVisible)
             Container()

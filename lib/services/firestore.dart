@@ -20,8 +20,19 @@ class FirestoreService {
   Future<bool> saveNewRoute(SavedRoute route, String userId) async {
     try {
       final _collection =
-          _instance.collection('users').doc(userId).collection('routes');
+      _instance.collection('users').doc(userId).collection('routes');
       await _collection.add(route.toMap());
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> updateRoute(SavedRoute route, String userId) async {
+    try {
+      _instance.collection('users/$userId/routes').doc(route.id).set(
+          route.toMap());
       return true;
     } catch (e) {
       debugPrint(e.toString());
@@ -42,7 +53,10 @@ class FirestoreService {
 
   Stream<UserModel> streamUserById(User user) {
     return _instance.collection('users').doc(user.uid).snapshots().map(
-        (snap) => snap.exists ? UserModel.fromFirestore(snap.data()) : null);
+            (snap) =>
+        snap.exists
+            ? UserModel.fromFirestore(snap.data())
+            : null);
   }
 
   Stream<List<SavedRoute>> streamUserRoutes(User user) {
@@ -57,13 +71,17 @@ class FirestoreService {
       print('počet zmeň: ${snap.docChanges.length}');
       for (final docChange in snap.docChanges) {
         print('id: ${docChange.doc.id} změna: ${docChange.type}');
-        if (docChange.type == DocumentChangeType.removed) {
-          changedDocs.remove(docChange.doc.id);
-          break;
-        }
-        if (docChange.type == DocumentChangeType.modified ||
-            docChange.type == DocumentChangeType.added) {
-          changedDocs.putIfAbsent(docChange.doc.id, () => docChange.doc);
+
+        switch (docChange.type) {
+          case DocumentChangeType.removed:
+            changedDocs.remove(docChange.doc.id);
+            break;
+          case DocumentChangeType.added:
+            changedDocs.putIfAbsent(docChange.doc.id, () => docChange.doc);
+            break;
+          case DocumentChangeType.modified:
+            changedDocs.update(docChange.doc.id, (value) => docChange.doc);
+            break;
         }
       }
       return changedDocs.isNotEmpty

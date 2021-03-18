@@ -27,6 +27,7 @@ class SavedRoute {
   Map _parsedRoute;
 
   SavedRoute({
+    this.id,
     @required this.start,
     @required this.goal,
     @required this.waypoints,

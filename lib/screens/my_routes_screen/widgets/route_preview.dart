@@ -35,8 +35,8 @@ class _RoutePreviewController extends State<RoutePreview> {
   @override
   void dispose() {
     // TODO: implement dispose
-    super.dispose();
     mapStream.cancel();
+    super.dispose();
   }
 
   @override
