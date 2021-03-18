@@ -52,7 +52,7 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
     _startController = TextEditingController();
     _goalController = TextEditingController();
     _newRoute = NewRoute.fromSavedRoute(widget.routeToEdit);
-    _history = widget.routeToEdit.history;
+    _history = List.from(widget.routeToEdit.history);
     _goalFocus = FocusNode();
     _startFocus = FocusNode();
     _startFocus.addListener(() {
@@ -80,14 +80,14 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
     _startController.text = _newRoute.start.name;
     _goalController.text = _newRoute.goal.name;
 
-    for(final entry in _history) {
+    for (final entry in _history) {
       final namedPoint = NamedPoint.fromPoint(entry.values.first);
       if (entry.containsKey('start')) {
-        _addPointFromHistory(_startController, namedPoint, Icons.person_pin, 'start');
-        _newRoute.start = namedPoint;
+        _addPointFromHistory(
+            _startController, namedPoint, Icons.person_pin, 'start');
       } else if (entry.containsKey('goal')) {
-        _addPointFromHistory(_goalController, namedPoint, Icons.flag_rounded, 'goal');
-        _newRoute.goal = namedPoint;
+        _addPointFromHistory(
+            _goalController, namedPoint, Icons.flag_rounded, 'goal');
       } else {
         _statefulMapController.addMarker(
             marker: _makeMarker(
@@ -262,7 +262,6 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
       _newRoute.waypoints.removeLast();
       _statefulMapController.removeMarker(name: pointToRemove.keys.first);
     }
-
     _searchRoute();
   }
 }

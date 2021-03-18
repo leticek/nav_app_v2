@@ -15,7 +15,7 @@ class NewRoute {
   NewRoute.fromSavedRoute(SavedRoute savedRoute) {
     start = savedRoute.start;
     goal = savedRoute.goal;
-    waypoints = savedRoute.waypoints;
+    waypoints = List.from(savedRoute.waypoints);
     geoJsonString = savedRoute.routeGeoJsonString;
   }
 
