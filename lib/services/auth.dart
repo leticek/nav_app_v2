@@ -14,13 +14,13 @@ class AuthService with ChangeNotifier {
   GoogleSignIn _googleSignIn;
   User _user;
   UserModel _userModel;
-  Status _status = Status.uninitialized;
+  AuthStatus _status = AuthStatus.uninitialized;
   String _errorCode;
   final Reader read;
   StreamSubscription _userListener;
   StreamSubscription _userRoutesListener;
 
-  Status get status => _status;
+  AuthStatus get status => _status;
 
   String get errorCode => _errorCode;
 
@@ -35,7 +35,7 @@ class AuthService with ChangeNotifier {
 
   Future<bool> signIn(String email, String password) async {
     try {
-      _status = Status.authenticating;
+      _status = AuthStatus.authenticating;
       notifyListeners();
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -43,7 +43,7 @@ class AuthService with ChangeNotifier {
       return true;
     } catch (e) {
       _errorCode = Validator.checkError(e.code as String);
-      _status = Status.unauthenticated;
+      _status = AuthStatus.unauthenticated;
       notifyListeners();
       return false;
     }
@@ -51,7 +51,7 @@ class AuthService with ChangeNotifier {
 
   Future<bool> signUp(String email, String password) async {
     try {
-      _status = Status.authenticating;
+      _status = AuthStatus.authenticating;
       notifyListeners();
       await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
@@ -66,7 +66,7 @@ class AuthService with ChangeNotifier {
 
   Future<bool> signInWithGoogle() async {
     try {
-      _status = Status.authenticating;
+      _status = AuthStatus.authenticating;
       notifyListeners();
       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
       final GoogleSignInAuthentication googleAuth =
@@ -80,7 +80,7 @@ class AuthService with ChangeNotifier {
       return true;
     } catch (e) {
       _errorCode = Validator.checkError(e.code as String);
-      _status = Status.unauthenticated;
+      _status = AuthStatus.unauthenticated;
       notifyListeners();
       return false;
     }
@@ -89,7 +89,7 @@ class AuthService with ChangeNotifier {
   Future signOut() async {
     _firebaseAuth.signOut();
     _googleSignIn.signOut();
-    _status = Status.unauthenticated;
+    _status = AuthStatus.unauthenticated;
     _userModel = null;
     _userListener.cancel();
     _userRoutesListener.cancel();
@@ -99,7 +99,7 @@ class AuthService with ChangeNotifier {
 
   Future<void> _onAuthStateChanged(User firebaseUser) async {
     if (firebaseUser == null) {
-      _status = Status.unauthenticated;
+      _status = AuthStatus.unauthenticated;
       _user = null;
     } else {
       _user = firebaseUser;
@@ -113,7 +113,7 @@ class AuthService with ChangeNotifier {
         _userModel.savedRoutes = event;
         notifyListeners();
       });
-      _status = Status.authenticated;
+      _status = AuthStatus.authenticated;
     }
     notifyListeners();
   }

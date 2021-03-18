@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigation_app/resources/providers.dart';
@@ -17,6 +19,7 @@ class _HomeScreenController extends State<HomeScreen> {
   Widget build(BuildContext context) => _HomeScreenView(this);
   AuthService _authService;
 
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +28,10 @@ class _HomeScreenController extends State<HomeScreen> {
 
   void _goToNewRouteScreen() {
     Navigator.pushNamed(context, AppRoutes.newRoute);
+  }
+
+  void _goToSettingsScreen() {
+    Navigator.pushNamed(context, AppRoutes.settingsScreen);
   }
 
   void _goToMyRoutesScreen() {
@@ -45,9 +52,11 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
             leading: Container(
                 padding: const EdgeInsets.all(10),
                 child: Image.asset('assets/splash_logo.png')),
-            title: Text(
-              'Hodinky připojeny',
-              style: TextStyle(color: Colors.black, fontSize: 9.0.sp),
+            title: Consumer(
+              builder: (context, watch, child) => Text(
+                watch(watchConnectionProvider).watchStatus,
+                style: TextStyle(color: Colors.black, fontSize: 9.0.sp),
+              ),
             ),
             actions: [
               IconButton(
@@ -85,7 +94,7 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                     label: 'Nastavení',
                     heroTag: 'settings',
                     icon: Icons.settings_outlined,
-                    onTap: () {},
+                    onTap: state._goToSettingsScreen,
                   ),
                   HomeScreenButton(
                     label: 'Informace',

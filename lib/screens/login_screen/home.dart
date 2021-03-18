@@ -13,13 +13,13 @@ class AuthHome extends StatelessWidget {
       final _authService = watch(authServiceProvider);
       debugPrint(_authService.status.toString());
       switch (_authService.status) {
-        case Status.unauthenticated:
+        case AuthStatus.unauthenticated:
           return Login();
-        case Status.authenticated:
+        case AuthStatus.authenticated:
           return HomeScreen();
-        case Status.uninitialized:
+        case AuthStatus.uninitialized:
           return SplashScreen();
-        case Status.authenticating:
+        case AuthStatus.authenticating:
           return Login();
         default:
           return const Text('Default');

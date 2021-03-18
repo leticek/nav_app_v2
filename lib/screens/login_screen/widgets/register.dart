@@ -131,9 +131,9 @@ class _RegisterFormView
               ),
             ),
             const SizedBox(height: 10.0),
-            if (user.status == Status.authenticating)
+            if (user.status == AuthStatus.authenticating)
               const Center(child: CircularProgressIndicator()),
-            if (user.status != Status.authenticating)
+            if (user.status != AuthStatus.authenticating)
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(primary: Colors.black),

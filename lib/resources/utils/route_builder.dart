@@ -5,6 +5,7 @@ import 'package:navigation_app/screens/home_screen/home_screen.dart';
 import 'package:navigation_app/screens/login_screen/home.dart';
 import 'package:navigation_app/screens/my_routes_screen/my_routes_screen.dart';
 import 'package:navigation_app/screens/new_route_screen/new_route_screen.dart';
+import 'package:navigation_app/screens/settings_screen/settings_screen.dart';
 
 class AppRoutes {
   static const String auth = '/';
@@ -12,7 +13,7 @@ class AppRoutes {
   static const String newRoute = 'newRoute';
   static const String myRoutes = 'myRoutes';
   static const String about = 'about';
-  static const String settings = 'settings';
+  static const String settingsScreen = 'settings';
   static const String editRoute = 'editRoute';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -34,6 +35,8 @@ class AppRoutes {
               return EditRouteScreen(
                 routeToEdit: settings.arguments as SavedRoute,
               );
+            case settingsScreen:
+              return SettingsScreen();
             default:
               return null;
           }

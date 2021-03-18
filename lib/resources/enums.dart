@@ -1,2 +1,2 @@
 enum SelectedTab { login, register }
-enum Status {uninitialized, authenticated, authenticating, unauthenticated}
+enum AuthStatus {uninitialized, authenticated, authenticating, unauthenticated}
