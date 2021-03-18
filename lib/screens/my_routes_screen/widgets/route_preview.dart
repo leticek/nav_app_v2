@@ -42,7 +42,16 @@ class _RoutePreviewController extends State<RoutePreview> {
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    //TODO: přidat do preview i vybrané waypointy
+    for(final waypoint in widget.savedRoute.waypoints){
+      statefulMapController.addMarker(
+        name: waypoint.toString(),
+        marker: Marker(
+            builder: (context) => const Icon(Icons.pin_drop_outlined),
+            height: 10,
+            width: 10,
+            point: waypoint),
+      );
+    }
     statefulMapController.addMarker(
       name: 'start',
       marker: Marker(

@@ -108,7 +108,7 @@ class SavedRoute {
     waypoints = <LatLng>[
       ...route['waypoints']
           .map((point) =>
-              LatLng(point.latitude as double, point.latitude as double))
+              LatLng(point.latitude as double, point.longitude as double))
           .toList()
     ];
   }
