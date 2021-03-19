@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigation_app/resources/providers.dart';
@@ -18,7 +16,6 @@ class _HomeScreenController extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) => _HomeScreenView(this);
   AuthService _authService;
-
 
   @override
   void initState() {
@@ -49,9 +46,21 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
           appBar: AppBar(
             backgroundColor: Colors.cyan,
             centerTitle: true,
-            leading: Container(
-                padding: const EdgeInsets.all(10),
-                child: Image.asset('assets/splash_logo.png')),
+            leading: Consumer(
+              builder: (context, watch, child) {
+                return watch(watchConnectionProvider).appStartStatus.isEmpty
+                    ? InkWell(
+                        onTap: context.read(watchConnectionProvider).openApp,
+                        child: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Image.asset('assets/splash_logo.png')),
+                      )
+                    : Text(
+                        watch(watchConnectionProvider).appStartStatus,
+                        style: TextStyle(fontSize: 9.0.sp, fontWeight: FontWeight.w700),
+                      );
+              },
+            ),
             title: Consumer(
               builder: (context, watch, child) => Text(
                 watch(watchConnectionProvider).watchStatus,
