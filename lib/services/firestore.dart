@@ -65,13 +65,7 @@ class FirestoreService {
         .collection('users/${user.uid}/routes')
         .snapshots()
         .map((snap) {
-      print(DateTime.now().toIso8601String());
-      print('cache: ${snap.metadata.isFromCache}');
-      print('počet cest: ${snap.docs.length}');
-      print('počet zmeň: ${snap.docChanges.length}');
       for (final docChange in snap.docChanges) {
-        print('id: ${docChange.doc.id} změna: ${docChange.type}');
-
         switch (docChange.type) {
           case DocumentChangeType.removed:
             changedDocs.remove(docChange.doc.id);
