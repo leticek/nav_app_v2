@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
+import 'package:map_elevation/map_elevation.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/go_back_button.dart';
+import 'package:navigation_app/screens/use_route_screen/widgets/show_graph.dart';
+import 'package:sizer/sizer.dart';
 
 class UseRouteScreen extends StatefulWidget {
   const UseRouteScreen({Key key, this.routeToUse}) : super(key: key);
@@ -20,9 +23,23 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
 
   MapController _mapController;
   StatefulMapController _statefulMapController;
+  ElevationPoint hoverPoint;
+  bool _showGraph = false;
+  double showGraphButtonOffset = 1.2.h;
+
+  void showGrap() => setState(() {
+        if (_showGraph) {
+          showGraphButtonOffset = 1.2.h;
+        }
+        else{
+          showGraphButtonOffset = 20.0.h;
+        }
+        _showGraph = !_showGraph;
+      });
 
   @override
   void initState() {
+    super.initState();
     _mapController = MapController();
     _statefulMapController =
         StatefulMapController(mapController: _mapController);
@@ -33,9 +50,7 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-
   }
-
 }
 
 class _UseRouteScreenView
@@ -44,7 +59,6 @@ class _UseRouteScreenView
 
   @override
   Widget build(BuildContext context) {
-    print(state.widget.routeToUse.id);
     return SafeArea(
       child: Scaffold(
         body: Stack(
@@ -62,11 +76,52 @@ class _UseRouteScreenView
                       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                   subdomains: ['a', 'b', 'c'],
                 ),
-                //MarkerLayerOptions(markers: _controller.markers),
-                //PolylineLayerOptions(polylines: _controller.lines)
+                MarkerLayerOptions(markers: [
+                  if (state.hoverPoint is LatLng)
+                    Marker(
+                        point: state.hoverPoint,
+                        width: 8,
+                        height: 8,
+                        builder: (BuildContext context) => Container(
+                              decoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  borderRadius: BorderRadius.circular(8)),
+                            ))
+                ]),
+                PolylineLayerOptions(polylines: [
+                  Polyline(
+                      points: state.widget.routeToUse.latLngRoutePoints,
+                      color: Colors.red,
+                      strokeWidth: 3)
+                ])
               ],
             ),
-            GoBackButton()
+            GoBackButton(),
+            ShowGraphButton(
+                onTap: state.showGrap, offset: state.showGraphButtonOffset),
+            if (state._showGraph)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 140,
+                child: NotificationListener<ElevationHoverNotification>(
+                    onNotification: (ElevationHoverNotification notification) {
+                      state.setState(() {
+                        state.hoverPoint = notification.position;
+                      });
+
+                      return true;
+                    },
+                    child: Elevation(
+                      state.widget.routeToUse.latLngRoutePoints,
+                      color: Colors.grey,
+                      elevationGradientColors: ElevationGradientColors(
+                          gt10: Colors.green,
+                          gt20: Colors.orangeAccent,
+                          gt30: Colors.redAccent),
+                    )),
+              )
           ],
         ),
       ),
