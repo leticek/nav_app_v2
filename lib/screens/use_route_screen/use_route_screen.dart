@@ -5,8 +5,10 @@ import 'package:map_controller/map_controller.dart';
 import 'package:map_elevation/map_elevation.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/widget_view.dart';
+import 'package:navigation_app/screens/use_route_screen/widgets/elevation_graph.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/go_back_button.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/show_graph.dart';
+import 'package:navigation_app/screens/use_route_screen/widgets/start_navigation.dart';
 import 'package:sizer/sizer.dart';
 
 class UseRouteScreen extends StatefulWidget {
@@ -27,11 +29,10 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   bool _showGraph = false;
   double showGraphButtonOffset = 1.2.h;
 
-  void showGrap() => setState(() {
+  void showGraph() => setState(() {
         if (_showGraph) {
           showGraphButtonOffset = 1.2.h;
-        }
-        else{
+        } else {
           showGraphButtonOffset = 20.0.h;
         }
         _showGraph = !_showGraph;
@@ -47,9 +48,22 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   }
 
   @override
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    await _statefulMapController.addLine(color: Colors.red,
+        name: 'route', points: widget.routeToUse.latLngRoutePoints);
+    _statefulMapController.fitLine('route');
+  }
+
+  @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  bool onElevationNotification(ElevationHoverNotification notification) {
+    setState(() => hoverPoint = notification.position);
+    return true;
   }
 }
 
@@ -79,49 +93,38 @@ class _UseRouteScreenView
                 MarkerLayerOptions(markers: [
                   if (state.hoverPoint is LatLng)
                     Marker(
-                        point: state.hoverPoint,
-                        width: 8,
-                        height: 8,
-                        builder: (BuildContext context) => Container(
-                              decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(8)),
-                            ))
+                      point: state.hoverPoint,
+                      width: 10,
+                      height: 10,
+                      builder: (BuildContext context) => Container(
+                        decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                    )
                 ]),
-                PolylineLayerOptions(polylines: [
-                  Polyline(
-                      points: state.widget.routeToUse.latLngRoutePoints,
-                      color: Colors.red,
-                      strokeWidth: 3)
-                ])
+                PolylineLayerOptions(
+                    polylines: state._statefulMapController.lines)
               ],
             ),
             GoBackButton(),
+            StartNavigationButton(offset: state.showGraphButtonOffset),
             ShowGraphButton(
-                onTap: state.showGrap, offset: state.showGraphButtonOffset),
-            if (state._showGraph)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 140,
-                child: NotificationListener<ElevationHoverNotification>(
-                    onNotification: (ElevationHoverNotification notification) {
-                      state.setState(() {
-                        state.hoverPoint = notification.position;
-                      });
-
-                      return true;
-                    },
-                    child: Elevation(
-                      state.widget.routeToUse.latLngRoutePoints,
-                      color: Colors.grey,
-                      elevationGradientColors: ElevationGradientColors(
-                          gt10: Colors.green,
-                          gt20: Colors.orangeAccent,
-                          gt30: Colors.redAccent),
-                    )),
-              )
+                onTap: state.showGraph, offset: state.showGraphButtonOffset),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 140,
+              child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  child: state._showGraph
+                      ? ElevationGraph(
+                          onNotification: state.onElevationNotification,
+                          points: state.widget.routeToUse.latLngRoutePoints,
+                        )
+                      : null),
+            )
           ],
         ),
       ),

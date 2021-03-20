@@ -32,6 +32,8 @@ class _RoutePreviewController extends State<RoutePreview> {
         statefulMapController.changeFeed.listen((event) => setState(() {}));
   }
 
+
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -42,38 +44,22 @@ class _RoutePreviewController extends State<RoutePreview> {
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    for(final waypoint in widget.savedRoute.waypoints){
+    for (final waypoint in widget.savedRoute.waypoints) {
       statefulMapController.addMarker(
         name: waypoint.toString(),
         marker: Marker(
+            anchorPos: AnchorPos.align(AnchorAlign.center),
             builder: (context) => const Icon(Icons.pin_drop_outlined),
-            height: 10,
-            width: 10,
             point: waypoint),
       );
     }
-    statefulMapController.addMarker(
-      name: 'start',
-      marker: Marker(
-          builder: (context) => const Icon(Icons.person_pin),
-          height: 10,
-          width: 10,
-          point: widget.savedRoute.start.point),
-    );
-    statefulMapController.addMarker(
-      name: 'end',
-      marker: Marker(
-          builder: (context) => const Icon(Icons.flag_rounded),
-          height: 10,
-          width: 10,
-          point: widget.savedRoute.goal.point),
-    );
-    await statefulMapController.addLine(
-        width: 1.8,
-        color: Colors.pink,
-        name: 'route',
-        points: widget.savedRoute.latLngRoutePoints);
-    statefulMapController.fitLine('route');
+    statefulMapController
+        .addLine(
+            width: 1.8,
+            color: Colors.pink,
+            name: 'route',
+            points: widget.savedRoute.latLngRoutePoints)
+        .then((value) => statefulMapController.fitLine('route'));
   }
 }
 
@@ -85,13 +71,24 @@ class _RoutePreviewView
   Widget build(BuildContext context) {
     return FlutterMap(
       mapController: state.mapController,
-      options: MapOptions(interactive: false),
+      options: MapOptions(
+        slideOnBoundaries: true,
+        interactive: false,
+      ),
       layers: [
         TileLayerOptions(
           urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
           subdomains: ['a', 'b', 'c'],
         ),
-        MarkerLayerOptions(markers: state.statefulMapController.markers),
+        MarkerLayerOptions(markers: [
+          Marker(
+              builder: (context) => const Icon(Icons.person_pin),
+              point: widget.savedRoute.start.point),
+          Marker(
+              builder: (context) => const Icon(Icons.flag_rounded),
+              point: widget.savedRoute.goal.point),
+          ...state.statefulMapController.markers
+        ]),
         PolylineLayerOptions(polylines: state.statefulMapController.lines)
       ],
     );
