@@ -98,6 +98,10 @@ class _RouteWidgetState extends State<RouteWidget> {
             SizedBox(width: 3.5.w),
             const Icon(Icons.arrow_circle_down),
             Text('${widget.savedRoute.descent.toString()}m',
+                overflow: TextOverflow.ellipsis, style: textStyle),
+            SizedBox(width: 3.5.w),
+            const Icon(Icons.swap_calls),
+            Text('${widget.savedRoute.length.toString()}km',
                 overflow: TextOverflow.ellipsis, style: textStyle)
           ],
         ),

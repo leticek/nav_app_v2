@@ -20,7 +20,7 @@ class FirestoreService {
   Future<bool> saveNewRoute(SavedRoute route, String userId) async {
     try {
       final _collection =
-      _instance.collection('users').doc(userId).collection('routes');
+          _instance.collection('users').doc(userId).collection('routes');
       await _collection.add(route.toMap());
       return true;
     } catch (e) {
@@ -31,8 +31,10 @@ class FirestoreService {
 
   Future<bool> updateRoute(SavedRoute route, String userId) async {
     try {
-      _instance.collection('users/$userId/routes').doc(route.id).set(
-          route.toMap());
+      _instance
+          .collection('users/$userId/routes')
+          .doc(route.id)
+          .set(route.toMap());
       return true;
     } catch (e) {
       debugPrint(e.toString());
@@ -53,10 +55,7 @@ class FirestoreService {
 
   Stream<UserModel> streamUserById(User user) {
     return _instance.collection('users').doc(user.uid).snapshots().map(
-            (snap) =>
-        snap.exists
-            ? UserModel.fromFirestore(snap.data())
-            : null);
+        (snap) => snap.exists ? UserModel.fromFirestore(snap.data()) : null);
   }
 
   Stream<List<SavedRoute>> streamUserRoutes(User user) {

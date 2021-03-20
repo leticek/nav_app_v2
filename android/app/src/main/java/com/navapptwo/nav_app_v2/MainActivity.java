@@ -155,7 +155,7 @@ public class MainActivity extends FlutterActivity {
 
     private void initSDK() {
         System.out.println("init SDK");
-        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.TETHERED);
+        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.WIRELESS);
 
         connectIQInstance.initialize(this, true, new ConnectIQ.ConnectIQListener() {
             @RequiresApi(api = Build.VERSION_CODES.R)

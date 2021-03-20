@@ -20,6 +20,7 @@ class SavedRoute {
 
   double ascent;
   double descent;
+  double length;
 
   List<LatLng> waypoints;
   List<Map<String, LatLng>> history;
@@ -38,6 +39,9 @@ class SavedRoute {
     _parsedRoute = json.decode(routeGeoJsonString) as Map;
     ascent = _parsedRoute['features'].first['properties']['ascent'] as double;
     descent = _parsedRoute['features'].first['properties']['descent'] as double;
+    length = _parsedRoute['features'].first['properties']['summary']
+            ['distance'] /
+        1000 as double;
     parseBoundingBox();
     parseRoutePoints();
     parseRouteSegments();
@@ -89,6 +93,7 @@ class SavedRoute {
     goal = NamedPoint.fromMap(point: route['goal'] as Map<String, dynamic>);
     ascent = route['ascent'] as double;
     descent = route['descent'] as double;
+    length = route['length'] as double;
     messageBoundingBox = List<double>.from(route['boundingBox'] as List);
     routeGeoJsonString = route['geojson'] as String;
     history = <Map<String, LatLng>>[
@@ -149,6 +154,7 @@ class SavedRoute {
       'geojson': routeGeoJsonString,
       'ascent': ascent,
       'descent': descent,
+      'length': double.parse(length.toStringAsFixed(2)),
     };
   }
 
