@@ -3,22 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class WatchService with ChangeNotifier {
-  String watchStatus = '-';
+  String watchStatus = '';
   String appStartStatus = '';
   MethodChannel _methodChannel;
   EventChannel _eventChannel;
+  EventChannel _messageChannel;
   static const String _methodChannelName = 'commChannel';
   static const String _eventChannelName = 'eventChannel';
+  static const String _messageChannelName = 'messageChannel';
   List<String> availableDevices = [];
+  bool applicationOpened = false;
 
   WatchService() {
     _methodChannel = const MethodChannel(_methodChannelName);
-    _methodChannel.invokeMethod('initSDK');
     _eventChannel = const EventChannel(_eventChannelName);
-    _eventChannel.receiveBroadcastStream().listen(responseStream);
+    _methodChannel.invokeMethod('initSDK');
+    _eventChannel.receiveBroadcastStream().listen(eventChannelStream);
   }
 
-  void responseStream(dynamic event) {
+  void startMessageChannel() {
+    _messageChannel = const EventChannel(_messageChannelName);
+    _messageChannel.receiveBroadcastStream().listen(messageChannelStream);
+  }
+
+  void messageChannelStream(dynamic event) {
+    print(event);
+  }
+
+  void eventChannelStream(dynamic event) {
     final Map<String, dynamic> response = Map.from(event as Map);
     switch (response['response'] as int) {
       case 1:
@@ -59,5 +71,8 @@ class WatchService with ChangeNotifier {
 
   void searchForAvailableDevices() => _methodChannel.invokeMethod('getDevices');
 
-  void openApp() => _methodChannel.invokeMethod('openApp');
+  Future<void> openApp() => _methodChannel.invokeMethod('openApp');
+
+  void sendMessage(dynamic data) =>
+      _methodChannel.invokeMethod('sendMessage', data);
 }

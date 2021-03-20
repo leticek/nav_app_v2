@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:map_elevation/map_elevation.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
+import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/elevation_graph.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/go_back_button.dart';
@@ -28,6 +30,7 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   ElevationPoint hoverPoint;
   bool _showGraph = false;
   double showGraphButtonOffset = 1.2.h;
+  bool dataTransferInProgress = false;
 
   void showGraph() => setState(() {
         if (_showGraph) {
@@ -50,8 +53,10 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   @override
   Future<void> didChangeDependencies() async {
     super.didChangeDependencies();
-    await _statefulMapController.addLine(color: Colors.red,
-        name: 'route', points: widget.routeToUse.latLngRoutePoints);
+    await _statefulMapController.addLine(
+        color: Colors.red,
+        name: 'route',
+        points: widget.routeToUse.latLngRoutePoints);
     _statefulMapController.fitLine('route');
   }
 
@@ -59,6 +64,40 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+  }
+
+  Future<void> startNavigation() async {
+    setState(() {
+      dataTransferInProgress = true;
+    });
+    final Map<String, dynamic> routeSteps = {
+      'type': 'routeSteps',
+      'data': widget.routeToUse.routeSteps.map((e) => e.toMap()).toList()
+    };
+    final Map<String, dynamic> routePoints = {
+      'type': 'routePoints',
+      'data': widget.routeToUse.latLngRoutePoints
+          .map((e) => {
+                'latitude': e.latitude,
+                'longitude': e.longitude,
+              })
+          .toList()
+    };
+    final Map<String, dynamic> boundingBox = {
+      'type': 'boundingBox',
+      'data': widget.routeToUse.messageBoundingBox
+    };
+    context.read(watchConnectionProvider).startMessageChannel();
+
+    context.read(watchConnectionProvider).sendMessage(routeSteps);
+    await Future.delayed(const Duration(seconds: 15), () {});
+    context.read(watchConnectionProvider).sendMessage(routePoints);
+    await Future.delayed(const Duration(seconds: 15), () {});
+    context.read(watchConnectionProvider).sendMessage(boundingBox);
+
+    setState(() {
+      dataTransferInProgress = false;
+    });
   }
 
   bool onElevationNotification(ElevationHoverNotification notification) {
@@ -108,7 +147,10 @@ class _UseRouteScreenView
               ],
             ),
             GoBackButton(),
-            StartNavigationButton(offset: state.showGraphButtonOffset),
+            StartNavigationButton(
+                inProgress: state.dataTransferInProgress,
+                onTap: state.startNavigation,
+                offset: state.showGraphButtonOffset),
             ShowGraphButton(
                 onTap: state.showGraph, offset: state.showGraphButtonOffset),
             Positioned(

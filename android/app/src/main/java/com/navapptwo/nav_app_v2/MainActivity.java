@@ -2,6 +2,7 @@ package com.navapptwo.nav_app_v2;
 
 
 import android.os.Build;
+import android.os.StrictMode;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -25,18 +26,40 @@ import static java.util.Map.entry;
 
 
 public class MainActivity extends FlutterActivity {
-    private static final String CHANNEL_NAME = "commChannel";
-    private static final String STREAM_NAME = "eventChannel";
+    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+
+    private static final String COMM_CHANNEL = "commChannel";
+    private static final String EVENT_CHANNEL = "eventChannel";
+    private static final String MESSAGE_CHANNEL = "messageChannel";
     private ConnectIQ connectIQInstance;
-    private EventChannel.EventSink eventSink;
+    private EventChannel.EventSink eventChannelSink = new EventChannel.EventSink() {
+        @Override
+        public void success(Object event) {
+
+        }
+
+        @Override
+        public void error(String errorCode, String errorMessage, Object errorDetails) {
+
+        }
+
+        @Override
+        public void endOfStream() {
+
+        }
+    };
+    private EventChannel.EventSink messageChannelSink;
     private IQDevice activeDevice;
     private final IQApp garminApplication = new IQApp("199253b5-157b-4c2c-93e5-833af0af44e1");
+    private boolean sdkInitialized = false;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        StrictMode.setThreadPolicy(policy);
         super.configureFlutterEngine(flutterEngine);
-        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL_NAME).setMethodCallHandler((call, result) -> {
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), COMM_CHANNEL).setMethodCallHandler((call, result) -> {
             switch (call.method) {
                 case "initSDK":
                     this.initSDK();
@@ -47,13 +70,28 @@ public class MainActivity extends FlutterActivity {
                 case "openApp":
                     this.openGarminApp();
                     break;
+                case "sendMessage":
+                    this.sendMessage(call.arguments);
+                    break;
             }
         });
 
-        new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), STREAM_NAME).setStreamHandler(new EventChannel.StreamHandler() {
+        new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), EVENT_CHANNEL).setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
-                eventSink = events;
+                eventChannelSink = events;
+            }
+
+            @Override
+            public void onCancel(Object arguments) {
+
+            }
+        });
+
+        new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), MESSAGE_CHANNEL).setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object arguments, EventChannel.EventSink events) {
+                messageChannelSink = events;
             }
 
             @Override
@@ -64,6 +102,39 @@ public class MainActivity extends FlutterActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
+    private void sendMessage(Object message) {
+        try {
+            this.connectIQInstance.sendMessage(activeDevice, garminApplication, message, (iqDevice, iqApp, iqMessageStatus) -> {
+                Map<String, Object> response;
+                switch (iqMessageStatus) {
+                    case SUCCESS:
+                        response = Map.ofEntries(entry("response", 1), entry("payload", "ok"));
+                        messageChannelSink.success(response);
+                        break;
+                    case FAILURE_UNKNOWN:
+                        break;
+                    case FAILURE_INVALID_FORMAT:
+                        break;
+                    case FAILURE_MESSAGE_TOO_LARGE:
+                        break;
+                    case FAILURE_UNSUPPORTED_TYPE:
+                        break;
+                    case FAILURE_DURING_TRANSFER:
+                        break;
+                    case FAILURE_INVALID_DEVICE:
+                        break;
+                    case FAILURE_DEVICE_NOT_CONNECTED:
+                        break;
+                }
+            });
+        } catch (InvalidStateException e) {
+            e.printStackTrace();
+        } catch (ServiceUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private void openGarminApp() {
         try {
             this.connectIQInstance.openApplication(this.activeDevice, this.garminApplication, (iqDevice, iqApp, iqOpenApplicationStatus) -> {
@@ -71,23 +142,23 @@ public class MainActivity extends FlutterActivity {
                 switch (iqOpenApplicationStatus) {
                     case PROMPT_SHOWN_ON_DEVICE:
                         response = Map.ofEntries(entry("response", 5), entry("payload", "Potvrďte na hodinkách"));
-                        eventSink.success(response);
+                        eventChannelSink.success(response);
                         break;
                     case PROMPT_NOT_SHOWN_ON_DEVICE:
                         response = Map.ofEntries(entry("response", 5), entry("payload", "Chyba"));
-                        eventSink.success(response);
+                        eventChannelSink.success(response);
                         break;
                     case APP_IS_NOT_INSTALLED:
                         response = Map.ofEntries(entry("response", 5), entry("payload", "Aplikace není instalována"));
-                        eventSink.success(response);
+                        eventChannelSink.success(response);
                         break;
                     case APP_IS_ALREADY_RUNNING:
                         response = Map.ofEntries(entry("response", 5), entry("payload", "Aplikace již běží"));
-                        eventSink.success(response);
+                        eventChannelSink.success(response);
                         break;
                     case UNKNOWN_FAILURE:
                         response = Map.ofEntries(entry("response", 5), entry("payload", "Stala se chyba"));
-                        eventSink.success(response);
+                        eventChannelSink.success(response);
                         break;
                 }
             });
@@ -108,7 +179,7 @@ public class MainActivity extends FlutterActivity {
                     availableStringDevices.add(device.getFriendlyName());
                 }
                 Map<String, Object> response = Map.ofEntries(entry("response", 3), entry("payload", availableStringDevices));
-                eventSink.success(response);
+                eventChannelSink.success(response);
             } catch (InvalidStateException e) {
                 e.printStackTrace();
             } catch (ServiceUnavailableException e) {
@@ -131,19 +202,19 @@ public class MainActivity extends FlutterActivity {
                     switch (iqDeviceStatus) {
                         case NOT_PAIRED:
                             response = Map.ofEntries(entry("response", 4), entry("payload", "Hodinky nespárovány"));
-                            eventSink.success(response);
+                            eventChannelSink.success(response);
                             break;
                         case NOT_CONNECTED:
                             response = Map.ofEntries(entry("response", 4), entry("payload", "Hodinky nepřipojeny"));
-                            eventSink.success(response);
+                            eventChannelSink.success(response);
                             break;
                         case CONNECTED:
                             response = Map.ofEntries(entry("response", 4), entry("payload", this.activeDevice.getFriendlyName()));
-                            eventSink.success(response);
+                            eventChannelSink.success(response);
                             break;
                         case UNKNOWN:
                             response = Map.ofEntries(entry("response", 4), entry("payload", "Stav připojení není znám"));
-                            eventSink.success(response);
+                            eventChannelSink.success(response);
                             break;
                     }
                 });
@@ -156,14 +227,23 @@ public class MainActivity extends FlutterActivity {
     private void initSDK() {
         System.out.println("init SDK");
         this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.WIRELESS);
+        try {
+            if (sdkInitialized) {
+                sdkInitialized = false;
+                this.connectIQInstance.shutdown(this);
+            }
+        } catch (InvalidStateException e) {
+            e.printStackTrace();
+        }
 
         connectIQInstance.initialize(this, true, new ConnectIQ.ConnectIQListener() {
             @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public void onSdkReady() {
+                sdkInitialized = true;
                 Map<String, Object> response = Map.ofEntries(entry("response", 1));
                 System.out.println(response);
-                eventSink.success(response);
+                eventChannelSink.success(response);
                 try {
                     if (!connectIQInstance.getConnectedDevices().isEmpty()) {
                         setDevice(connectIQInstance.getConnectedDevices().get(0));
@@ -178,13 +258,25 @@ public class MainActivity extends FlutterActivity {
             @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public void onInitializeError(ConnectIQ.IQSdkErrorStatus iqSdkErrorStatus) {
+                switch (iqSdkErrorStatus) {
+                    case GCM_NOT_INSTALLED:
+                        System.out.println('1');
+                        break;
+                    case GCM_UPGRADE_NEEDED:
+                        System.out.println('2');
+                        break;
+                    case SERVICE_ERROR:
+                        System.out.println('3');
+                        break;
+                }
                 Map<String, Object> response = Map.ofEntries(entry("response", 2));
-                eventSink.success(response);
+                eventChannelSink.success(response);
             }
 
             @Override
             public void onSdkShutDown() {
                 try {
+                    sdkInitialized = false;
                     connectIQInstance.unregisterAllForEvents();
                     System.out.println("SDK SHUTDOWN");
                 } catch (InvalidStateException e) {
