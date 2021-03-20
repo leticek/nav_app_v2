@@ -69,8 +69,7 @@ class _RoutePreviewController extends State<RoutePreview> {
           point: widget.savedRoute.goal.point),
     );
     await statefulMapController.addLine(
-        width: 1.5,
-        //isDotted: true,
+        width: 1.8,
         color: Colors.pink,
         name: 'route',
         points: widget.savedRoute.latLngRoutePoints);

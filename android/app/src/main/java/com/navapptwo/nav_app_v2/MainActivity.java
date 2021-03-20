@@ -1,22 +1,18 @@
 package com.navapptwo.nav_app_v2;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
-import android.content.IntentFilter;
+
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.garmin.android.connectiq.ConnectIQ;
-import com.garmin.android.connectiq.ConnectIQAdbStrategy;
 import com.garmin.android.connectiq.IQApp;
 import com.garmin.android.connectiq.IQDevice;
 import com.garmin.android.connectiq.exception.InvalidStateException;
 import com.garmin.android.connectiq.exception.ServiceUnavailableException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +29,10 @@ public class MainActivity extends FlutterActivity {
     private static final String STREAM_NAME = "eventChannel";
     private ConnectIQ connectIQInstance;
     private EventChannel.EventSink eventSink;
-    private List<IQDevice> availableDevices;
-    private List<String> availableStringDevices;
     private IQDevice activeDevice;
-    private IQApp garminApplication = new IQApp("199253b5-157b-4c2c-93e5-833af0af44e1");
+    private final IQApp garminApplication = new IQApp("199253b5-157b-4c2c-93e5-833af0af44e1");
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
@@ -68,6 +63,7 @@ public class MainActivity extends FlutterActivity {
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private void openGarminApp() {
         try {
             this.connectIQInstance.openApplication(this.activeDevice, this.garminApplication, (iqDevice, iqApp, iqOpenApplicationStatus) -> {
@@ -96,15 +92,18 @@ public class MainActivity extends FlutterActivity {
                 }
             });
         } catch (InvalidStateException e) {
+            e.printStackTrace();
         } catch (ServiceUnavailableException e) {
+            e.printStackTrace();
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private void getAvailableDevices() {
         if (this.connectIQInstance != null) {
             try {
-                availableDevices = connectIQInstance.getConnectedDevices();
-                availableStringDevices = new ArrayList<>();
+                List<IQDevice> availableDevices = connectIQInstance.getConnectedDevices();
+                List<String> availableStringDevices = new ArrayList<>();
                 for (IQDevice device : availableDevices) {
                     availableStringDevices.add(device.getFriendlyName());
                 }
@@ -118,6 +117,7 @@ public class MainActivity extends FlutterActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private void setDevice(IQDevice device) {
         if (this.connectIQInstance != null) {
             try {
@@ -155,16 +155,20 @@ public class MainActivity extends FlutterActivity {
 
     private void initSDK() {
         System.out.println("init SDK");
-        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.WIRELESS);
+        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.TETHERED);
 
         connectIQInstance.initialize(this, true, new ConnectIQ.ConnectIQListener() {
+            @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public void onSdkReady() {
                 Map<String, Object> response = Map.ofEntries(entry("response", 1));
                 System.out.println(response);
+                connectIQInstance.
                 eventSink.success(response);
                 try {
-                    setDevice(connectIQInstance.getConnectedDevices().get(0));
+                    if (!connectIQInstance.getConnectedDevices().isEmpty()) {
+                        setDevice(connectIQInstance.getConnectedDevices().get(0));
+                    }
                 } catch (InvalidStateException e) {
                     e.printStackTrace();
                 } catch (ServiceUnavailableException e) {
@@ -172,6 +176,7 @@ public class MainActivity extends FlutterActivity {
                 }
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.R)
             @Override
             public void onInitializeError(ConnectIQ.IQSdkErrorStatus iqSdkErrorStatus) {
                 Map<String, Object> response = Map.ofEntries(entry("response", 2));
@@ -191,64 +196,4 @@ public class MainActivity extends FlutterActivity {
     }
 }
 
-class ConnectIQWrappedReceiver extends BroadcastReceiver {
-    private final BroadcastReceiver receiver;
 
-    ConnectIQWrappedReceiver(BroadcastReceiver receiver) {
-        this.receiver = receiver;
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if ("com.garmin.android.connectiq.SEND_MESSAGE_STATUS".equals(intent.getAction())) {
-            replaceIQDeviceById(intent, "com.garmin.android.connectiq.EXTRA_REMOTE_DEVICE");
-        } else if ("com.garmin.android.connectiq.OPEN_APPLICATION".equals(intent.getAction())) {
-            replaceIQDeviceById(intent, "com.garmin.android.connectiq.EXTRA_OPEN_APPLICATION_DEVICE");
-        }
-        receiver.onReceive(context, intent);
-    }
-
-
-    private static void replaceIQDeviceById(Intent intent, String extraName) {
-        try {
-            IQDevice device = intent.getParcelableExtra(extraName);
-            if (device != null) {
-                intent.putExtra(extraName, device.getDeviceIdentifier());
-            }
-        } catch (ClassCastException e) {
-// It's already a long, i.e. on the simulator.
-        }
-    }
-
-    private static void initializeConnectIQ(
-            Context context, ConnectIQ connectIQ, boolean autoUI, ConnectIQ.ConnectIQListener listener) {
-        if (connectIQ instanceof ConnectIQAdbStrategy) {
-            connectIQ.initialize(context, autoUI, listener);
-            return;
-        }
-        Context wrappedContext = new ContextWrapper(context) {
-            private HashMap<BroadcastReceiver, BroadcastReceiver> receiverToWrapper = new HashMap<>();
-
-            @Override
-            public Intent registerReceiver(final BroadcastReceiver receiver, IntentFilter filter) {
-                BroadcastReceiver wrappedRecv = new ConnectIQWrappedReceiver(receiver);
-                synchronized (receiverToWrapper) {
-                    receiverToWrapper.put(receiver, wrappedRecv);
-                }
-                return super.registerReceiver(wrappedRecv, filter);
-            }
-
-            @Override
-            public void unregisterReceiver(BroadcastReceiver receiver) {
-// We need to unregister the wrapped receiver.
-                BroadcastReceiver wrappedReceiver = null;
-                synchronized (receiverToWrapper) {
-                    wrappedReceiver = receiverToWrapper.get(receiver);
-                    receiverToWrapper.remove(receiver);
-                }
-                if (wrappedReceiver != null) super.unregisterReceiver(wrappedReceiver);
-            }
-        };
-        connectIQ.initialize(wrappedContext, autoUI, listener);
-    }
-}

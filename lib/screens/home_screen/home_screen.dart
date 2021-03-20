@@ -55,10 +55,12 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
                             padding: const EdgeInsets.all(10),
                             child: Image.asset('assets/splash_logo.png')),
                       )
-                    : Text(
-                        watch(watchConnectionProvider).appStartStatus,
-                        style: TextStyle(fontSize: 9.0.sp, fontWeight: FontWeight.w700),
-                      );
+                    : Center(
+                      child: Text(
+                          watch(watchConnectionProvider).appStartStatus,
+                          style: TextStyle(fontSize: 9.0.sp, fontWeight: FontWeight.w700),
+                        ),
+                    );
               },
             ),
             title: Consumer(

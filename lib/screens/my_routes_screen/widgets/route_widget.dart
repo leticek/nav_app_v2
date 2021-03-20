@@ -17,7 +17,7 @@ class RouteWidget extends StatefulWidget {
 
 class _RouteWidgetState extends State<RouteWidget> {
   final textStyle = TextStyle(
-    fontSize: 9.0.sp,
+    fontSize: 11.0.sp,
     fontWeight: FontWeight.w600,
   );
 
@@ -31,8 +31,8 @@ class _RouteWidgetState extends State<RouteWidget> {
             borderRadius: BorderRadius.all(Radius.circular(10)),
             color: Colors.cyan,
           ),
-          margin: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-          height: 31.4.h,
+          margin: const EdgeInsets.all(5),
+          height: 39.0.h,
         ),
         buildMap(),
         buildStartAndGoal(),
@@ -82,33 +82,22 @@ class _RouteWidgetState extends State<RouteWidget> {
 
   Positioned buildAscentDescent() {
     return Positioned(
-      left: 74.5.w,
-      bottom: 7.6.h,
-      right: 5.0.w,
+      left: 3.2.w,
+      bottom: 5.6.h,
+      right: 3.2.w,
       child: SizedBox(
-        height: 6.4.h,
-        child: Column(
+        height: 7.0.h,
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Icon(Icons.arrow_circle_up),
-                const Spacer(),
-                Text('${widget.savedRoute.ascent.toString()}m ',
-                    overflow: TextOverflow.ellipsis, style: textStyle),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Icon(Icons.arrow_circle_down),
-                const Spacer(),
-                Text('${widget.savedRoute.descent.toString()}m',
-                    overflow: TextOverflow.ellipsis, style: textStyle),
-              ],
-            ),
+            const Icon(Icons.arrow_circle_up),
+            Text('${widget.savedRoute.ascent.toString()}m ',
+                overflow: TextOverflow.ellipsis, style: textStyle),
+            SizedBox(width: 3.5.w),
+            const Icon(Icons.arrow_circle_down),
+            Text('${widget.savedRoute.descent.toString()}m',
+                overflow: TextOverflow.ellipsis, style: textStyle)
           ],
         ),
       ),
@@ -117,30 +106,31 @@ class _RouteWidgetState extends State<RouteWidget> {
 
   Positioned buildStartAndGoal() {
     return Positioned(
-      left: 5.0.w,
-      bottom: 7.6.h,
-      right: 27.0.w,
+      left: 3.2.w,
+      bottom: 9.6.h,
+      right: 3.2.w,
       child: Container(
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        height: 6.5.h,
+        height: 10.0.h,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.person_pin),
+                SizedBox(width: 5.0.w),
                 Text(widget.savedRoute.start.name,
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.flag_rounded),
+                SizedBox(width: 5.0.w),
                 Text(widget.savedRoute.goal.name,
                     overflow: TextOverflow.ellipsis, style: textStyle),
               ],
@@ -153,15 +143,15 @@ class _RouteWidgetState extends State<RouteWidget> {
 
   Positioned buildMap() {
     return Positioned(
-      left: 5.0.w,
+      left: 3.2.w,
       top: 1.7.h,
-      right: 5.0.w,
+      right: 3.2.w,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(width: 1.5),
         ),
-        height: 16.0.h,
+        height: 19.0.h,
         child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: RoutePreview(widget.savedRoute)),
