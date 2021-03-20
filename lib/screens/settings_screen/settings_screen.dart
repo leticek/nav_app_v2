@@ -19,7 +19,7 @@ class _SettingsScreenView
 
   @override
   Widget build(BuildContext context) {
-    //TODO: vylepšit UI a UX
+    //TODO: vylepšit UI a UX, fix herp widget
     return Scaffold(
       appBar: AppBar(),
       body: Consumer(

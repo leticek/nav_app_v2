@@ -163,7 +163,6 @@ public class MainActivity extends FlutterActivity {
             public void onSdkReady() {
                 Map<String, Object> response = Map.ofEntries(entry("response", 1));
                 System.out.println(response);
-                connectIQInstance.
                 eventSink.success(response);
                 try {
                     if (!connectIQInstance.getConnectedDevices().isEmpty()) {

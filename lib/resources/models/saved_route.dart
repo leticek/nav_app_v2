@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
+import 'package:map_elevation/map_elevation.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
 import 'package:navigation_app/resources/models/route_step.dart';
 
@@ -15,7 +16,7 @@ class SavedRoute {
 
   List<RouteStep> routeSteps = [];
   List<double> messageBoundingBox = [];
-  List<LatLng> latLngRoutePoints = [];
+  List<ElevationPoint> latLngRoutePoints = [];
 
   double ascent;
   double descent;
@@ -61,9 +62,9 @@ class SavedRoute {
     try {
       latLngRoutePoints.addAll(_parsedRoute['features']
           .first['geometry']['coordinates']
-          .map<LatLng>(
-              (point) => LatLng(point[1] as double, point[0] as double))
-          .toList() as List<LatLng>);
+          .map<ElevationPoint>((point) => ElevationPoint(
+              point[1] as double, point[0] as double, point[2] as double))
+          .toList() as List<ElevationPoint>);
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -90,16 +91,25 @@ class SavedRoute {
     descent = route['descent'] as double;
     messageBoundingBox = List<double>.from(route['boundingBox'] as List);
     routeGeoJsonString = route['geojson'] as String;
-    history = <Map<String, LatLng>>[...route['history']
-        .map((e) => e.map(
-              (String key, value) => MapEntry(key,
-                  LatLng(value.latitude as double, value.longitude as double)),
-            ).cast<String, LatLng>())
-        .toList()];
-    latLngRoutePoints = <LatLng>[
+    history = <Map<String, LatLng>>[
+      ...route['history']
+          .map((e) => e
+              .map(
+                (String key, value) => MapEntry(
+                    key,
+                    LatLng(
+                        value.latitude as double, value.longitude as double)),
+              )
+              .cast<String, LatLng>())
+          .toList()
+    ];
+    latLngRoutePoints = <ElevationPoint>[
       ...route['line']
-          .map((geoPoint) =>
-              LatLng(geoPoint.latitude as double, geoPoint.longitude as double))
+          .map((elevationPoint) => ElevationPoint(
+                elevationPoint['latitude'] as double,
+                elevationPoint['longitude'] as double,
+                elevationPoint['altitude'] as double,
+              ))
           .toList()
     ];
     routeSteps = <RouteStep>[
@@ -120,8 +130,11 @@ class SavedRoute {
       'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
       'boundingBox': messageBoundingBox,
       'line': latLngRoutePoints
-          .map<GeoPoint>(
-              (latLng) => GeoPoint(latLng.latitude, latLng.longitude))
+          .map<Map<String, double>>((elevationPoint) => {
+                'latitude': elevationPoint.latitude,
+                'longitude': elevationPoint.longitude,
+                'altitude': elevationPoint.altitude,
+              })
           .toList(),
       'waypoints': waypoints
           .map<GeoPoint>(
@@ -129,10 +142,8 @@ class SavedRoute {
           .toList(),
       'history': history
           .map((e) => e.map(
-                (key, value) => MapEntry(
-                    key,
-                    GeoPoint(
-                        value.latitude, value.longitude)),
+                (key, value) =>
+                    MapEntry(key, GeoPoint(value.latitude, value.longitude)),
               ))
           .toList(),
       'geojson': routeGeoJsonString,

@@ -6,6 +6,7 @@ import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
+import 'package:map_elevation/map_elevation.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
 import 'package:navigation_app/resources/models/new_route.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';

@@ -6,6 +6,7 @@ import 'package:navigation_app/screens/login_screen/home.dart';
 import 'package:navigation_app/screens/my_routes_screen/my_routes_screen.dart';
 import 'package:navigation_app/screens/new_route_screen/new_route_screen.dart';
 import 'package:navigation_app/screens/settings_screen/settings_screen.dart';
+import 'package:navigation_app/screens/use_route_screen/use_route_screen.dart';
 
 class AppRoutes {
   static const String auth = '/';
@@ -15,6 +16,7 @@ class AppRoutes {
   static const String about = 'about';
   static const String settingsScreen = 'settings';
   static const String editRoute = 'editRoute';
+  static const String useRoute = 'useRoute';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
@@ -33,10 +35,12 @@ class AppRoutes {
               return null;
             case editRoute:
               return EditRouteScreen(
-                routeToEdit: settings.arguments as SavedRoute,
-              );
+                  routeToEdit: settings.arguments as SavedRoute);
             case settingsScreen:
               return SettingsScreen();
+            case useRoute:
+              return UseRouteScreen(
+                  routeToUse: settings.arguments as SavedRoute);
             default:
               return null;
           }

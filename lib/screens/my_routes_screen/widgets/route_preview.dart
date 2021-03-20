@@ -73,7 +73,7 @@ class _RoutePreviewController extends State<RoutePreview> {
         color: Colors.pink,
         name: 'route',
         points: widget.savedRoute.latLngRoutePoints);
-    await statefulMapController.fitLine('route');
+    statefulMapController.fitLine('route');
   }
 }
 

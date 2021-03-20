@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:navigation_app/resources/providers.dart';
+import 'package:navigation_app/resources/utils/route_builder.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/my_routes_screen/widgets/route_widget.dart';
 import 'package:sizer/sizer.dart';
@@ -41,9 +42,22 @@ class _MyRoutesScreenView
             final service = watch(authServiceProvider);
             return SliverList(
               delegate: SliverChildBuilderDelegate(
-                  (context, index) =>
-                      RouteWidget(service.userModel.savedRoutes[index]),
-                  childCount: service.userModel.savedRoutes?.length ??= 0),
+                  (context, index) => service.userModel.savedRoutes.isEmpty
+                      ? Center(
+                          heightFactor: 14,
+                          widthFactor: 2,
+                          child: ElevatedButton(
+                            style:
+                                ElevatedButton.styleFrom(primary: Colors.black),
+                            onPressed: () => Navigator.pushNamed(
+                                context, AppRoutes.newRoute),
+                            child: const Text('Vytvořit novou trasu'),
+                          ),
+                        )
+                      : RouteWidget(service.userModel.savedRoutes[index]),
+                  childCount: service.userModel.savedRoutes.isEmpty
+                      ? 1
+                      : service.userModel.savedRoutes.length),
             );
           },
         )

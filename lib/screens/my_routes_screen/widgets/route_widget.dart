@@ -72,7 +72,8 @@ class _RouteWidgetState extends State<RouteWidget> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.black),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.useRoute,
+                arguments: widget.savedRoute),
             child: const Text('Navigovat'),
           )
         ],
