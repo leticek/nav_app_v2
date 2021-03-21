@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +18,7 @@ class WatchService with ChangeNotifier {
   Map<String, dynamic> routePoints;
   Map<String, dynamic> boundingBox;
   bool transferInProgress = false;
+  Stream messageChannelSub;
 
   WatchService() {
     _methodChannel = const MethodChannel(_methodChannelName);
@@ -26,7 +29,9 @@ class WatchService with ChangeNotifier {
 
   void startMessageChannel() {
     _messageChannel = const EventChannel(_messageChannelName);
-    _messageChannel.receiveBroadcastStream().listen(messageChannelStream);
+    messageChannelSub =
+        _messageChannel.receiveBroadcastStream().asBroadcastStream();
+    messageChannelSub.listen(messageChannelStream);
     _methodChannel.invokeMethod('receiveMessages');
   }
 

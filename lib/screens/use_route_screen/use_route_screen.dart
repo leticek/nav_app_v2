@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +32,7 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   ElevationPoint hoverPoint;
   bool _showGraph = false;
   double showGraphButtonOffset = 1.2.h;
+  StreamSubscription locationSubscription;
 
   void showGraph() => setState(() {
         if (_showGraph) {
@@ -57,12 +60,31 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
         name: 'route',
         points: widget.routeToUse.latLngRoutePoints);
     _statefulMapController.fitLine('route');
+    _statefulMapController.addMarker(
+        marker: Marker(
+          point: widget.routeToUse.start.point,
+          builder: (context) => const Icon(Icons.person_pin),
+        ),
+        name: 'start');
+    _statefulMapController.addMarker(
+        marker: Marker(
+          point: widget.routeToUse.goal.point,
+          builder: (context) => const Icon(Icons.flag_rounded),
+        ),
+        name: 'goal');
+    context.read(watchConnectionProvider).startMessageChannel();
+
+    locationSubscription = context
+        .read(watchConnectionProvider)
+        .messageChannelSub
+        .listen(handleLocationEvent);
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
+    locationSubscription.cancel();
   }
 
   Future<void> startNavigation() async {
@@ -83,11 +105,24 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
       'type': 'boundingBox',
       'data': widget.routeToUse.messageBoundingBox
     };
-    context.read(watchConnectionProvider).startMessageChannel();
     context.read(watchConnectionProvider).sendRoute(
         routeSteps: routeSteps,
         routePoints: routePoints,
         boundingBox: boundingBox);
+  }
+
+  void handleLocationEvent(dynamic event) {
+    if (event['type'] == 3) {
+      _statefulMapController.addMarker(
+          marker: Marker(
+            point: LatLng(
+              event['data'][0] as double,
+              event['data'][1] as double,
+            ),
+            builder: (context) => const Icon(Icons.pin_drop),
+          ),
+          name: 'userLocation');
+    }
   }
 
   bool onElevationNotification(ElevationHoverNotification notification) {
@@ -130,7 +165,8 @@ class _UseRouteScreenView
                             color: Colors.blue,
                             borderRadius: BorderRadius.circular(8)),
                       ),
-                    )
+                    ),
+                  ...state._statefulMapController.markers
                 ]),
                 PolylineLayerOptions(
                     polylines: state._statefulMapController.lines)

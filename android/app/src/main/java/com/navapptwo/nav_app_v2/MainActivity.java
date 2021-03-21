@@ -53,7 +53,7 @@ public class MainActivity extends FlutterActivity {
     private IQDevice activeDevice;
     private final IQApp garminApplication = new IQApp("199253b5-157b-4c2c-93e5-833af0af44e1");
     private boolean sdkInitialized = false;
-    private Object response;
+    private ConnectIQ.IQConnectType CONNECTION_TYPE = ConnectIQ.IQConnectType.TETHERED;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
@@ -137,7 +137,6 @@ public class MainActivity extends FlutterActivity {
             e.printStackTrace();
         }
     }
-
     private void registerForMessages() {
         try {
             this.connectIQInstance.registerForAppEvents(this.activeDevice, this.garminApplication, (iqDevice, iqApp, list, iqMessageStatus) -> {
@@ -258,7 +257,7 @@ public class MainActivity extends FlutterActivity {
 
     private void initSDK() {
         System.out.println("init SDK");
-        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.TETHERED);
+        this.connectIQInstance = ConnectIQ.getInstance(this, CONNECTION_TYPE);
         try {
             if (sdkInitialized) {
                 sdkInitialized = false;
@@ -277,8 +276,10 @@ public class MainActivity extends FlutterActivity {
                 System.out.println(response);
                 eventChannelSink.success(response);
                 try {
-                    if (!connectIQInstance.getConnectedDevices().isEmpty()) {
+                    if (!connectIQInstance.getConnectedDevices().isEmpty() && CONNECTION_TYPE == ConnectIQ.IQConnectType.WIRELESS) {
                         setDevice(connectIQInstance.getConnectedDevices().get(0));
+                    }else{
+                        activeDevice = connectIQInstance.getConnectedDevices().get(0);
                     }
                 } catch (InvalidStateException e) {
                     e.printStackTrace();
