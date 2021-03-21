@@ -41,6 +41,7 @@ dependencies:
   http: ^0.13.0
   throttling: ^1.0.0
   map_elevation: ^1.1.0
+  simplify_dart: ^1.2.4
 
 
   # The following adds the Cupertino Icons font to your application.

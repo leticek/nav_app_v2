@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:map_elevation/map_elevation.dart';
+import 'package:navigation_app/resources/models/point.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
@@ -13,6 +14,7 @@ import 'package:navigation_app/screens/use_route_screen/widgets/elevation_graph.
 import 'package:navigation_app/screens/use_route_screen/widgets/go_back_button.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/show_graph.dart';
 import 'package:navigation_app/screens/use_route_screen/widgets/start_navigation.dart';
+import 'package:simplify_dart/simplify_dart.dart';
 import 'package:sizer/sizer.dart';
 
 class UseRouteScreen extends StatefulWidget {
@@ -92,15 +94,43 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
       'type': 'routeSteps',
       'data': widget.routeToUse.routeSteps.map((e) => e.toMap()).toList()
     };
-    final Map<String, dynamic> routePoints = {
-      'type': 'routePoints',
-      'data': widget.routeToUse.latLngRoutePoints
-          .map((e) => {
-                'latitude': e.latitude,
-                'longitude': e.longitude,
-              })
-          .toList()
-    };
+
+    int numOfRoutePoints = widget.routeToUse.latLngRoutePoints.length;
+    final List<MyPoint> tmpList = widget.routeToUse.latLngRoutePoints
+        .map((e) => MyPoint.fromLatLng(e))
+        .toList();
+    List simplifiedList;
+    double tolerance = 0.000001;
+    while (numOfRoutePoints > 300) {
+      simplifiedList =
+          simplify(tmpList, highestQuality: true, tolerance: tolerance);
+      numOfRoutePoints = simplifiedList.length;
+      tolerance += 0.000001;
+      print('Délka: $numOfRoutePoints');
+    }
+    Map<String, dynamic> routePoints;
+    if (simplifiedList == null) {
+      routePoints = {
+        'type': 'routePoints',
+        'data': widget.routeToUse.latLngRoutePoints
+            .map((e) => {
+                  'latitude': e.latitude,
+                  'longitude': e.longitude,
+                })
+            .toList()
+      };
+    } else {
+      routePoints = {
+        'type': 'routePoints',
+        'data': simplifiedList
+            .map((e) => {
+                  'latitude': e.x,
+                  'longitude': e.y,
+                })
+            .toList()
+      };
+    }
+
     final Map<String, dynamic> boundingBox = {
       'type': 'boundingBox',
       'data': widget.routeToUse.messageBoundingBox
