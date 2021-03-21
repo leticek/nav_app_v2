@@ -12,7 +12,10 @@ class WatchService with ChangeNotifier {
   static const String _eventChannelName = 'eventChannel';
   static const String _messageChannelName = 'messageChannel';
   List<String> availableDevices = [];
-  bool applicationOpened = false;
+  Map<String, dynamic> routeSteps;
+  Map<String, dynamic> routePoints;
+  Map<String, dynamic> boundingBox;
+  bool transferInProgress = false;
 
   WatchService() {
     _methodChannel = const MethodChannel(_methodChannelName);
@@ -24,10 +27,7 @@ class WatchService with ChangeNotifier {
   void startMessageChannel() {
     _messageChannel = const EventChannel(_messageChannelName);
     _messageChannel.receiveBroadcastStream().listen(messageChannelStream);
-  }
-
-  void messageChannelStream(dynamic event) {
-    print(event);
+    _methodChannel.invokeMethod('receiveMessages');
   }
 
   void eventChannelStream(dynamic event) {
@@ -73,6 +73,31 @@ class WatchService with ChangeNotifier {
 
   Future<void> openApp() => _methodChannel.invokeMethod('openApp');
 
-  void sendMessage(dynamic data) =>
-      _methodChannel.invokeMethod('sendMessage', data);
+  Future<void> _sendMessage(dynamic data) async {
+    _methodChannel.invokeMethod('sendMessage', data);
+  }
+
+  Future<void> sendRoute({
+    @required Map<String, dynamic> routeSteps,
+    @required Map<String, dynamic> routePoints,
+    @required Map<String, dynamic> boundingBox,
+  }) async {
+    transferInProgress = true;
+    notifyListeners();
+    this.routeSteps = routeSteps;
+    this.routePoints = routePoints;
+    this.boundingBox = boundingBox;
+    _sendMessage(this.routeSteps);
+  }
+
+  void messageChannelStream(dynamic event) {
+    if (event['type'] == 0 && event['status'] == 1) {
+      _sendMessage(routePoints);
+    } else if (event['type'] == 1 && event['status'] == 1) {
+      _sendMessage(boundingBox);
+    } else if (event['type'] == 2 && event['status'] == 1) {
+      transferInProgress = false;
+      notifyListeners();
+    }
+  }
 }

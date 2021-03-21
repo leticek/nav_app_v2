@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         //initialize SizerUtil()
         SizerUtil().init(constraints, orientation);
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Flutter Demo',
           theme: ThemeData(primaryColor: Colors.cyan),
           onGenerateRoute: AppRoutes.onGenerateRoute,

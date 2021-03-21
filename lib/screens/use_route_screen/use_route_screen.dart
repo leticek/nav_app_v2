@@ -30,7 +30,6 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   ElevationPoint hoverPoint;
   bool _showGraph = false;
   double showGraphButtonOffset = 1.2.h;
-  bool dataTransferInProgress = false;
 
   void showGraph() => setState(() {
         if (_showGraph) {
@@ -67,9 +66,6 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
   }
 
   Future<void> startNavigation() async {
-    setState(() {
-      dataTransferInProgress = true;
-    });
     final Map<String, dynamic> routeSteps = {
       'type': 'routeSteps',
       'data': widget.routeToUse.routeSteps.map((e) => e.toMap()).toList()
@@ -88,16 +84,10 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
       'data': widget.routeToUse.messageBoundingBox
     };
     context.read(watchConnectionProvider).startMessageChannel();
-
-    context.read(watchConnectionProvider).sendMessage(routeSteps);
-    await Future.delayed(const Duration(seconds: 15), () {});
-    context.read(watchConnectionProvider).sendMessage(routePoints);
-    await Future.delayed(const Duration(seconds: 15), () {});
-    context.read(watchConnectionProvider).sendMessage(boundingBox);
-
-    setState(() {
-      dataTransferInProgress = false;
-    });
+    context.read(watchConnectionProvider).sendRoute(
+        routeSteps: routeSteps,
+        routePoints: routePoints,
+        boundingBox: boundingBox);
   }
 
   bool onElevationNotification(ElevationHoverNotification notification) {
@@ -148,7 +138,6 @@ class _UseRouteScreenView
             ),
             GoBackButton(),
             StartNavigationButton(
-                inProgress: state.dataTransferInProgress,
                 onTap: state.startNavigation,
                 offset: state.showGraphButtonOffset),
             ShowGraphButton(

@@ -53,6 +53,7 @@ public class MainActivity extends FlutterActivity {
     private IQDevice activeDevice;
     private final IQApp garminApplication = new IQApp("199253b5-157b-4c2c-93e5-833af0af44e1");
     private boolean sdkInitialized = false;
+    private Object response;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
@@ -72,6 +73,9 @@ public class MainActivity extends FlutterActivity {
                     break;
                 case "sendMessage":
                     this.sendMessage(call.arguments);
+                    break;
+                case "receiveMessages":
+                    this.registerForMessages();
                     break;
             }
         });
@@ -130,6 +134,34 @@ public class MainActivity extends FlutterActivity {
         } catch (InvalidStateException e) {
             e.printStackTrace();
         } catch (ServiceUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void registerForMessages() {
+        try {
+            this.connectIQInstance.registerForAppEvents(this.activeDevice, this.garminApplication, (iqDevice, iqApp, list, iqMessageStatus) -> {
+                switch (iqMessageStatus) {
+                    case SUCCESS:
+                        messageChannelSink.success(list.get(0));
+                        break;
+                    case FAILURE_UNKNOWN:
+                        break;
+                    case FAILURE_INVALID_FORMAT:
+                        break;
+                    case FAILURE_MESSAGE_TOO_LARGE:
+                        break;
+                    case FAILURE_UNSUPPORTED_TYPE:
+                        break;
+                    case FAILURE_DURING_TRANSFER:
+                        break;
+                    case FAILURE_INVALID_DEVICE:
+                        break;
+                    case FAILURE_DEVICE_NOT_CONNECTED:
+                        break;
+                }
+            });
+        } catch (InvalidStateException e) {
             e.printStackTrace();
         }
     }
@@ -226,7 +258,7 @@ public class MainActivity extends FlutterActivity {
 
     private void initSDK() {
         System.out.println("init SDK");
-        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.WIRELESS);
+        this.connectIQInstance = ConnectIQ.getInstance(this, ConnectIQ.IQConnectType.TETHERED);
         try {
             if (sdkInitialized) {
                 sdkInitialized = false;
