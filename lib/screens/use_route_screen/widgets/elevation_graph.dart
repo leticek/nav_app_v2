@@ -17,7 +17,7 @@ class ElevationGraph extends StatelessWidget {
       onNotification: onNotification,
       child: Elevation(
         points,
-        color: Colors.grey.shade500,
+        color: Colors.blue,
         elevationGradientColors: ElevationGradientColors(
             gt10: Colors.green,
             gt20: Colors.orangeAccent,

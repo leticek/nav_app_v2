@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/resources/providers.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:navigation_app/resources/widget_view.dart';
+import 'package:navigation_app/screens/settings_screen/widgets/map_style_choice.dart';
+import 'package:sizer/sizer.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -19,28 +20,84 @@ class _SettingsScreenView
 
   @override
   Widget build(BuildContext context) {
-    //TODO: vylepšit UI a UX, fix herp widget
     return Scaffold(
-      appBar: AppBar(),
-      body: Consumer(
-        builder: (context, watch, child) {
-          final watchService = watch(watchConnectionProvider);
-
-          return watchService.availableDevices.isEmpty
-              ? ElevatedButton(
-                  onPressed: () => context.read(watchConnectionProvider).searchForAvailableDevices(),
-                  child: const Text('Najít zařízení'),
-                )
-              : ListView.builder(
-                  itemBuilder: (context, index) => ListTile(
-                    title: Text(
-                      watchService.availableDevices.elementAt(index),
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.cyan,
+          title: Hero(
+            tag: 'settings',
+            child: Icon(
+              Icons.settings_outlined,
+              color: Colors.black,
+              size: 30.0.sp,
+            ),
+          ),
+        ),
+        body: Stack(
+          children: [
+            Positioned(
+              top: 2.0.h,
+              left: 5.0.w,
+              child: Text(
+                "Vzhled mapy",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
+              ),
+            ),
+            Positioned(
+              top: 9.0.h,
+              child: Container(
+                margin: const EdgeInsets.all(8),
+                height: 35.0.h,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: [
+                    MapStyleChoice(
+                      title: "Klasická",
+                      options: TileLayerOptions(
+                        urlTemplate:
+                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c'],
+                      ),
                     ),
-                  ),
-                  itemCount: watchService.availableDevices.length,
-                );
-        },
-      ),
-    );
+                    MapStyleChoice(
+                      title: "Turistická",
+                      options: TileLayerOptions(
+                        urlTemplate:
+                            "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
+                      ),
+                    ),
+                    MapStyleChoice(
+                      title: "Topo",
+                      options: TileLayerOptions(
+                        urlTemplate:
+                            "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c'],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: 48.0.h,
+              left: 5.0.w,
+              child: Text(
+                "Profil trasy",
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
+              ),
+            ),
+            Positioned(
+              top: 54.0.h,
+              child: Container(
+                margin: EdgeInsets.all(8),
+                color: Colors.red,
+                height: 20.0.h,
+                width: MediaQuery.of(context).size.width,
+              ),
+            )
+          ],
+        ));
   }
 }

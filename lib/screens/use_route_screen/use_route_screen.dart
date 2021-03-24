@@ -106,9 +106,9 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
           simplify(tmpList, highestQuality: true, tolerance: tolerance);
       numOfRoutePoints = simplifiedList.length;
       tolerance += 0.000001;
-      print('Délka: $numOfRoutePoints');
     }
     Map<String, dynamic> routePoints;
+
     if (simplifiedList == null) {
       routePoints = {
         'type': 'routePoints',
