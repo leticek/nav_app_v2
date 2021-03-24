@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
@@ -39,6 +38,14 @@ class FirestoreService {
     } catch (e) {
       debugPrint(e.toString());
       return false;
+    }
+  }
+
+  void updateMapStyle(int styleId, String userId) {
+    try {
+      _instance.collection('users').doc(userId).update({'mapStyle': styleId});
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 

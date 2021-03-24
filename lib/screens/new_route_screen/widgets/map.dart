@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
+import 'package:navigation_app/resources/providers.dart';
 
 class MyMap extends StatelessWidget {
   const MyMap(
@@ -28,10 +30,7 @@ class MyMap extends StatelessWidget {
         center: LatLng(49.761752, 15.427551),
       ),
       layers: [
-        TileLayerOptions(
-          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
-        ),
+        context.read(authServiceProvider).userModel.mapOptions,
         MarkerLayerOptions(markers: _controller.markers),
         PolylineLayerOptions(polylines: _controller.lines)
       ],

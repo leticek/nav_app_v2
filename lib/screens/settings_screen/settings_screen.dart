@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/settings_screen/widgets/map_style_choice.dart';
 import 'package:sizer/sizer.dart';
@@ -21,83 +23,106 @@ class _SettingsScreenView
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: Colors.cyan,
-          title: Hero(
-            tag: 'settings',
-            child: Icon(
-              Icons.settings_outlined,
-              color: Colors.black,
-              size: 30.0.sp,
-            ),
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.cyan,
+        title: Hero(
+          tag: 'settings',
+          child: Icon(
+            Icons.settings_outlined,
+            color: Colors.black,
+            size: 30.0.sp,
           ),
         ),
-        body: Stack(
-          children: [
-            Positioned(
-              top: 2.0.h,
-              left: 5.0.w,
-              child: Text(
-                "Vzhled mapy",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
-              ),
+      ),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 2.0.h,
+            left: 5.0.w,
+            child: Text(
+              "Vzhled mapy",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
             ),
-            Positioned(
-              top: 9.0.h,
-              child: Container(
-                margin: const EdgeInsets.all(8),
-                height: 35.0.h,
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  children: [
-                    MapStyleChoice(
-                      title: "Klasická",
-                      options: TileLayerOptions(
-                        urlTemplate:
-                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                        subdomains: ['a', 'b', 'c'],
-                      ),
+          ),
+          Positioned(
+            top: 9.0.h,
+            child: Container(
+              margin: const EdgeInsets.only(left: 5, right: 5),
+              height: 35.0.h,
+              width: 97.5.w,
+              child: DefaultTabController(
+                initialIndex: context.read(authServiceProvider).userModel.mapStyle,
+                length: 3,
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: TabBar(
+                    onTap: (index) => context
+                        .read(firestoreProvider)
+                        .updateMapStyle(index,
+                            context.read(authServiceProvider).userModel.userId),
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.cyan,
                     ),
-                    MapStyleChoice(
-                      title: "Turistická",
-                      options: TileLayerOptions(
-                        urlTemplate:
-                            "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
+                    tabs: [
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: MapStyleChoice(
+                          title: "Klasická",
+                          options: TileLayerOptions(
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                        ),
                       ),
-                    ),
-                    MapStyleChoice(
-                      title: "Topo",
-                      options: TileLayerOptions(
-                        urlTemplate:
-                            "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-                        subdomains: ['a', 'b', 'c'],
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: MapStyleChoice(
+                          title: "Turistická",
+                          options: TileLayerOptions(
+                            urlTemplate:
+                                "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: MapStyleChoice(
+                          title: "Topo",
+                          options: TileLayerOptions(
+                            urlTemplate:
+                                "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            Positioned(
-              top: 48.0.h,
-              left: 5.0.w,
-              child: Text(
-                "Profil trasy",
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
-              ),
+          ),
+          Positioned(
+            top: 48.0.h,
+            left: 5.0.w,
+            child: Text(
+              "Profil trasy",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
             ),
-            Positioned(
-              top: 54.0.h,
-              child: Container(
-                margin: EdgeInsets.all(8),
-                color: Colors.red,
-                height: 20.0.h,
-                width: MediaQuery.of(context).size.width,
-              ),
-            )
-          ],
-        ));
+          ),
+          Positioned(
+            top: 54.0.h,
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              color: Colors.red,
+              height: 20.0.h,
+              width: MediaQuery.of(context).size.width,
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

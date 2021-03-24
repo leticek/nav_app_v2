@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:navigation_app/resources/enums.dart';
+import 'package:navigation_app/resources/models/saved_route.dart';
 import 'package:navigation_app/resources/models/user_model.dart';
 import 'package:navigation_app/resources/providers.dart';
-import 'package:navigation_app/services/validator.dart';
+
+import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/validator.dart';
 
 class AuthService with ChangeNotifier {
   FirebaseAuth _firebaseAuth;
@@ -105,7 +107,13 @@ class AuthService with ChangeNotifier {
       _user = firebaseUser;
       _userListener =
           read(firestoreProvider).streamUserById(_user).listen((event) {
-        _userModel = event;
+        if (_userModel != null) {
+          final List<SavedRoute> tmp = _userModel.savedRoutes;
+          _userModel = event;
+          _userModel.savedRoutes = tmp;
+        } else {
+          _userModel = event;
+        }
         notifyListeners();
       });
       _userRoutesListener =

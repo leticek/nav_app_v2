@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:navigation_app/resources/models/saved_route.dart';
+import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 
 class RoutePreview extends StatefulWidget {
@@ -31,8 +33,6 @@ class _RoutePreviewController extends State<RoutePreview> {
     mapStream =
         statefulMapController.changeFeed.listen((event) => setState(() {}));
   }
-
-
 
   @override
   void dispose() {
@@ -76,10 +76,7 @@ class _RoutePreviewView
         interactive: false,
       ),
       layers: [
-        TileLayerOptions(
-          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
-        ),
+        context.read(authServiceProvider).userModel.mapOptions,
         MarkerLayerOptions(markers: [
           Marker(
               builder: (context) => const Icon(Icons.person_pin),
