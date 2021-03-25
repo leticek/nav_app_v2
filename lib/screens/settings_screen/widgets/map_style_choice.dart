@@ -59,39 +59,42 @@ class _MapStyleChoiceView
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        SizedBox(
-          width: 18.0.w,
-          child: Center(
-            child: Text(widget.title),
-          ),
-        ),
-        SizedBox(
-          width: 45.0.w,
-          height: 10.0.h,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(width: 1.5),
+    return RotatedBox(
+      quarterTurns: 3,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SizedBox(
+            width: 18.0.w,
+            child: Center(
+              child: Text(widget.title),
             ),
-            height: 19.0.h,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: FlutterMap(
-                mapController: state._mapController,
-                options: MapOptions(
-                  interactive: false,
-                  zoom: 5,
-                  center: LatLng(49.761752, 15.427551),
+          ),
+          SizedBox(
+            width: 45.0.w,
+            height: 10.0.h,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(width: 1.5),
+              ),
+              height: 19.0.h,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: FlutterMap(
+                  mapController: state._mapController,
+                  options: MapOptions(
+                    interactive: false,
+                    zoom: 5,
+                    center: LatLng(49.761752, 15.427551),
+                  ),
+                  layers: [widget.options],
                 ),
-                layers: [widget.options],
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -52,7 +52,8 @@ class _SettingsScreenView
               height: 35.0.h,
               width: 97.5.w,
               child: DefaultTabController(
-                initialIndex: context.read(authServiceProvider).userModel.mapStyle,
+                initialIndex:
+                    context.read(authServiceProvider).userModel.mapStyle,
                 length: 3,
                 child: RotatedBox(
                   quarterTurns: 1,
@@ -66,36 +67,27 @@ class _SettingsScreenView
                       color: Colors.cyan,
                     ),
                     tabs: [
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: MapStyleChoice(
-                          title: "Klasická",
-                          options: TileLayerOptions(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                          ),
+                      MapStyleChoice(
+                        title: "Klasická",
+                        options: TileLayerOptions(
+                          urlTemplate:
+                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c'],
                         ),
                       ),
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: MapStyleChoice(
-                          title: "Turistická",
-                          options: TileLayerOptions(
-                            urlTemplate:
-                                "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
-                          ),
+                      MapStyleChoice(
+                        title: "Turistická",
+                        options: TileLayerOptions(
+                          urlTemplate:
+                              "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
                         ),
                       ),
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: MapStyleChoice(
-                          title: "Topo",
-                          options: TileLayerOptions(
-                            urlTemplate:
-                                "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                          ),
+                      MapStyleChoice(
+                        title: "Topo",
+                        options: TileLayerOptions(
+                          urlTemplate:
+                              "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c'],
                         ),
                       ),
                     ],
@@ -115,10 +107,59 @@ class _SettingsScreenView
           Positioned(
             top: 54.0.h,
             child: Container(
+              //color: Colors.yellow,
               margin: const EdgeInsets.all(8),
-              color: Colors.red,
               height: 20.0.h,
-              width: MediaQuery.of(context).size.width,
+              width: 97.5.w,
+              child: DefaultTabController(
+                initialIndex:
+                    context.read(authServiceProvider).userModel.mapStyle,
+                length: 3,
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: TabBar(
+                    onTap: (index) => null,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.cyan,
+                    ),
+                    tabs: [
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: const [
+                            Icon(Icons.directions_bike),
+                            Text(
+                              'Trasa bude optimalizovaná pro jízdu na kole.',
+                            ),
+                          ],
+                        ),
+                      ),
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: const [
+                              //Icon(),
+                              Text(
+                                  'Trasa bude optimalizovaná pro jízdu na kole.'),
+                            ]),
+                      ),
+                      RotatedBox(
+                        quarterTurns: 3,
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: const [
+                              Icon(Icons.directions_bike),
+                              Text(
+                                  'Trasa bude optimalizovaná pro jízdu na kole.'),
+                            ]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           )
         ],

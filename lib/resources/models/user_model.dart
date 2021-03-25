@@ -16,10 +16,13 @@ class UserModel with ChangeNotifier {
   }
 
   UserModel.fromFirestore(Map<String, dynamic> map) {
-    debugPrint(map.toString());
     userId = map['userId'] as String;
     email = map['email'] as String;
     mapStyle = map['mapStyle'] as int;
+    _setMapStyle(mapStyle);
+  }
+
+  void _setMapStyle(int styleId) {
     switch (mapStyle) {
       case 0:
         mapOptions = TileLayerOptions(
