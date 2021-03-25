@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
+import 'package:navigation_app/screens/settings_screen/widgets/choice_picker.dart';
 import 'package:navigation_app/screens/settings_screen/widgets/map_style_choice.dart';
+import 'package:navigation_app/screens/settings_screen/widgets/route_profile_choice.dart';
 import 'package:sizer/sizer.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,6 +17,56 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenController extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) => _SettingsScreenView(this);
+
+  final List<Widget> _mapStylesList = [
+    MapStyleChoice(
+      title: "Klasická",
+      options: TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c'],
+      ),
+    ),
+    MapStyleChoice(
+      title: "Turistická",
+      options: TileLayerOptions(
+        urlTemplate: "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
+      ),
+    ),
+    MapStyleChoice(
+      title: "Topo",
+      options: TileLayerOptions(
+        urlTemplate: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c'],
+      ),
+    )
+  ];
+
+  final List<Widget> _routeProfileList = const [
+    RouteProfileStyle(
+      icon: Icons.directions_bike,
+      label: 'Cyklistika',
+    ),
+    RouteProfileStyle(
+      icon: MdiIcons.imageFilterHdr,
+      label: 'Horská cyklistika',
+    ),
+    RouteProfileStyle(
+      icon: MdiIcons.walk,
+      label: 'Chůze',
+    ),
+    RouteProfileStyle(
+      icon: MdiIcons.hiking,
+      label: 'Chůze po horách',
+    )
+  ];
+
+  void updateMapStyle(int index) =>
+      context.read(firestoreProvider).updateMapStyle(
+          index, context.read(authServiceProvider).userModel.userId);
+
+  void updateRouteProfile(int index) =>
+      context.read(firestoreProvider).updateRouteProfile(
+          index, context.read(authServiceProvider).userModel.userId);
 }
 
 class _SettingsScreenView
@@ -46,56 +98,13 @@ class _SettingsScreenView
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
             ),
           ),
-          Positioned(
+          ChoicePicker(
+            initialIndex: context.read(authServiceProvider).userModel.mapStyle,
+            length: 3,
+            onTap: state.updateMapStyle,
+            tabs: state._mapStylesList,
             top: 9.0.h,
-            child: Container(
-              margin: const EdgeInsets.only(left: 5, right: 5),
-              height: 35.0.h,
-              width: 97.5.w,
-              child: DefaultTabController(
-                initialIndex:
-                    context.read(authServiceProvider).userModel.mapStyle,
-                length: 3,
-                child: RotatedBox(
-                  quarterTurns: 1,
-                  child: TabBar(
-                    onTap: (index) => context
-                        .read(firestoreProvider)
-                        .updateMapStyle(index,
-                            context.read(authServiceProvider).userModel.userId),
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.cyan,
-                    ),
-                    tabs: [
-                      MapStyleChoice(
-                        title: "Klasická",
-                        options: TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                      ),
-                      MapStyleChoice(
-                        title: "Turistická",
-                        options: TileLayerOptions(
-                          urlTemplate:
-                              "https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png",
-                        ),
-                      ),
-                      MapStyleChoice(
-                        title: "Topo",
-                        options: TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            height: 35.0.h,
           ),
           Positioned(
             top: 48.0.h,
@@ -105,49 +114,14 @@ class _SettingsScreenView
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30.0.sp),
             ),
           ),
-          Positioned(
+          ChoicePicker(
+            initialIndex:
+                context.read(authServiceProvider).userModel.routeProfileId,
+            length: 4,
+            onTap: state.updateRouteProfile,
+            tabs: state._routeProfileList,
             top: 54.0.h,
-            child: Container(
-              margin: const EdgeInsets.only(left: 5, right: 5),
-              height: 23.7.h,
-              width: 97.5.w,
-              child: DefaultTabController(
-                initialIndex:
-                    context.read(authServiceProvider).userModel.routeProfileId,
-                length: 4,
-                child: RotatedBox(
-                  quarterTurns: 1,
-                  child: TabBar(
-                   onTap: (index) => context
-                    .read(firestoreProvider)
-                    .updateRouteProfile(index,
-                    context.read(authServiceProvider).userModel.userId),
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.cyan,
-                    ),
-                    tabs: const [
-                      RouteProfileStyle(
-                        icon: Icons.directions_bike,
-                        label: 'Cyklistika',
-                      ),
-                      RouteProfileStyle(
-                        icon: MdiIcons.imageFilterHdr,
-                        label: 'Horská cyklistika',
-                      ),
-                      RouteProfileStyle(
-                        icon: MdiIcons.walk,
-                        label: 'Chůze',
-                      ),
-                      RouteProfileStyle(
-                        icon: MdiIcons.hiking,
-                        label: 'Chůze po horách',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            height: 23.7.h,
           ),
           Positioned(
             width: 99.5.w,
@@ -171,36 +145,6 @@ class _SettingsScreenView
               color: Colors.black,
             ),
           )
-        ],
-      ),
-    );
-  }
-}
-
-class RouteProfileStyle extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const RouteProfileStyle({
-    Key key,
-    this.icon,
-    this.label,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return RotatedBox(
-      quarterTurns: 3,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 25.0.w,
-          ),
-          Icon(icon),
-          SizedBox(
-            width: 5.0.w,
-          ),
-          Text(label),
         ],
       ),
     );

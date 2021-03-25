@@ -26,8 +26,8 @@ class UserModel with ChangeNotifier {
     _setRouteProfile(routeProfileId);
   }
 
-  void _setRouteProfile(int routeProfileId){
-    switch(routeProfileId){
+  void _setRouteProfile(int routeProfileId) {
+    switch (routeProfileId) {
       case 0:
         routeProfile = 'cycling-regular';
         break;
@@ -75,7 +75,13 @@ class UserModel with ChangeNotifier {
   }
 
   Map<String, dynamic> toMap() {
-    return {'userId': userId, 'email': email, 'firstLogin': DateTime.now()};
+    return {
+      'userId': userId,
+      'email': email,
+      'firstLogin': DateTime.now(),
+      'mapStyle': 0,
+      'routeProfile': 0,
+    };
   }
 
   @override

@@ -179,11 +179,7 @@ class _UseRouteScreenView
                 center: LatLng(49.761752, 15.427551),
               ),
               layers: [
-                TileLayerOptions(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
-                ),
+                context.read(authServiceProvider).userModel.mapOptions,
                 MarkerLayerOptions(markers: [
                   if (state.hoverPoint is LatLng)
                     Marker(

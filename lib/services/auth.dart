@@ -55,8 +55,9 @@ class AuthService with ChangeNotifier {
     try {
       _status = AuthStatus.authenticating;
       notifyListeners();
-      await _firebaseAuth.createUserWithEmailAndPassword(
+      final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
+      read(firestoreProvider).createUser(userCred.user);
       _errorCode = '';
       return true;
     } catch (e) {
