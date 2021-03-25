@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/settings_screen/widgets/map_style_choice.dart';
@@ -107,61 +108,99 @@ class _SettingsScreenView
           Positioned(
             top: 54.0.h,
             child: Container(
-              //color: Colors.yellow,
-              margin: const EdgeInsets.all(8),
-              height: 20.0.h,
+              margin: const EdgeInsets.only(left: 5, right: 5),
+              height: 23.7.h,
               width: 97.5.w,
               child: DefaultTabController(
                 initialIndex:
-                    context.read(authServiceProvider).userModel.mapStyle,
-                length: 3,
+                    context.read(authServiceProvider).userModel.routeProfileId,
+                length: 4,
                 child: RotatedBox(
                   quarterTurns: 1,
                   child: TabBar(
-                    onTap: (index) => null,
+                   onTap: (index) => context
+                    .read(firestoreProvider)
+                    .updateRouteProfile(index,
+                    context.read(authServiceProvider).userModel.userId),
                     indicator: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       color: Colors.cyan,
                     ),
-                    tabs: [
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: const [
-                            Icon(Icons.directions_bike),
-                            Text(
-                              'Trasa bude optimalizovaná pro jízdu na kole.',
-                            ),
-                          ],
-                        ),
+                    tabs: const [
+                      RouteProfileStyle(
+                        icon: Icons.directions_bike,
+                        label: 'Cyklistika',
                       ),
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: const [
-                              //Icon(),
-                              Text(
-                                  'Trasa bude optimalizovaná pro jízdu na kole.'),
-                            ]),
+                      RouteProfileStyle(
+                        icon: MdiIcons.imageFilterHdr,
+                        label: 'Horská cyklistika',
                       ),
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: const [
-                              Icon(Icons.directions_bike),
-                              Text(
-                                  'Trasa bude optimalizovaná pro jízdu na kole.'),
-                            ]),
+                      RouteProfileStyle(
+                        icon: MdiIcons.walk,
+                        label: 'Chůze',
+                      ),
+                      RouteProfileStyle(
+                        icon: MdiIcons.hiking,
+                        label: 'Chůze po horách',
                       ),
                     ],
                   ),
                 ),
               ),
             ),
+          ),
+          Positioned(
+            width: 99.5.w,
+            top: 46.0.h,
+            child: const Divider(
+              height: 4,
+              thickness: 1,
+              indent: 5,
+              endIndent: 5,
+              color: Colors.black,
+            ),
+          ),
+          Positioned(
+            width: 99.5.w,
+            top: 78.7.h,
+            child: const Divider(
+              height: 4,
+              thickness: 1,
+              indent: 5,
+              endIndent: 5,
+              color: Colors.black,
+            ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class RouteProfileStyle extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const RouteProfileStyle({
+    Key key,
+    this.icon,
+    this.label,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RotatedBox(
+      quarterTurns: 3,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 25.0.w,
+          ),
+          Icon(icon),
+          SizedBox(
+            width: 5.0.w,
+          ),
+          Text(label),
         ],
       ),
     );

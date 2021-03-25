@@ -9,6 +9,8 @@ class UserModel with ChangeNotifier {
   List<SavedRoute> savedRoutes = [];
   int mapStyle;
   TileLayerOptions mapOptions;
+  int routeProfileId;
+  String routeProfile;
 
   UserModel.fromUser(User user) {
     userId = user.uid;
@@ -19,7 +21,29 @@ class UserModel with ChangeNotifier {
     userId = map['userId'] as String;
     email = map['email'] as String;
     mapStyle = map['mapStyle'] as int;
+    routeProfileId = map['routeProfile'] as int;
     _setMapStyle(mapStyle);
+    _setRouteProfile(routeProfileId);
+  }
+
+  void _setRouteProfile(int routeProfileId){
+    switch(routeProfileId){
+      case 0:
+        routeProfile = 'cycling-regular';
+        break;
+      case 1:
+        routeProfile = 'cycling-mountain';
+        break;
+      case 2:
+        routeProfile = 'foot-walking';
+        break;
+      case 3:
+        routeProfile = 'foot-hiking';
+        break;
+      default:
+        routeProfile = 'foot-walking';
+        break;
+    }
   }
 
   void _setMapStyle(int styleId) {

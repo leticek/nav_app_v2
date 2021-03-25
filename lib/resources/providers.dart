@@ -7,7 +7,7 @@ import 'package:navigation_app/services/watch_connection.dart';
 final authServiceProvider = ChangeNotifierProvider<AuthService>(
     (ref) => AuthService.instance(ref.read));
 final openRouteServiceProvider = ChangeNotifierProvider<OpenRouteService>(
-    (ref) => OpenRouteService.instance());
+    (ref) => OpenRouteService.instance(ref.read));
 final firestoreProvider =
     Provider<FirestoreService>((ref) => FirestoreService.instance());
 final watchConnectionProvider =

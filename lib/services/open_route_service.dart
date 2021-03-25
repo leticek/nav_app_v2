@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong/latlong.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
+import 'package:navigation_app/resources/providers.dart';
 
 import '../resources/api_keys.dart';
 import '../resources/constants.dart';
@@ -12,8 +14,9 @@ class OpenRouteService with ChangeNotifier {
   http.Client _client;
   List<dynamic> _suggestions;
   bool isLoading = false;
+  Reader read;
 
-  OpenRouteService.instance() {
+  OpenRouteService.instance(this.read) {
     _client = http.Client();
     _suggestions = [];
   }
@@ -31,8 +34,8 @@ class OpenRouteService with ChangeNotifier {
   }
 
   Future<String> searchRoute(List points) async {
-    final Uri _request = Uri.https(
-        'api.openrouteservice.org', '/v2/directions/foot-hiking/geojson');
+    final Uri _request = Uri.https('api.openrouteservice.org',
+        '/v2/directions/${read(authServiceProvider).userModel.routeProfile}/geojson');
     final Map<String, String> _header = {
       "Authorization": ORS_API_KEY,
       "Accept":
@@ -98,8 +101,13 @@ class OpenRouteService with ChangeNotifier {
       _suggestions = _decodedResponse['features']
           .map((feature) => NamedPoint(
                 feature['properties']['label'] as String,
-                LatLng(feature['geometry']['coordinates'][1].toDouble() as double ?? 0.0,
-                    feature['geometry']['coordinates'][0].toDouble() as double ?? 0.0),
+                LatLng(
+                    feature['geometry']['coordinates'][1].toDouble()
+                            as double ??
+                        0.0,
+                    feature['geometry']['coordinates'][0].toDouble()
+                            as double ??
+                        0.0),
               ))
           .toList() as List<dynamic>;
       notifyListeners();

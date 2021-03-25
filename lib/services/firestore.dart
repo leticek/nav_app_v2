@@ -49,6 +49,14 @@ class FirestoreService {
     }
   }
 
+  void updateRouteProfile(int profileId, String userId) {
+    try {
+      _instance.collection('users').doc(userId).update({'routeProfile': profileId});
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   UserModel createUser(User user) {
     try {
       final userModel = UserModel.fromUser(user);

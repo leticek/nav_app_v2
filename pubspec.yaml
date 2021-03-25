@@ -42,6 +42,7 @@ dependencies:
   throttling: ^1.0.0
   map_elevation: ^1.1.0
   simplify_dart: ^1.2.4
+  material_design_icons_flutter: ^4.0.5955
 
 
   # The following adds the Cupertino Icons font to your application.
