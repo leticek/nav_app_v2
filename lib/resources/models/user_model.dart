@@ -29,16 +29,16 @@ class UserModel with ChangeNotifier {
   void _setRouteProfile(int routeProfileId) {
     switch (routeProfileId) {
       case 0:
-        routeProfile = 'cycling-regular';
-        break;
-      case 1:
-        routeProfile = 'cycling-mountain';
-        break;
-      case 2:
         routeProfile = 'foot-walking';
         break;
-      case 3:
+      case 1:
         routeProfile = 'foot-hiking';
+        break;
+      case 2:
+        routeProfile = 'cycling-regular';
+        break;
+      case 3:
+        routeProfile = 'cycling-mountain';
         break;
       default:
         routeProfile = 'foot-walking';
@@ -79,8 +79,8 @@ class UserModel with ChangeNotifier {
       'userId': userId,
       'email': email,
       'firstLogin': DateTime.now(),
-      'mapStyle': 0,
-      'routeProfile': 0,
+      'mapStyle': mapStyle??= 0,
+      'routeProfile': routeProfileId??= 0,
     };
   }
 

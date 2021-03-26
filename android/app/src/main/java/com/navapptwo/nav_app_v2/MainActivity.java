@@ -53,7 +53,7 @@ public class MainActivity extends FlutterActivity {
     private IQDevice activeDevice;
     private final IQApp garminApplication = new IQApp("199253b5-157b-4c2c-93e5-833af0af44e1");
     private boolean sdkInitialized = false;
-    private ConnectIQ.IQConnectType CONNECTION_TYPE = ConnectIQ.IQConnectType.TETHERED;
+    private ConnectIQ.IQConnectType CONNECTION_TYPE = ConnectIQ.IQConnectType.WIRELESS;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override

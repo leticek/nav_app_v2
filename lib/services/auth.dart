@@ -78,7 +78,8 @@ class AuthService with ChangeNotifier {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      await _firebaseAuth.signInWithCredential(credential);
+      final userCred = await _firebaseAuth.signInWithCredential(credential);
+      read(firestoreProvider).createUser(userCred.user);
       _errorCode = '';
       return true;
     } catch (e) {
@@ -100,7 +101,21 @@ class AuthService with ChangeNotifier {
     return Future.delayed(Duration.zero);
   }
 
+  void deleteUser() {
+    try {
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      _userListener.cancel();
+      _userRoutesListener.cancel();
+      read(firestoreProvider).deleteUser(_firebaseAuth.currentUser.uid);
+      _firebaseAuth.currentUser.delete();
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> _onAuthStateChanged(User firebaseUser) async {
+    print(firebaseUser);
     if (firebaseUser == null) {
       _status = AuthStatus.unauthenticated;
       _user = null;

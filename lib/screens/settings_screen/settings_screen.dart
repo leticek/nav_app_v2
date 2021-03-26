@@ -5,6 +5,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:navigation_app/resources/providers.dart';
 import 'package:navigation_app/resources/widget_view.dart';
 import 'package:navigation_app/screens/settings_screen/widgets/choice_picker.dart';
+import 'package:navigation_app/screens/settings_screen/widgets/delete_account.dart';
 import 'package:navigation_app/screens/settings_screen/widgets/map_style_choice.dart';
 import 'package:navigation_app/screens/settings_screen/widgets/route_profile_choice.dart';
 import 'package:sizer/sizer.dart';
@@ -43,6 +44,14 @@ class _SettingsScreenController extends State<SettingsScreen> {
 
   final List<Widget> _routeProfileList = const [
     RouteProfileStyle(
+      icon: MdiIcons.walk,
+      label: 'Chůze',
+    ),
+    RouteProfileStyle(
+      icon: MdiIcons.hiking,
+      label: 'Chůze po horách',
+    ),
+    RouteProfileStyle(
       icon: Icons.directions_bike,
       label: 'Cyklistika',
     ),
@@ -50,14 +59,6 @@ class _SettingsScreenController extends State<SettingsScreen> {
       icon: MdiIcons.imageFilterHdr,
       label: 'Horská cyklistika',
     ),
-    RouteProfileStyle(
-      icon: MdiIcons.walk,
-      label: 'Chůze',
-    ),
-    RouteProfileStyle(
-      icon: MdiIcons.hiking,
-      label: 'Chůze po horách',
-    )
   ];
 
   void updateMapStyle(int index) =>
@@ -144,7 +145,34 @@ class _SettingsScreenView
               endIndent: 5,
               color: Colors.black,
             ),
-          )
+          ),
+          Positioned(
+            width: 99.5.w,
+            height: 10.0.h,
+            top: 79.5.h,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(width: 5.0.w),
+                OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                      primary: Colors.black, backgroundColor: Colors.white),
+                  child: const Text('Vytvořit offline účet'),
+                ),
+                SizedBox(width: 5.0.w),
+                ElevatedButton(
+                  onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) => const DeleteAccountConfirmation(),
+                  ),
+                  style: ElevatedButton.styleFrom(primary: Colors.black),
+                  child: const Text('Smazat účet'),
+                ),
+                SizedBox(width: 5.0.w)
+              ],
+            ),
+          ),
         ],
       ),
     );

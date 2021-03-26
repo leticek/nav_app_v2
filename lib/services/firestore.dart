@@ -51,7 +51,10 @@ class FirestoreService {
 
   void updateRouteProfile(int profileId, String userId) {
     try {
-      _instance.collection('users').doc(userId).update({'routeProfile': profileId});
+      _instance
+          .collection('users')
+          .doc(userId)
+          .update({'routeProfile': profileId});
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -105,6 +108,9 @@ class FirestoreService {
     }
     return list;
   }
+
+  Future deleteUser(String userId) =>
+      _instance.collection('users').doc(userId).delete();
 
   void deleteRoute(String userId, String routeId) {
     _instance.collection('users/$userId/routes').doc(routeId).delete();
