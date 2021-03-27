@@ -248,6 +248,7 @@ class _NewRouteScreenView
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
+            context.read(openRouteServiceProvider).setIsLoading();
             context.read(openRouteServiceProvider).clearList();
             FocusManager.instance.primaryFocus.unfocus();
             Navigator.of(context).pop();
