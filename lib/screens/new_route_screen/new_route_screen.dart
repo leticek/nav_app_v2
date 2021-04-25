@@ -1,9 +1,14 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:gpx/gpx.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
 import 'package:navigation_app/resources/models/named_point.dart';
@@ -47,7 +52,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     setState(() {
       context.read(openRouteServiceProvider).isLoading = true;
     });
-    if(_newRoute.start == null || _newRoute.goal == null){
+    if (_newRoute.start == null || _newRoute.goal == null) {
       setState(() {
         context.read(openRouteServiceProvider).isLoading = false;
       });
@@ -191,7 +196,6 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
   }
 
   Future<void> _suggestionPicked(NamedPoint namedPoint) async {
-    //TODO: fix odebrání z historie po vybrání z našeptávače
     if (_startFocus.hasFocus) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
       _newRoute.start = namedPoint;
@@ -211,12 +215,12 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     _history.add({markerName: pickedPoint.point});
   }
 
-  Future<void> _searchRoute() async {
+  Future<void> _searchRoute({List<dynamic> points}) async {
     _statefulMapController.removeLine('route');
     if (_newRoute.start != null && _newRoute.goal != null) {
       final _result = await context
           .read(openRouteServiceProvider)
-          .searchRoute(_newRoute.getWaypoints());
+          .searchRoute(points ?? _newRoute.getWaypoints());
       if (_result == null) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Stala se chyba.'),
@@ -227,13 +231,70 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       _newRoute.geoJsonString = _result;
       _newRoute.geoJson = GeoJson();
       await _newRoute.geoJson.parse(_result);
-      _statefulMapController.addLineFromGeoPoints(
+      await _statefulMapController.addLineFromGeoPoints(
           color: Colors.red,
           isDotted: true,
           name: 'route',
           geoPoints: _newRoute.geoJson.lines[0].geoSerie.geoPoints);
       context.read(openRouteServiceProvider).setIsLoading();
+      _statefulMapController.fitLine('route');
       return;
+    }
+  }
+
+  void loadGpx() async {
+    final pickedFile =
+        await FilePicker.platform.pickFiles(allowMultiple: false);
+    if (pickedFile == null) {
+      return;
+    }
+    if (pickedFile.files.first.extension != 'gpx') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Vyberte prosím .GPX soubor.'),
+      ));
+      return;
+    }
+    final gpxFile = File(pickedFile.files.first.path);
+    final parsedGpx = GpxReader().fromString(gpxFile.readAsStringSync());
+
+    if (parsedGpx.trks.isNotEmpty) {
+      Wpt start = parsedGpx.trks.first.trksegs.first.trkpts.first;
+      Wpt end = parsedGpx.trks.first.trksegs.last.trkpts.last;
+
+      _pointPicked(
+          _startController,
+          NamedPoint.fromPoint(LatLng(start.lat, start.lon)),
+          Icons.person_pin,
+          'start');
+      _pointPicked(
+          _goalController,
+          NamedPoint.fromPoint(LatLng(end.lat, end.lon)),
+          Icons.flag_rounded,
+          'goal');
+
+      _newRoute.start = NamedPoint.fromPoint(LatLng(start.lat, start.lon));
+      _newRoute.goal = NamedPoint.fromPoint(LatLng(end.lat, end.lon));
+
+      List<dynamic> points = parsedGpx.trks.first.trksegs.first.trkpts.map((e) => [e.lon, e.lat]).toList();
+      points.length <= 50 ? _searchRoute(points: points) : _searchRoute();
+
+    } else {
+      Wpt start = parsedGpx.wpts.first;
+      Wpt end = parsedGpx.wpts.last;
+      _pointPicked(
+          _startController,
+          NamedPoint.fromPoint(LatLng(start.lat, start.lon)),
+          Icons.person_pin,
+          'start');
+      _pointPicked(
+          _goalController,
+          NamedPoint.fromPoint(LatLng(end.lat, end.lon)),
+          Icons.flag_rounded,
+          'goal');
+      _newRoute.start = NamedPoint.fromPoint(LatLng(start.lat, start.lon));
+      _newRoute.goal = NamedPoint.fromPoint(LatLng(end.lat, end.lon));
+      List<dynamic> points = parsedGpx.wpts.map((e) => [e.lon, e.lat]).toList();
+      points.length <= 50 ? _searchRoute(points: points) : _searchRoute();
     }
   }
 }
@@ -248,7 +309,6 @@ class _NewRouteScreenView
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
-            context.read(openRouteServiceProvider).setIsLoading();
             context.read(openRouteServiceProvider).clearList();
             FocusManager.instance.primaryFocus.unfocus();
             Navigator.of(context).pop();
@@ -278,7 +338,10 @@ class _NewRouteScreenView
             onTap: state._addPlaceFromTap,
             onLongPress: state._removeLast,
           ),
-          if (!state._inputVisible) const GpxImportButton(),
+          if (!state._inputVisible)
+            GpxImportButton(
+              onPressed: state.loadGpx,
+            ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 1),
             child: state._inputVisible

@@ -115,7 +115,6 @@ class AuthService with ChangeNotifier {
   }
 
   Future<void> _onAuthStateChanged(User firebaseUser) async {
-    print(firebaseUser);
     if (firebaseUser == null) {
       _status = AuthStatus.unauthenticated;
       _user = null;
@@ -126,7 +125,7 @@ class AuthService with ChangeNotifier {
         if (_userModel != null) {
           final List<SavedRoute> tmp = _userModel.savedRoutes;
           _userModel = event;
-          _userModel.savedRoutes = tmp;
+          _userModel?.savedRoutes = tmp;
         } else {
           _userModel = event;
         }
@@ -134,7 +133,7 @@ class AuthService with ChangeNotifier {
       });
       _userRoutesListener =
           read(firestoreProvider).streamUserRoutes(_user).listen((event) {
-        _userModel.savedRoutes = event;
+        _userModel?.savedRoutes = event;
         notifyListeners();
       });
       _status = AuthStatus.authenticated;

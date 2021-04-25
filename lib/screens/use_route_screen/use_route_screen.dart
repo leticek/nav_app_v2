@@ -101,7 +101,7 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
         .toList();
     List simplifiedList;
     double tolerance = 0.000001;
-    while (numOfRoutePoints > 300) {
+    while (numOfRoutePoints > 250) {
       simplifiedList =
           simplify(tmpList, highestQuality: true, tolerance: tolerance);
       numOfRoutePoints = simplifiedList.length;

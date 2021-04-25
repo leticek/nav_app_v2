@@ -1,4 +1,4 @@
-package com.navapptwo.nav_app_v2;
+package com.smieja.nav_app_two;
 
 
 import android.os.Build;
@@ -161,7 +161,7 @@ public class MainActivity extends FlutterActivity {
                 }
             });
         } catch (InvalidStateException e) {
-            e.printStackTrace();
+
         }
     }
 
@@ -278,8 +278,6 @@ public class MainActivity extends FlutterActivity {
                 try {
                     if (!connectIQInstance.getConnectedDevices().isEmpty() && CONNECTION_TYPE == ConnectIQ.IQConnectType.WIRELESS) {
                         setDevice(connectIQInstance.getConnectedDevices().get(0));
-                    }else{
-                        activeDevice = connectIQInstance.getConnectedDevices().get(0);
                     }
                 } catch (InvalidStateException e) {
                     e.printStackTrace();

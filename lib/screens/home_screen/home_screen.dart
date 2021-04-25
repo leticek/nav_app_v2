@@ -46,23 +46,6 @@ class _HomeScreenView extends WidgetView<HomeScreen, _HomeScreenController> {
           appBar: AppBar(
             backgroundColor: Colors.cyan,
             centerTitle: true,
-            leading: Consumer(
-              builder: (context, watch, child) {
-                return watch(watchConnectionProvider).appStartStatus.isEmpty
-                    ? InkWell(
-                        onTap: context.read(watchConnectionProvider).openApp,
-                        child: Container(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset('assets/splash_logo.png')),
-                      )
-                    : Center(
-                      child: Text(
-                          watch(watchConnectionProvider).appStartStatus,
-                          style: TextStyle(fontSize: 9.0.sp, fontWeight: FontWeight.w700),
-                        ),
-                    );
-              },
-            ),
             title: Consumer(
               builder: (context, watch, child) => Text(
                 watch(watchConnectionProvider).watchStatus,

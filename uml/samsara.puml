@@ -1,0 +1,793 @@
+@startuml
+set namespaceSeparator ::
+
+class "navigation_app::main.dart::MyApp" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::main.dart::MyApp"
+
+class "navigation_app::resources::enums.dart::SelectedTab" {
+  +int* index
+  {static} +List<SelectedTab*>* values
+  {static} +SelectedTab* login
+  {static} +SelectedTab* register
+}
+
+"navigation_app::resources::enums.dart::SelectedTab" o-- "navigation_app::resources::enums.dart::SelectedTab*"
+
+class "navigation_app::resources::enums.dart::AuthStatus" {
+  +int* index
+  {static} +List<AuthStatus*>* values
+  {static} +AuthStatus* uninitialized
+  {static} +AuthStatus* authenticated
+  {static} +AuthStatus* authenticating
+  {static} +AuthStatus* unauthenticated
+}
+
+"navigation_app::resources::enums.dart::AuthStatus" o-- "navigation_app::resources::enums.dart::AuthStatus*"
+
+class "navigation_app::resources::models::named_point.dart::NamedPoint" {
+  +String* name
+  +LatLng* point
+  +String* toString()
+  +Map<String*, dynamic>* toMap()
+}
+
+"navigation_app::resources::models::named_point.dart::NamedPoint" o-- "latlong::latlong.dart::LatLng*"
+
+class "navigation_app::resources::models::new_route.dart::NewRoute" {
+  +NamedPoint* start
+  +NamedPoint* goal
+  +List<LatLng*>* waypoints
+  +String* geoJsonString
+  +GeoJson* geoJson
+  +List<dynamic>* getWaypoints()
+  +Future<dynamic>* parseGeoJson()
+  +String* toString()
+}
+
+"navigation_app::resources::models::new_route.dart::NewRoute" o-- "navigation_app::resources::models::named_point.dart::NamedPoint*"
+"navigation_app::resources::models::new_route.dart::NewRoute" o-- "geojson::src::geojson.dart::GeoJson*"
+
+class "navigation_app::resources::models::point.dart::MyPoint" {
+  +dynamic x
+  +dynamic y
+  +LatLng* fromPoint()
+}
+
+class "navigation_app::resources::models::route_step.dart::RouteStep" {
+  +String* instruction
+  +int* type
+  +int* distance
+  +Map<dynamic, dynamic>* toMap()
+  +String* toString()
+}
+
+class "navigation_app::resources::models::saved_route.dart::SavedRoute" {
+  +String* id
+  +NamedPoint* start
+  +NamedPoint* goal
+  +List<RouteStep*>* routeSteps
+  +List<double*>* messageBoundingBox
+  +List<ElevationPoint*>* latLngRoutePoints
+  +double* ascent
+  +double* descent
+  +double* length
+  +List<LatLng*>* waypoints
+  +List<Map<String*, LatLng*>*>* history
+  +String* routeGeoJsonString
+  -Map<dynamic, dynamic>* _parsedRoute
+  +void parseBoundingBox()
+  +void parseRoutePoints()
+  +void parseRouteSegments()
+  +Map<String*, dynamic>* toMap()
+  +String* toString()
+}
+
+"navigation_app::resources::models::saved_route.dart::SavedRoute" o-- "navigation_app::resources::models::named_point.dart::NamedPoint*"
+
+class "navigation_app::resources::models::user_model.dart::UserModel" {
+  +String* userId
+  +String* email
+  +List<SavedRoute*>* savedRoutes
+  +int* mapStyle
+  +TileLayerOptions* mapOptions
+  +int* routeProfileId
+  +String* routeProfile
+  -void _setRouteProfile()
+  -void _setMapStyle()
+  +Map<String*, dynamic>* toMap()
+  +String* toString()
+  +bool* removeRoute()
+}
+
+"navigation_app::resources::models::user_model.dart::UserModel" o-- "flutter_map::src::layer::tile_layer.dart::TileLayerOptions*"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "navigation_app::resources::models::user_model.dart::UserModel"
+
+class "navigation_app::resources::utils::debouncer.dart::Debouncer" {
+  +Duration* delay
+  -Timer* _timer
+  +void call()
+}
+
+"navigation_app::resources::utils::debouncer.dart::Debouncer" o-- "dart::async::Timer*"
+
+class "navigation_app::resources::utils::logger.dart::Logger" {
+  +void didUpdateProvider()
+}
+
+"riverpod::src::framework.dart::ProviderObserver" <|-- "navigation_app::resources::utils::logger.dart::Logger"
+
+class "navigation_app::resources::utils::route_builder.dart::AppRoutes" {
+  {static} +String* auth
+  {static} +String* home
+  {static} +String* newRoute
+  {static} +String* myRoutes
+  {static} +String* about
+  {static} +String* settingsScreen
+  {static} +String* editRoute
+  {static} +String* useRoute
+  {static} +Route<dynamic>* onGenerateRoute()
+}
+
+class "navigation_app::resources::utils::validator.dart::Validator" {
+  {static} +String* validateEmail()
+  {static} +String* validatePasswordComplexity()
+  {static} +String* comparePasswords()
+  {static} +String* checkError()
+}
+
+abstract class "navigation_app::resources::widget_view.dart::WidgetView" {
+  +T2* state
+  +T1* widget
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::resources::widget_view.dart::WidgetView"
+
+class "navigation_app::screens::edit_route_screen::edit_route_screen.dart::EditRouteScreen" {
+  +SavedRoute* routeToEdit
+  +_EditRouteScreenController* createState()
+}
+
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::EditRouteScreen" o-- "navigation_app::resources::models::saved_route.dart::SavedRoute*"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::edit_route_screen::edit_route_screen.dart::EditRouteScreen"
+
+class "navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" {
+  -bool* _inputVisible
+  -TextEditingController* _startController
+  -TextEditingController* _goalController
+  -FocusNode* _startFocus
+  -FocusNode* _goalFocus
+  -StatefulMapController* _statefulMapController
+  -MapController* _mapController
+  -NewRoute* _newRoute
+  -Debouncer* _debouncer
+  -Position* _currentPosition
+  -List<Map<String*, LatLng*>*>* _history
+  +Widget* build()
+  +void initState()
+  +Future<void>* didChangeDependencies()
+  +void dispose()
+  -Future<void>* _suggestionPicked()
+  -Future<void>* _saveRoute()
+  -void _showHintList()
+  -Marker* _makeMarker()
+  -Future<void>* _addPlaceFromTap()
+  -Future<void>* _searchRoute()
+  -void _addPointFromHistory()
+  -void _pointPicked()
+  -void _textFieldChanged()
+  -void _removeLast()
+  -Future<void>* _goBack()
+}
+
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController*"
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "flutter::src::widgets::focus_manager.dart::FocusNode*"
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "map_controller::src::controller.dart::StatefulMapController*"
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "flutter_map::flutter_map.dart::MapController*"
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "navigation_app::resources::models::new_route.dart::NewRoute*"
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "navigation_app::resources::utils::debouncer.dart::Debouncer*"
+"navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController" o-- "geolocator_platform_interface::src::models::position.dart::Position*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenController"
+
+class "navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::edit_route_screen::edit_route_screen.dart::_EditRouteScreenView"
+
+class "navigation_app::screens::edit_route_screen::widgets::leave_dialog.dart::LeaveConfirmation" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::edit_route_screen::widgets::leave_dialog.dart::LeaveConfirmation"
+
+class "navigation_app::screens::home_screen::home_screen.dart::HomeScreen" {
+  +_HomeScreenController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::home_screen::home_screen.dart::HomeScreen"
+
+class "navigation_app::screens::home_screen::home_screen.dart::_HomeScreenController" {
+  -AuthService* _authService
+  +Widget* build()
+  +void initState()
+  -void _goToNewRouteScreen()
+  -void _goToSettingsScreen()
+  -void _goToMyRoutesScreen()
+}
+
+"navigation_app::screens::home_screen::home_screen.dart::_HomeScreenController" o-- "navigation_app::services::auth.dart::AuthService*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::home_screen::home_screen.dart::_HomeScreenController"
+
+class "navigation_app::screens::home_screen::home_screen.dart::_HomeScreenView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::home_screen::home_screen.dart::_HomeScreenView"
+
+class "navigation_app::screens::home_screen::widgets::button.dart::HomeScreenButton" {
+  -String* _label
+  -String* _heroTag
+  -IconData* _icon
+  -void Function()* _onTap
+  +Widget* build()
+}
+
+"navigation_app::screens::home_screen::widgets::button.dart::HomeScreenButton" o-- "flutter::src::widgets::icon_data.dart::IconData*"
+"navigation_app::screens::home_screen::widgets::button.dart::HomeScreenButton" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::home_screen::widgets::button.dart::HomeScreenButton"
+
+class "navigation_app::screens::login_screen::home.dart::AuthHome" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::login_screen::home.dart::AuthHome"
+
+class "navigation_app::screens::login_screen::login_screen.dart::Login" {
+  +_LoginController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::login_screen::login_screen.dart::Login"
+
+class "navigation_app::screens::login_screen::login_screen.dart::_LoginController" {
+  -bool* _authVisible
+  -SelectedTab* _selectedTab
+  +Widget* build()
+  -Future<void>* _loginWithGoogle()
+  -void _register()
+  -void _login()
+  -void _onAuthClose()
+}
+
+"navigation_app::screens::login_screen::login_screen.dart::_LoginController" o-- "file:::::::C:::Users::smiea::IdeaProjects::nav_app_v2::lib::resources::enums.dart::SelectedTab*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::login_screen::login_screen.dart::_LoginController"
+
+class "navigation_app::screens::login_screen::login_screen.dart::_LoginView" {
+  +Widget* build()
+}
+
+"file:::::::C:::Users::smiea::IdeaProjects::nav_app_v2::lib::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::login_screen::login_screen.dart::_LoginView"
+
+class "navigation_app::screens::login_screen::splash_screen.dart::SplashScreen" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::login_screen::splash_screen.dart::SplashScreen"
+
+class "navigation_app::screens::login_screen::widgets::auth_dialog.dart::AuthDialog" {
+  -SelectedTab* _selectedTab
+  -void Function()* _onClose
+  +_AuthDialogController* createState()
+}
+
+"navigation_app::screens::login_screen::widgets::auth_dialog.dart::AuthDialog" o-- "file:::::::C:::Users::smiea::IdeaProjects::nav_app_v2::lib::resources::enums.dart::SelectedTab*"
+"navigation_app::screens::login_screen::widgets::auth_dialog.dart::AuthDialog" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::login_screen::widgets::auth_dialog.dart::AuthDialog"
+
+class "navigation_app::screens::login_screen::widgets::auth_dialog.dart::_AuthDialogController" {
+  -int* _selectedTab
+  +Widget* build()
+  +void initState()
+  -void _onTap()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::login_screen::widgets::auth_dialog.dart::_AuthDialogController"
+
+class "navigation_app::screens::login_screen::widgets::auth_dialog.dart::_AuthDialogView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::login_screen::widgets::auth_dialog.dart::_AuthDialogView"
+
+class "navigation_app::screens::login_screen::widgets::login.dart::LoginForm" {
+  +_LoginFormController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::login_screen::widgets::login.dart::LoginForm"
+
+class "navigation_app::screens::login_screen::widgets::login.dart::_LoginFormController" {
+  -TextEditingController* _email
+  -TextEditingController* _password
+  -FocusNode* _passwordField
+  -GlobalKey<FormState*>* _formKey
+  +Widget* build()
+  +void initState()
+  -Future<void>* _login()
+}
+
+"navigation_app::screens::login_screen::widgets::login.dart::_LoginFormController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController*"
+"navigation_app::screens::login_screen::widgets::login.dart::_LoginFormController" o-- "flutter::src::widgets::focus_manager.dart::FocusNode*"
+"navigation_app::screens::login_screen::widgets::login.dart::_LoginFormController" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState*>*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::login_screen::widgets::login.dart::_LoginFormController"
+
+class "navigation_app::screens::login_screen::widgets::login.dart::_LoginFormView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::login_screen::widgets::login.dart::_LoginFormView"
+
+class "navigation_app::screens::login_screen::widgets::register.dart::RegisterForm" {
+  +_RegisterFormController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::login_screen::widgets::register.dart::RegisterForm"
+
+class "navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormController" {
+  -TextEditingController* _email
+  -TextEditingController* _password
+  -TextEditingController* _confirmPassword
+  -FocusNode* _passwordField
+  -FocusNode* _confirmPasswordField
+  -GlobalKey<FormState*>* _formKey
+  +Widget* build()
+  +void initState()
+  +void dispose()
+  -Future<void>* _signup()
+}
+
+"navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController*"
+"navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormController" o-- "flutter::src::widgets::focus_manager.dart::FocusNode*"
+"navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormController" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState*>*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormController"
+
+class "navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::login_screen::widgets::register.dart::_RegisterFormView"
+
+class "navigation_app::screens::my_routes_screen::my_routes_screen.dart::MyRoutesScreen" {
+  +_MyRoutesScreenController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::my_routes_screen::my_routes_screen.dart::MyRoutesScreen"
+
+class "navigation_app::screens::my_routes_screen::my_routes_screen.dart::_MyRoutesScreenController" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::my_routes_screen::my_routes_screen.dart::_MyRoutesScreenController"
+
+class "navigation_app::screens::my_routes_screen::my_routes_screen.dart::_MyRoutesScreenView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::my_routes_screen::my_routes_screen.dart::_MyRoutesScreenView"
+
+class "navigation_app::screens::my_routes_screen::widgets::delete_dialog.dart::DeleteConfirmation" {
+  +SavedRoute* route
+  +Widget* build()
+}
+
+"navigation_app::screens::my_routes_screen::widgets::delete_dialog.dart::DeleteConfirmation" o-- "navigation_app::resources::models::saved_route.dart::SavedRoute*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::my_routes_screen::widgets::delete_dialog.dart::DeleteConfirmation"
+
+class "navigation_app::screens::my_routes_screen::widgets::route_preview.dart::RoutePreview" {
+  +SavedRoute* savedRoute
+  +_RoutePreviewController* createState()
+}
+
+"navigation_app::screens::my_routes_screen::widgets::route_preview.dart::RoutePreview" o-- "navigation_app::resources::models::saved_route.dart::SavedRoute*"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::my_routes_screen::widgets::route_preview.dart::RoutePreview"
+
+class "navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewController" {
+  +MapController* mapController
+  +StatefulMapController* statefulMapController
+  +StreamSubscription<dynamic>* mapStream
+  +Widget* build()
+  +void initState()
+  +void dispose()
+  +Future<void>* didChangeDependencies()
+}
+
+"navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewController" o-- "flutter_map::flutter_map.dart::MapController*"
+"navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewController" o-- "map_controller::src::controller.dart::StatefulMapController*"
+"navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewController" o-- "dart::async::StreamSubscription<dynamic>*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewController"
+
+class "navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::my_routes_screen::widgets::route_preview.dart::_RoutePreviewView"
+
+class "navigation_app::screens::my_routes_screen::widgets::route_widget.dart::RouteWidget" {
+  +SavedRoute* savedRoute
+  +_RouteWidgetState* createState()
+}
+
+"navigation_app::screens::my_routes_screen::widgets::route_widget.dart::RouteWidget" o-- "navigation_app::resources::models::saved_route.dart::SavedRoute*"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::my_routes_screen::widgets::route_widget.dart::RouteWidget"
+
+class "navigation_app::screens::my_routes_screen::widgets::route_widget.dart::_RouteWidgetState" {
+  +TextStyle* textStyle
+  +Widget* build()
+  +Positioned* buildButtons()
+  +Positioned* buildAscentDescent()
+  +Positioned* buildStartAndGoal()
+  +Positioned* buildMap()
+}
+
+"navigation_app::screens::my_routes_screen::widgets::route_widget.dart::_RouteWidgetState" o-- "flutter::src::painting::text_style.dart::TextStyle*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::my_routes_screen::widgets::route_widget.dart::_RouteWidgetState"
+
+class "navigation_app::screens::new_route_screen::new_route_screen.dart::NewRouteScreen" {
+  +_NewRouteScreenController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::new_route_screen::new_route_screen.dart::NewRouteScreen"
+
+class "navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" {
+  -bool* _inputVisible
+  -TextEditingController* _startController
+  -TextEditingController* _goalController
+  -Debouncer* _debouncer
+  -FocusNode* _startFocus
+  -FocusNode* _goalFocus
+  -MapController* _mapController
+  -StatefulMapController* _statefulMapController
+  -NewRoute* _newRoute
+  -List<Map<String*, LatLng*>*>* _history
+  -Position* _currentPosition
+  +Widget* build()
+  -Future<void>* _saveRoute()
+  -Marker* _makeMarker()
+  +void initState()
+  +Future<void>* didChangeDependencies()
+  +void dispose()
+  -void _showHintList()
+  -void _textFieldChanged()
+  -Future<void>* _addPlaceFromTap()
+  -void _removeLast()
+  -Future<void>* _suggestionPicked()
+  -void _pointPicked()
+  -Future<void>* _searchRoute()
+}
+
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "flutter::src::widgets::editable_text.dart::TextEditingController*"
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "navigation_app::resources::utils::debouncer.dart::Debouncer*"
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "flutter::src::widgets::focus_manager.dart::FocusNode*"
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "flutter_map::flutter_map.dart::MapController*"
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "map_controller::src::controller.dart::StatefulMapController*"
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "navigation_app::resources::models::new_route.dart::NewRoute*"
+"navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController" o-- "geolocator_platform_interface::src::models::position.dart::Position*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenController"
+
+class "navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::new_route_screen::new_route_screen.dart::_NewRouteScreenView"
+
+class "navigation_app::screens::new_route_screen::widgets::gpx_import_button.dart::GpxImportButton" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::gpx_import_button.dart::GpxImportButton"
+
+class "navigation_app::screens::new_route_screen::widgets::hide_form_button.dart::HideFormButton" {
+  +void Function()* onTap
+  +Widget* build()
+}
+
+"navigation_app::screens::new_route_screen::widgets::hide_form_button.dart::HideFormButton" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::hide_form_button.dart::HideFormButton"
+
+class "navigation_app::screens::new_route_screen::widgets::input_field.dart::InputField" {
+  -Key* _key
+  -TextEditingController* _textEditingController
+  -FocusNode* _focusNode
+  -Function* _onChanged
+  -String* _label
+  +Widget* build()
+}
+
+"navigation_app::screens::new_route_screen::widgets::input_field.dart::InputField" o-- "flutter::src::foundation::key.dart::Key*"
+"navigation_app::screens::new_route_screen::widgets::input_field.dart::InputField" o-- "flutter::src::widgets::editable_text.dart::TextEditingController*"
+"navigation_app::screens::new_route_screen::widgets::input_field.dart::InputField" o-- "flutter::src::widgets::focus_manager.dart::FocusNode*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::input_field.dart::InputField"
+
+class "navigation_app::screens::new_route_screen::widgets::map.dart::MyMap" {
+  -StatefulMapController* _controller
+  -Function* _onTap
+  -Function* _onLongPress
+  +Widget* build()
+}
+
+"navigation_app::screens::new_route_screen::widgets::map.dart::MyMap" o-- "map_controller::src::controller.dart::StatefulMapController*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::map.dart::MyMap"
+
+class "navigation_app::screens::new_route_screen::widgets::save_route_button.dart::SaveRouteButton" {
+  -void Function()* _onTap
+  +Widget* build()
+}
+
+"navigation_app::screens::new_route_screen::widgets::save_route_button.dart::SaveRouteButton" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::save_route_button.dart::SaveRouteButton"
+
+class "navigation_app::screens::new_route_screen::widgets::search_button.dart::SearchButton" {
+  -void Function()* _onPressed
+  +Widget* build()
+}
+
+"navigation_app::screens::new_route_screen::widgets::search_button.dart::SearchButton" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::search_button.dart::SearchButton"
+
+class "navigation_app::screens::new_route_screen::widgets::search_hints.dart::SearchHints" {
+  -Future<void>* Function(NamedPoint*)* _onTap
+  +Widget* build()
+}
+
+"navigation_app::screens::new_route_screen::widgets::search_hints.dart::SearchHints" o-- "null::Future<void>* Function(NamedPoint*)*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::new_route_screen::widgets::search_hints.dart::SearchHints"
+
+class "navigation_app::screens::settings_screen::settings_screen.dart::SettingsScreen" {
+  +_SettingsScreenController* createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::settings_screen::settings_screen.dart::SettingsScreen"
+
+class "navigation_app::screens::settings_screen::settings_screen.dart::_SettingsScreenController" {
+  -List<Widget*>* _mapStylesList
+  -List<Widget*>* _routeProfileList
+  +Widget* build()
+  +void updateMapStyle()
+  +void updateRouteProfile()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::settings_screen::settings_screen.dart::_SettingsScreenController"
+
+class "navigation_app::screens::settings_screen::settings_screen.dart::_SettingsScreenView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::settings_screen::settings_screen.dart::_SettingsScreenView"
+
+class "navigation_app::screens::settings_screen::widgets::choice_picker.dart::ChoicePicker" {
+  +int* initialIndex
+  +int* length
+  +void Function(int*)* onTap
+  +List<Widget*>* tabs
+  +double* top
+  +double* height
+  +Widget* build()
+}
+
+"navigation_app::screens::settings_screen::widgets::choice_picker.dart::ChoicePicker" o-- "null::void Function(int*)*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::settings_screen::widgets::choice_picker.dart::ChoicePicker"
+
+class "navigation_app::screens::settings_screen::widgets::delete_account.dart::DeleteAccountConfirmation" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::settings_screen::widgets::delete_account.dart::DeleteAccountConfirmation"
+
+class "navigation_app::screens::settings_screen::widgets::map_style_choice.dart::MapStyleChoice" {
+  +String* title
+  +TileLayerOptions* options
+  +_MapStyleChoiceController* createState()
+}
+
+"navigation_app::screens::settings_screen::widgets::map_style_choice.dart::MapStyleChoice" o-- "flutter_map::src::layer::tile_layer.dart::TileLayerOptions*"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::settings_screen::widgets::map_style_choice.dart::MapStyleChoice"
+
+class "navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceController" {
+  -MapController* _mapController
+  -StatefulMapController* _statefulMapController
+  +StreamSubscription<dynamic>* sub
+  -Position* _currentPosition
+  +Widget* build()
+  +void initState()
+  +Future<void>* didChangeDependencies()
+  +void dispose()
+}
+
+"navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceController" o-- "flutter_map::flutter_map.dart::MapController*"
+"navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceController" o-- "map_controller::src::controller.dart::StatefulMapController*"
+"navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceController" o-- "dart::async::StreamSubscription<dynamic>*"
+"navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceController" o-- "geolocator_platform_interface::src::models::position.dart::Position*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceController"
+
+class "navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::settings_screen::widgets::map_style_choice.dart::_MapStyleChoiceView"
+
+class "navigation_app::screens::settings_screen::widgets::route_profile_choice.dart::RouteProfileStyle" {
+  +IconData* icon
+  +String* label
+  +Widget* build()
+}
+
+"navigation_app::screens::settings_screen::widgets::route_profile_choice.dart::RouteProfileStyle" o-- "flutter::src::widgets::icon_data.dart::IconData*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::settings_screen::widgets::route_profile_choice.dart::RouteProfileStyle"
+
+class "navigation_app::screens::use_route_screen::use_route_screen.dart::UseRouteScreen" {
+  +SavedRoute* routeToUse
+  +_UseRouteScreenController* createState()
+}
+
+"navigation_app::screens::use_route_screen::use_route_screen.dart::UseRouteScreen" o-- "navigation_app::resources::models::saved_route.dart::SavedRoute*"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "navigation_app::screens::use_route_screen::use_route_screen.dart::UseRouteScreen"
+
+class "navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenController" {
+  -MapController* _mapController
+  -StatefulMapController* _statefulMapController
+  +ElevationPoint* hoverPoint
+  -bool* _showGraph
+  +double* showGraphButtonOffset
+  +StreamSubscription<dynamic>* locationSubscription
+  +Widget* build()
+  +void showGraph()
+  +void initState()
+  +Future<void>* didChangeDependencies()
+  +void dispose()
+  +Future<void>* startNavigation()
+  +void handleLocationEvent()
+  +bool* onElevationNotification()
+}
+
+"navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenController" o-- "flutter_map::flutter_map.dart::MapController*"
+"navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenController" o-- "map_controller::src::controller.dart::StatefulMapController*"
+"navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenController" o-- "map_elevation::map_elevation.dart::ElevationPoint*"
+"navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenController" o-- "dart::async::StreamSubscription<dynamic>*"
+"flutter::src::widgets::framework.dart::State" <|-- "navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenController"
+
+class "navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenView" {
+  +Widget* build()
+}
+
+"navigation_app::resources::widget_view.dart::WidgetView" <|-- "navigation_app::screens::use_route_screen::use_route_screen.dart::_UseRouteScreenView"
+
+class "navigation_app::screens::use_route_screen::widgets::elevation_graph.dart::ElevationGraph" {
+  +bool* Function(ElevationHoverNotification*)* onNotification
+  +List<ElevationPoint*>* points
+  +Widget* build()
+}
+
+"navigation_app::screens::use_route_screen::widgets::elevation_graph.dart::ElevationGraph" o-- "null::bool* Function(ElevationHoverNotification*)*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::use_route_screen::widgets::elevation_graph.dart::ElevationGraph"
+
+class "navigation_app::screens::use_route_screen::widgets::go_back_button.dart::GoBackButton" {
+  +Widget* build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::use_route_screen::widgets::go_back_button.dart::GoBackButton"
+
+class "navigation_app::screens::use_route_screen::widgets::show_graph.dart::ShowGraphButton" {
+  +double* offset
+  +void Function()* onTap
+  +Widget* build()
+}
+
+"navigation_app::screens::use_route_screen::widgets::show_graph.dart::ShowGraphButton" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::use_route_screen::widgets::show_graph.dart::ShowGraphButton"
+
+class "navigation_app::screens::use_route_screen::widgets::start_navigation.dart::StartNavigationButton" {
+  +double* offset
+  +void Function()* onTap
+  +Widget* build()
+}
+
+"navigation_app::screens::use_route_screen::widgets::start_navigation.dart::StartNavigationButton" o-- "null::void Function()*"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "navigation_app::screens::use_route_screen::widgets::start_navigation.dart::StartNavigationButton"
+
+class "navigation_app::services::auth.dart::AuthService" {
+  -FirebaseAuth* _firebaseAuth
+  -GoogleSignIn* _googleSignIn
+  -User* _user
+  -UserModel* _userModel
+  -AuthStatus* _status
+  -String* _errorCode
+  +T* Function<T>(RootProvider<Object*, T*>*)* read
+  -StreamSubscription<dynamic>* _userListener
+  -StreamSubscription<dynamic>* _userRoutesListener
+  +AuthStatus* status
+  +String* errorCode
+  +UserModel* userModel
+  +Future<bool*>* signIn()
+  +Future<bool*>* signUp()
+  +Future<bool*>* signInWithGoogle()
+  +Future<dynamic>* signOut()
+  +void deleteUser()
+  -Future<void>* _onAuthStateChanged()
+}
+
+"navigation_app::services::auth.dart::AuthService" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth*"
+"navigation_app::services::auth.dart::AuthService" o-- "google_sign_in::google_sign_in.dart::GoogleSignIn*"
+"navigation_app::services::auth.dart::AuthService" o-- "firebase_auth::firebase_auth.dart::User*"
+"navigation_app::services::auth.dart::AuthService" o-- "navigation_app::resources::models::user_model.dart::UserModel*"
+"navigation_app::services::auth.dart::AuthService" o-- "navigation_app::resources::enums.dart::AuthStatus*"
+"navigation_app::services::auth.dart::AuthService" o-- "riverpod::src::framework.dart::T* Function<T>(RootProvider<Object*, T*>*)*"
+"navigation_app::services::auth.dart::AuthService" o-- "dart::async::StreamSubscription<dynamic>*"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "navigation_app::services::auth.dart::AuthService"
+
+class "navigation_app::services::firestore.dart::FirestoreService" {
+  -FirebaseFirestore* _instance
+  +Future<bool*>* saveNewRoute()
+  +Future<bool*>* updateRoute()
+  +void updateMapStyle()
+  +void updateRouteProfile()
+  +UserModel* createUser()
+  +Stream<UserModel*>* streamUserById()
+  +Stream<List<SavedRoute*>*>* streamUserRoutes()
+  +List<SavedRoute*>* loadRoutes()
+  +Future<dynamic>* deleteUser()
+  +void deleteRoute()
+}
+
+"navigation_app::services::firestore.dart::FirestoreService" o-- "cloud_firestore::cloud_firestore.dart::FirebaseFirestore*"
+
+class "navigation_app::services::open_route_service.dart::OpenRouteService" {
+  -Client* _client
+  -List<dynamic>* _suggestions
+  +bool* isLoading
+  +T* Function<T>(RootProvider<Object*, T*>*)* read
+  +List<dynamic>* suggestions
+  +void clearList()
+  +void setIsLoading()
+  +Future<String*>* searchRoute()
+  +Future<void>* getSuggestion()
+  -void _parseSuggestions()
+}
+
+"navigation_app::services::open_route_service.dart::OpenRouteService" o-- "http::src::client.dart::Client*"
+"navigation_app::services::open_route_service.dart::OpenRouteService" o-- "riverpod::src::framework.dart::T* Function<T>(RootProvider<Object*, T*>*)*"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "navigation_app::services::open_route_service.dart::OpenRouteService"
+
+class "navigation_app::services::watch_connection.dart::WatchService" {
+  +String* watchStatus
+  +String* appStartStatus
+  -MethodChannel* _methodChannel
+  -EventChannel* _eventChannel
+  -EventChannel* _messageChannel
+  {static} -String* _methodChannelName
+  {static} -String* _eventChannelName
+  {static} -String* _messageChannelName
+  +List<String*>* availableDevices
+  +Map<String*, dynamic>* routeSteps
+  +Map<String*, dynamic>* routePoints
+  +Map<String*, dynamic>* boundingBox
+  +bool* transferInProgress
+  +Stream<dynamic>* messageChannelSub
+  +void startMessageChannel()
+  +void eventChannelStream()
+  -Future<void>* _handleAppStartup()
+  +void searchForAvailableDevices()
+  +Future<void>* openApp()
+  -Future<void>* _sendMessage()
+  +Future<void>* sendRoute()
+  +void messageChannelStream()
+}
+
+"navigation_app::services::watch_connection.dart::WatchService" o-- "flutter::src::services::platform_channel.dart::MethodChannel*"
+"navigation_app::services::watch_connection.dart::WatchService" o-- "flutter::src::services::platform_channel.dart::EventChannel*"
+"navigation_app::services::watch_connection.dart::WatchService" o-- "dart::async::Stream<dynamic>*"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "navigation_app::services::watch_connection.dart::WatchService"
+
+
+@enduml

@@ -105,10 +105,10 @@ class _SettingsScreenView
             onTap: state.updateMapStyle,
             tabs: state._mapStylesList,
             top: 9.0.h,
-            height: 35.0.h,
+            height: 33.0.h,
           ),
           Positioned(
-            top: 48.0.h,
+            top: 44.0.h,
             left: 5.0.w,
             child: Text(
               "Profil trasy",
@@ -121,12 +121,12 @@ class _SettingsScreenView
             length: 4,
             onTap: state.updateRouteProfile,
             tabs: state._routeProfileList,
-            top: 54.0.h,
-            height: 23.7.h,
+            top: 51.0.h,
+            height: 27.0.h,
           ),
           Positioned(
             width: 99.5.w,
-            top: 46.0.h,
+            top: 43.0.h,
             child: const Divider(
               height: 4,
               thickness: 1,

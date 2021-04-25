@@ -109,8 +109,17 @@ class FirestoreService {
     return list;
   }
 
-  Future deleteUser(String userId) =>
-      _instance.collection('users').doc(userId).delete();
+  Future deleteUser(String userId) async {
+    final routes = await _instance
+        .collection('users')
+        .doc(userId)
+        .collection('routes')
+        .get();
+    routes.docs.forEach((element) {
+      element.reference.delete();
+    });
+    _instance.collection('users').doc(userId).delete();
+  }
 
   void deleteRoute(String userId, String routeId) {
     _instance.collection('users/$userId/routes').doc(routeId).delete();

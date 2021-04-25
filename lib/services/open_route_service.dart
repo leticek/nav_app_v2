@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,11 +49,14 @@ class OpenRouteService with ChangeNotifier {
       'preference': 'recommended'
     };
 
+    log(_body.toString());
+
     try {
       setIsLoading();
       final _apiResponse = await _client.post(_request,
           headers: _header, body: json.encode(_body));
       debugPrint(_apiResponse.statusCode.toString());
+      debugPrint(_apiResponse.reasonPhrase);
       if (_apiResponse.statusCode == 200) {
         return _apiResponse.body;
       }
