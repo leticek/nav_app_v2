@@ -2,23 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:map_controller/map_controller.dart';
 
-import '../../../resources/models/saved_route.dart';
-import '../../../resources/providers.dart';
-import '../../../resources/widget_view.dart';
+import '../../../../resources/models/saved_route.dart';
+import '../../../../resources/widget_view.dart';
 
-class RoutePreview extends StatefulWidget {
+class RoutePreviewOffline extends StatefulWidget {
   @override
   _RoutePreviewController createState() => _RoutePreviewController();
 
   final SavedRoute savedRoute;
 
-  const RoutePreview(this.savedRoute);
+  const RoutePreviewOffline(this.savedRoute);
 }
 
-class _RoutePreviewController extends State<RoutePreview> {
+class _RoutePreviewController extends State<RoutePreviewOffline> {
   @override
   Widget build(BuildContext context) => _RoutePreviewView(this);
 
@@ -48,9 +46,10 @@ class _RoutePreviewController extends State<RoutePreview> {
       statefulMapController.addMarker(
         name: waypoint.toString(),
         marker: Marker(
-            anchorPos: AnchorPos.align(AnchorAlign.center),
-            builder: (context) => const Icon(Icons.pin_drop_outlined),
-            point: waypoint),
+          anchorPos: AnchorPos.align(AnchorAlign.center),
+          builder: (context) => const Icon(Icons.pin_drop_outlined),
+          point: waypoint,
+        ),
       );
     }
     statefulMapController
@@ -64,7 +63,7 @@ class _RoutePreviewController extends State<RoutePreview> {
 }
 
 class _RoutePreviewView
-    extends WidgetView<RoutePreview, _RoutePreviewController> {
+    extends WidgetView<RoutePreviewOffline, _RoutePreviewController> {
   const _RoutePreviewView(_RoutePreviewController state) : super(state);
 
   @override
@@ -76,7 +75,6 @@ class _RoutePreviewView
         interactive: false,
       ),
       layers: [
-        context.read(authServiceProvider).userModel.mapOptions,
         MarkerLayerOptions(markers: [
           Marker(
               builder: (context) => const Icon(Icons.person_pin),

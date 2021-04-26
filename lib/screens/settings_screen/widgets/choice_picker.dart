@@ -33,12 +33,13 @@ class ChoicePicker extends StatelessWidget {
           child: RotatedBox(
             quarterTurns: 1,
             child: TabBar(
-                onTap: onTap,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: Colors.cyan,
-                ),
-                tabs: tabs),
+              onTap: onTap,
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.cyan,
+              ),
+              tabs: tabs,
+            ),
           ),
         ),
       ),

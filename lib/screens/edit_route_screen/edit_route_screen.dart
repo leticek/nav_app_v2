@@ -5,20 +5,21 @@ import 'package:geojson/geojson.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
-import 'package:navigation_app/resources/models/named_point.dart';
-import 'package:navigation_app/resources/models/new_route.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
-import 'package:navigation_app/resources/providers.dart';
-import 'package:navigation_app/resources/utils/debouncer.dart';
-import 'package:navigation_app/resources/widget_view.dart';
-import 'package:navigation_app/screens/edit_route_screen/widgets/leave_dialog.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/input_field.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/map.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/save_route_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/search_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/search_hints.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../resources/models/named_point.dart';
+import '../../resources/models/new_route.dart';
+import '../../resources/models/saved_route.dart';
+import '../../resources/providers.dart';
+import '../../resources/utils/debouncer.dart';
+import '../../resources/widget_view.dart';
+import '../../screens/edit_route_screen/widgets/leave_dialog.dart';
+import '../../screens/new_route_screen/widgets/hide_form_button.dart';
+import '../../screens/new_route_screen/widgets/input_field.dart';
+import '../../screens/new_route_screen/widgets/map.dart';
+import '../../screens/new_route_screen/widgets/save_route_button.dart';
+import '../../screens/new_route_screen/widgets/search_button.dart';
+import '../../screens/new_route_screen/widgets/search_hints.dart';
 
 class EditRouteScreen extends StatefulWidget {
   const EditRouteScreen({Key key, this.routeToEdit}) : super(key: key);
@@ -48,7 +49,6 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint(widget.routeToEdit.toString());
     _debouncer = Debouncer();
     _startController = TextEditingController();
     _goalController = TextEditingController();
@@ -126,7 +126,6 @@ class _EditRouteScreenController extends State<EditRouteScreen> {
   }
 
   Future<void> _suggestionPicked(NamedPoint namedPoint) async {
-    //TODO: fix odebrání z historie po vybrání z našeptávače
     if (_startFocus.hasFocus) {
       _pointPicked(_startController, namedPoint, Icons.person_pin, 'start');
       _newRoute.start = namedPoint;

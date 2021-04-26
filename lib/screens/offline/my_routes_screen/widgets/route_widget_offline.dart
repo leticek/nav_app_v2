@@ -1,43 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:localstore/localstore.dart';
 import 'package:sizer/sizer.dart';
 
-import './delete_dialog.dart';
-import './route_preview.dart';
-import '../../../resources/models/saved_route.dart';
-import '../../../resources/utils/route_builder.dart';
+import './delete_dialog_offline.dart';
+import './route_preview_offline.dart';
+import '../../../../resources/models/saved_route.dart';
+import '../../../../resources/utils/route_builder.dart';
 
-class RouteWidget extends StatefulWidget {
-  const RouteWidget(this.savedRoute);
+class RouteWidgetOffline extends StatefulWidget {
+  const RouteWidgetOffline(this.savedRoute, UniqueKey key) : super(key: key);
 
   final SavedRoute savedRoute;
 
   @override
-  _RouteWidgetState createState() => _RouteWidgetState();
+  _RouteWidgetOfflineState createState() => _RouteWidgetOfflineState();
 }
 
-class _RouteWidgetState extends State<RouteWidget> {
+class _RouteWidgetOfflineState extends State<RouteWidgetOffline> {
   final textStyle = TextStyle(
     fontSize: 11.0.sp,
     fontWeight: FontWeight.w600,
   );
 
-  Future _saveRoute() async {
-    final db = Localstore.instance;
-    await db
-        .collection('routes')
-        .doc(widget.savedRoute.id)
-        .set(widget.savedRoute.toLocalstoreMap());
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Trasa byla uložena do zařízení.'),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
-      key: UniqueKey(),
       children: [
         Container(
           decoration: const BoxDecoration(
@@ -66,32 +53,20 @@ class _RouteWidgetState extends State<RouteWidget> {
           OutlinedButton(
             style: OutlinedButton.styleFrom(
                 primary: Colors.black, backgroundColor: Colors.white),
-            onPressed: () async {
-              await Navigator.pushNamed(context, AppRoutes.editRoute,
-                  arguments: widget.savedRoute);
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return DeleteConfirmationOffline(widget.savedRoute);
+                },
+              );
             },
-            child: const Text('Upravit'),
-          ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-                primary: Colors.black, backgroundColor: Colors.white),
-            onPressed: _saveRoute,
-            child: const Text('Uložit'),
-          ),
-          OutlinedButton(
-            style: OutlinedButton.styleFrom(
-                primary: Colors.black, backgroundColor: Colors.white),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (context) {
-                return DeleteConfirmation(widget.savedRoute);
-              },
-            ),
             child: const Text('Smazat'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(primary: Colors.black),
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.useRoute,
+            onPressed: () => Navigator.pushNamed(
+                context, AppRoutes.useRouteOffline,
                 arguments: widget.savedRoute),
             child: const Text('Navigovat'),
           )
@@ -172,13 +147,14 @@ class _RouteWidgetState extends State<RouteWidget> {
       right: 3.2.w,
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.grey,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(width: 1.5),
         ),
         height: 19.0.h,
         child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: RoutePreview(widget.savedRoute)),
+            child: RoutePreviewOffline(widget.savedRoute)),
       ),
     );
   }

@@ -1,7 +1,8 @@
 import 'package:geojson/geojson.dart';
 import 'package:latlong/latlong.dart';
-import 'package:navigation_app/resources/models/named_point.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
+
+import './named_point.dart';
+import 'saved_route.dart';
 
 class NewRoute {
   NewRoute();

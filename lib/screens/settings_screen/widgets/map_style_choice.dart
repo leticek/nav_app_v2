@@ -5,8 +5,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
-import 'package:navigation_app/resources/widget_view.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../../resources/widget_view.dart';
 
 class MapStyleChoice extends StatefulWidget {
   final String title;

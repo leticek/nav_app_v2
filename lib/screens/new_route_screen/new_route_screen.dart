@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -11,20 +10,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gpx/gpx.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
-import 'package:navigation_app/resources/models/named_point.dart';
-import 'package:navigation_app/resources/models/new_route.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
-import 'package:navigation_app/resources/providers.dart';
-import 'package:navigation_app/resources/utils/debouncer.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/gpx_import_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/hide_form_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/input_field.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/map.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/save_route_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/search_button.dart';
-import 'package:navigation_app/screens/new_route_screen/widgets/search_hints.dart';
 import 'package:sizer/sizer.dart';
 
+import './widgets/gpx_import_button.dart';
+import './widgets/hide_form_button.dart';
+import './widgets/input_field.dart';
+import './widgets/map.dart';
+import './widgets/save_route_button.dart';
+import './widgets/search_button.dart';
+import './widgets/search_hints.dart';
+import '../../resources/models/named_point.dart';
+import '../../resources/models/new_route.dart';
+import '../../resources/models/saved_route.dart';
+import '../../resources/providers.dart';
+import '../../resources/utils/debouncer.dart';
 import '../../resources/widget_view.dart';
 
 class NewRouteScreen extends StatefulWidget {
@@ -242,7 +241,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     }
   }
 
-  void loadGpx() async {
+  Future loadGpx() async {
     final pickedFile =
         await FilePicker.platform.pickFiles(allowMultiple: false);
     if (pickedFile == null) {
@@ -258,8 +257,8 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
     final parsedGpx = GpxReader().fromString(gpxFile.readAsStringSync());
 
     if (parsedGpx.trks.isNotEmpty) {
-      Wpt start = parsedGpx.trks.first.trksegs.first.trkpts.first;
-      Wpt end = parsedGpx.trks.first.trksegs.last.trkpts.last;
+      final start = parsedGpx.trks.first.trksegs.first.trkpts.first;
+      final end = parsedGpx.trks.first.trksegs.last.trkpts.last;
 
       _pointPicked(
           _startController,
@@ -275,12 +274,13 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
       _newRoute.start = NamedPoint.fromPoint(LatLng(start.lat, start.lon));
       _newRoute.goal = NamedPoint.fromPoint(LatLng(end.lat, end.lon));
 
-      List<dynamic> points = parsedGpx.trks.first.trksegs.first.trkpts.map((e) => [e.lon, e.lat]).toList();
+      final points = parsedGpx.trks.first.trksegs.first.trkpts
+          .map((e) => [e.lon, e.lat])
+          .toList();
       points.length <= 50 ? _searchRoute(points: points) : _searchRoute();
-
     } else {
-      Wpt start = parsedGpx.wpts.first;
-      Wpt end = parsedGpx.wpts.last;
+      final start = parsedGpx.wpts.first;
+      final end = parsedGpx.wpts.last;
       _pointPicked(
           _startController,
           NamedPoint.fromPoint(LatLng(start.lat, start.lon)),
@@ -293,7 +293,7 @@ class _NewRouteScreenController extends State<NewRouteScreen> {
           'goal');
       _newRoute.start = NamedPoint.fromPoint(LatLng(start.lat, start.lon));
       _newRoute.goal = NamedPoint.fromPoint(LatLng(end.lat, end.lon));
-      List<dynamic> points = parsedGpx.wpts.map((e) => [e.lon, e.lat]).toList();
+      final points = parsedGpx.wpts.map((e) => [e.lon, e.lat]).toList();
       points.length <= 50 ? _searchRoute(points: points) : _searchRoute();
     }
   }

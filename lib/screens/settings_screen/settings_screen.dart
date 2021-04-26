@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:navigation_app/resources/providers.dart';
-import 'package:navigation_app/resources/widget_view.dart';
-import 'package:navigation_app/screens/settings_screen/widgets/choice_picker.dart';
-import 'package:navigation_app/screens/settings_screen/widgets/delete_account.dart';
-import 'package:navigation_app/screens/settings_screen/widgets/map_style_choice.dart';
-import 'package:navigation_app/screens/settings_screen/widgets/route_profile_choice.dart';
 import 'package:sizer/sizer.dart';
+
+import './widgets/choice_picker.dart';
+import './widgets/delete_account.dart';
+import './widgets/map_style_choice.dart';
+import './widgets/route_profile_choice.dart';
+import '../../resources/providers.dart';
+import '../../resources/widget_view.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -151,16 +152,8 @@ class _SettingsScreenView
             height: 10.0.h,
             top: 79.5.h,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(width: 5.0.w),
-                OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                      primary: Colors.black, backgroundColor: Colors.white),
-                  child: const Text('Vytvořit offline účet'),
-                ),
-                SizedBox(width: 5.0.w),
                 ElevatedButton(
                   onPressed: () => showDialog(
                     context: context,
@@ -169,7 +162,6 @@ class _SettingsScreenView
                   style: ElevatedButton.styleFrom(primary: Colors.black),
                   child: const Text('Smazat účet'),
                 ),
-                SizedBox(width: 5.0.w)
               ],
             ),
           ),

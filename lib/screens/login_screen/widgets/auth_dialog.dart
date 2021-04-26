@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:navigation_app/screens/login_screen/widgets/login.dart';
-import 'package:navigation_app/screens/login_screen/widgets/register.dart';
 
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
-
+import './login.dart';
+import './register.dart';
+import '../../../resources/enums.dart';
 import '../../../resources/widget_view.dart';
 
 class AuthDialog extends StatefulWidget {

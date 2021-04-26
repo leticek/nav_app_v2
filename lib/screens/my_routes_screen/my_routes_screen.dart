@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/resources/providers.dart';
-import 'package:navigation_app/resources/utils/route_builder.dart';
-import 'package:navigation_app/resources/widget_view.dart';
-import 'package:navigation_app/screens/my_routes_screen/widgets/route_widget.dart';
 import 'package:sizer/sizer.dart';
+
+import './widgets/route_widget.dart';
+import '../../resources/providers.dart';
+import '../../resources/utils/route_builder.dart';
+import '../../resources/widget_view.dart';
 
 class MyRoutesScreen extends StatefulWidget {
   @override

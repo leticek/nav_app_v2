@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/resources/providers.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../../resources/providers.dart';
 
 class StartNavigationButton extends StatelessWidget {
   final double offset;
@@ -25,7 +26,9 @@ class StartNavigationButton extends StatelessWidget {
                 )
               : Container(
                   decoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.black),
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                  ),
                   child: IconButton(
                     icon: const Icon(Icons.play_arrow_sharp),
                     color: Colors.white,

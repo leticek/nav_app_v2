@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
-
+import '../../../resources/enums.dart';
+import '../../../resources/providers.dart';
 import '../../../resources/widget_view.dart';
 
 class LoginForm extends StatefulWidget {

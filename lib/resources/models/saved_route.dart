@@ -5,8 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_elevation/map_elevation.dart';
-import 'package:navigation_app/resources/models/named_point.dart';
-import 'package:navigation_app/resources/models/route_step.dart';
+
+import 'named_point.dart';
+import 'route_step.dart';
 
 class SavedRoute {
   String id;
@@ -89,8 +90,10 @@ class SavedRoute {
   }
 
   SavedRoute.fromMap(Map<String, dynamic> route, this.id) {
-    start = NamedPoint.fromMap(point: route['start'] as Map<String, dynamic>);
-    goal = NamedPoint.fromMap(point: route['goal'] as Map<String, dynamic>);
+    start = NamedPoint.fromFirestoreMap(
+        point: route['start'] as Map<String, dynamic>);
+    goal = NamedPoint.fromFirestoreMap(
+        point: route['goal'] as Map<String, dynamic>);
     ascent = route['ascent'] as double;
     descent = route['descent'] as double;
     length = route['length'] as double;
@@ -128,10 +131,52 @@ class SavedRoute {
     ];
   }
 
-  Map<String, dynamic> toMap() {
+  SavedRoute.fromLocalstoreMap(Map<String, dynamic> route) {
+    id = route['id'] as String;
+    start = NamedPoint.fromLocalstoreMap(
+        point: route['start'] as Map<String, dynamic>);
+    goal = NamedPoint.fromLocalstoreMap(
+        point: route['goal'] as Map<String, dynamic>);
+    ascent = route['ascent'] as double;
+    descent = route['descent'] as double;
+    length = route['length'] as double;
+    messageBoundingBox = List<double>.from(route['boundingBox'] as List);
+    routeGeoJsonString = route['geojson'] as String;
+    history = <Map<String, LatLng>>[
+      ...route['history']
+          .map((e) => e
+              .map(
+                (String key, value) => MapEntry(
+                  key,
+                  LatLng(value[0] as double, value[1] as double),
+                ),
+              )
+              .cast<String, LatLng>())
+          .toList()
+    ];
+    latLngRoutePoints = <ElevationPoint>[
+      ...route['line']
+          .map((elevationPoint) => ElevationPoint(
+                elevationPoint['latitude'] as double,
+                elevationPoint['longitude'] as double,
+                elevationPoint['altitude'] as double,
+              ))
+          .toList()
+    ];
+    routeSteps = <RouteStep>[
+      ...route['routeSteps'].map((e) => RouteStep.fromMap(e as Map)).toList()
+    ];
+    waypoints = <LatLng>[
+      ...route['waypoints']
+          .map((point) => LatLng(point[0] as double, point[1] as double))
+          .toList()
+    ];
+  }
+
+  Map<String, dynamic> toFirestoreMap() {
     return {
-      'start': start.toMap(),
-      'goal': goal.toMap(),
+      'start': start.toFirestoreMap(),
+      'goal': goal.toFirestoreMap(),
       'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
       'boundingBox': messageBoundingBox,
       'line': latLngRoutePoints
@@ -149,6 +194,36 @@ class SavedRoute {
           .map((e) => e.map(
                 (key, value) =>
                     MapEntry(key, GeoPoint(value.latitude, value.longitude)),
+              ))
+          .toList(),
+      'geojson': routeGeoJsonString,
+      'ascent': ascent,
+      'descent': descent,
+      'length': double.parse(length.toStringAsFixed(2)),
+    };
+  }
+
+  Map<String, dynamic> toLocalstoreMap() {
+    return {
+      'id': id,
+      'start': start.toLocalstoreMap(),
+      'goal': goal.toLocalstoreMap(),
+      'routeSteps': routeSteps.map((e) => e.toMap()).toList(),
+      'boundingBox': messageBoundingBox,
+      'line': latLngRoutePoints
+          .map<Map<String, double>>((elevationPoint) => {
+                'latitude': elevationPoint.latitude,
+                'longitude': elevationPoint.longitude,
+                'altitude': elevationPoint.altitude,
+              })
+          .toList(),
+      'waypoints': waypoints
+          .map<List<double>>((latLng) => [latLng.latitude, latLng.longitude])
+          .toList(),
+      'history': history
+          .map((e) => e.map(
+                (key, value) =>
+                    MapEntry(key, [value.latitude, value.longitude]),
               ))
           .toList(),
       'geojson': routeGeoJsonString,

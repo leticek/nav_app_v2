@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:localstore/localstore.dart';
 
-import '../../../resources/models/saved_route.dart';
-import '../../../resources/providers.dart';
+import '../../../../resources/models/saved_route.dart';
+import '../../../../resources/utils/route_builder.dart';
 
-class DeleteConfirmation extends StatelessWidget {
-  const DeleteConfirmation(this.route);
+class DeleteConfirmationOffline extends StatelessWidget {
+  const DeleteConfirmationOffline(this.route);
 
   final SavedRoute route;
 
@@ -23,13 +23,14 @@ class DeleteConfirmation extends StatelessWidget {
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(primary: Colors.black),
-          onPressed: () {
-            context.read(firestoreProvider).deleteRoute(
-                context.read(authServiceProvider).userModel.userId, route.id);
+          onPressed: () async {
+            final db = Localstore.instance;
+            await db.collection('routes').doc(route.id).delete();
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Trasa byla smazána.'),
+              content: Text('Trasa byla odebrána z lokálního uložiště.'),
             ));
-            Navigator.of(context).pop();
+            Navigator.pop(context);
+            Navigator.of(context).popAndPushNamed(AppRoutes.myRoutesOffline);
           },
           child: const Text('Smazat'),
         )

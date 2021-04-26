@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:navigation_app/screens/login_screen/widgets/auth_dialog.dart';
 import 'package:sizer/sizer.dart';
 
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/enums.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/providers.dart';
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/widget_view.dart';
+import '../../resources/enums.dart';
+import '../../resources/providers.dart';
+import '../../resources/utils/route_builder.dart';
+import '../../resources/widget_view.dart';
+import '../login_screen/widgets/auth_dialog.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -100,9 +101,8 @@ class _LoginView extends WidgetView<Login, _LoginController> {
                       Expanded(
                         child: OutlinedButton(
                           style: OutlinedButton.styleFrom(
-                            primary: Colors.black,
-                            backgroundColor: Colors.white
-                          ),
+                              primary: Colors.black,
+                              backgroundColor: Colors.white),
                           onPressed: state._register,
                           child: const Text('Nemám účet'),
                           //borderSide: BorderSide(color: Colors.white),
@@ -116,6 +116,19 @@ class _LoginView extends WidgetView<Login, _LoginController> {
                   text: 'Použít účet Google',
                   onPressed: state._loginWithGoogle,
                 ),
+                if (!state._authVisible)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: MaterialButton(
+                      onPressed: () => Navigator.pushNamed(
+                          context, AppRoutes.myRoutesOffline),
+                      child: Text(
+                        'Pokračovat offline',
+                        style:
+                            TextStyle(color: Colors.white, fontSize: 12.0.sp),
+                      ),
+                    ),
+                  )
               ],
             ),
             AnimatedSwitcher(

@@ -19,9 +19,10 @@ class ElevationGraph extends StatelessWidget {
         points,
         color: Colors.blue.withOpacity(0.85),
         elevationGradientColors: ElevationGradientColors(
-            gt10: Colors.green,
-            gt20: Colors.orangeAccent,
-            gt30: Colors.redAccent),
+          gt10: Colors.green,
+          gt20: Colors.orangeAccent,
+          gt30: Colors.redAccent,
+        ),
       ),
     );
   }

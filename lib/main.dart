@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/route_builder.dart';
-
-import 'screens/login_screen/home.dart';
+import './resources/utils/route_builder.dart';
+import './screens/login_screen/home.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

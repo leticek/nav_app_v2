@@ -9,24 +9,24 @@ import 'package:map_elevation/map_elevation.dart';
 import 'package:simplify_dart/simplify_dart.dart';
 import 'package:sizer/sizer.dart';
 
-import './widgets/elevation_graph.dart';
-import './widgets/go_back_button.dart';
-import './widgets/show_graph.dart';
-import './widgets/start_navigation.dart';
-import '../../resources/models/point.dart';
-import '../../resources/models/saved_route.dart';
-import '../../resources/providers.dart';
-import '../../resources/widget_view.dart';
+import '../../../resources/models/point.dart';
+import '../../../resources/models/saved_route.dart';
+import '../../../resources/providers.dart';
+import '../../../resources/widget_view.dart';
+import '../../use_route_screen/widgets/elevation_graph.dart';
+import '../../use_route_screen/widgets/go_back_button.dart';
+import '../../use_route_screen/widgets/show_graph.dart';
+import '../../use_route_screen/widgets/start_navigation.dart';
 
-class UseRouteScreen extends StatefulWidget {
-  const UseRouteScreen({Key key, this.routeToUse}) : super(key: key);
+class UseRouteScreenOffline extends StatefulWidget {
+  const UseRouteScreenOffline({Key key, this.routeToUse}) : super(key: key);
 
   @override
   _UseRouteScreenController createState() => _UseRouteScreenController();
   final SavedRoute routeToUse;
 }
 
-class _UseRouteScreenController extends State<UseRouteScreen> {
+class _UseRouteScreenController extends State<UseRouteScreenOffline> {
   @override
   Widget build(BuildContext context) => _UseRouteScreenView(this);
 
@@ -162,7 +162,7 @@ class _UseRouteScreenController extends State<UseRouteScreen> {
 }
 
 class _UseRouteScreenView
-    extends WidgetView<UseRouteScreen, _UseRouteScreenController> {
+    extends WidgetView<UseRouteScreenOffline, _UseRouteScreenController> {
   const _UseRouteScreenView(_UseRouteScreenController state) : super(state);
 
   @override
@@ -179,7 +179,6 @@ class _UseRouteScreenView
                 center: LatLng(49.761752, 15.427551),
               ),
               layers: [
-                context.read(authServiceProvider).userModel.mapOptions,
                 MarkerLayerOptions(markers: [
                   if (state.hoverPoint is LatLng)
                     Marker(
@@ -188,41 +187,35 @@ class _UseRouteScreenView
                       height: 10,
                       builder: (BuildContext context) => Container(
                         decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ...state._statefulMapController.markers
                 ]),
                 PolylineLayerOptions(
-                  polylines: state._statefulMapController.lines,
-                )
+                    polylines: state._statefulMapController.lines)
               ],
             ),
             GoBackButton(),
             StartNavigationButton(
-              onTap: state.startNavigation,
-              offset: state.showGraphButtonOffset,
-            ),
+                onTap: state.startNavigation,
+                offset: state.showGraphButtonOffset),
             ShowGraphButton(
-              onTap: state.showGraph,
-              offset: state.showGraphButtonOffset,
-            ),
+                onTap: state.showGraph, offset: state.showGraphButtonOffset),
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               height: 140,
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 500),
-                child: state._showGraph
-                    ? ElevationGraph(
-                        onNotification: state.onElevationNotification,
-                        points: state.widget.routeToUse.latLngRoutePoints,
-                      )
-                    : null,
-              ),
+                  duration: const Duration(milliseconds: 500),
+                  child: state._showGraph
+                      ? ElevationGraph(
+                          onNotification: state.onElevationNotification,
+                          points: state.widget.routeToUse.latLngRoutePoints,
+                        )
+                      : null),
             )
           ],
         ),

@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong/latlong.dart';
-import 'package:navigation_app/resources/models/named_point.dart';
-import 'package:navigation_app/resources/providers.dart';
 
 import '../resources/api_keys.dart';
 import '../resources/constants.dart';
+import '../resources/models/named_point.dart';
+import '../resources/providers.dart';
 
 class OpenRouteService with ChangeNotifier {
   http.Client _client;
@@ -49,14 +49,10 @@ class OpenRouteService with ChangeNotifier {
       'preference': 'recommended'
     };
 
-    log(_body.toString());
-
     try {
       setIsLoading();
       final _apiResponse = await _client.post(_request,
           headers: _header, body: json.encode(_body));
-      debugPrint(_apiResponse.statusCode.toString());
-      debugPrint(_apiResponse.reasonPhrase);
       if (_apiResponse.statusCode == 200) {
         return _apiResponse.body;
       }

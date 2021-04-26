@@ -4,12 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:navigation_app/resources/enums.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
-import 'package:navigation_app/resources/models/user_model.dart';
-import 'package:navigation_app/resources/providers.dart';
 
-import 'file:///C:/Users/smiea/IdeaProjects/nav_app_v2/lib/resources/utils/validator.dart';
+import '../resources/enums.dart';
+import '../resources/models/saved_route.dart';
+import '../resources/models/user_model.dart';
+import '../resources/providers.dart';
+import '../resources/utils/validator.dart';
 
 class AuthService with ChangeNotifier {
   FirebaseAuth _firebaseAuth;
@@ -110,7 +110,7 @@ class AuthService with ChangeNotifier {
       read(firestoreProvider).deleteUser(_firebaseAuth.currentUser.uid);
       _firebaseAuth.currentUser.delete();
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

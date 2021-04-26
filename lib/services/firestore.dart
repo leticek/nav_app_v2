@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
-import 'package:navigation_app/resources/models/user_model.dart';
+
+import '../resources/models/saved_route.dart';
+import '../resources/models/user_model.dart';
 
 class FirestoreService {
   FirebaseFirestore _instance;
@@ -20,7 +21,7 @@ class FirestoreService {
     try {
       final _collection =
           _instance.collection('users').doc(userId).collection('routes');
-      await _collection.add(route.toMap());
+      await _collection.add(route.toFirestoreMap());
       return true;
     } catch (e) {
       debugPrint(e.toString());
@@ -33,7 +34,7 @@ class FirestoreService {
       _instance
           .collection('users/$userId/routes')
           .doc(route.id)
-          .set(route.toMap());
+          .set(route.toFirestoreMap());
       return true;
     } catch (e) {
       debugPrint(e.toString());

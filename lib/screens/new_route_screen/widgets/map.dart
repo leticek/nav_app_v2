@@ -3,7 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong/latlong.dart';
 import 'package:map_controller/map_controller.dart';
-import 'package:navigation_app/resources/providers.dart';
+
+import '../../../resources/providers.dart';
 
 class MyMap extends StatelessWidget {
   const MyMap(

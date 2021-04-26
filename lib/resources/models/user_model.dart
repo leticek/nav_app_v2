@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:navigation_app/resources/models/saved_route.dart';
+
+import 'saved_route.dart';
 
 class UserModel with ChangeNotifier {
   String userId;
@@ -79,8 +80,8 @@ class UserModel with ChangeNotifier {
       'userId': userId,
       'email': email,
       'firstLogin': DateTime.now(),
-      'mapStyle': mapStyle??= 0,
-      'routeProfile': routeProfileId??= 0,
+      'mapStyle': mapStyle ??= 0,
+      'routeProfile': routeProfileId ??= 0,
     };
   }
 

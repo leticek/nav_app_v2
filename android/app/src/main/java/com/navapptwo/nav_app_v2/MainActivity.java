@@ -276,7 +276,7 @@ public class MainActivity extends FlutterActivity {
                 System.out.println(response);
                 eventChannelSink.success(response);
                 try {
-                    if (!connectIQInstance.getConnectedDevices().isEmpty() && CONNECTION_TYPE == ConnectIQ.IQConnectType.WIRELESS) {
+                    if (!connectIQInstance.getConnectedDevices().isEmpty()) {
                         setDevice(connectIQInstance.getConnectedDevices().get(0));
                     }
                 } catch (InvalidStateException e) {
